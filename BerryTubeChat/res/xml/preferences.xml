@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <EditTextPreference 
+        android:key="scrollback"
+        android:title="Scrollback size"
+        android:summary="foo bar baz"
+        android:dialogTitle="Scrollback size"
+        android:defaultValue="100" />
+    
+
+</PreferenceScreen>

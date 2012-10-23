@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView 
+        android:id="@+id/text_drinks"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:layout_alignParentTop="true"
+        android:gravity="center_horizontal"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:visibility="gone"
+        android:background="@drawable/text_border_top_bottom"
+        android:textAppearance="?android:attr/textAppearanceLarge" />    
+        <!-- android:textAppearance="?android:attr/textAppearanceMedium" -->
+    
+    <ListView
+        android:id="@+id/list_chat"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/bar_input"
+        android:layout_below="@+id/text_drinks"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll" />
+
+    <RelativeLayout
+        android:id="@+id/bar_input"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+
+        <TextView
+            android:id="@+id/text_nick"
+            android:layout_width="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_height="0dp"
+            android:layout_alignBottom="@+id/edit_chat_msg"
+            android:layout_alignTop="@+id/edit_chat_msg"
+            android:layout_marginRight="5dp"
+            android:gravity="center_vertical" />
+
+        <EditText
+            android:id="@+id/edit_chat_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/text_nick"
+            android:hint="@string/edit_chat_msg"
+            android:singleLine="true"
+            android:enabled="false"
+            android:imeOptions="actionSend" />
+        
+    </RelativeLayout>
+
+</RelativeLayout>
