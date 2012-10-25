@@ -2,11 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <EditTextPreference 
-        android:key="scrollback"
-        android:title="Scrollback size"
-        android:summary="foo bar baz"
+        android:key="com.trellmor.BerryTubeChat.settings.scrollback"
+        android:title="@string/pref_scrollback_title"
+        android:summary="@string/pref_scrollback_summary"
         android:dialogTitle="Scrollback size"
-        android:defaultValue="100" />
+        android:defaultValue="100"
+        android:numeric="integer" />
     
+    <CheckBoxPreference
+        android:key="show_drinks"
+        android:title="@string/pref_show_drinks_title"
+        android:defaultValue="true" />
 
 </PreferenceScreen>

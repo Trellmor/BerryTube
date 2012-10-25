@@ -12,10 +12,10 @@ import com.trellmor.BerryTube.ChatUser;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,7 +48,8 @@ public class ChatActivity extends Activity {
 	private String Nick = "";
 	private int scrollback = 100;
 	private int drinkCount = 0;
-	private int myDrinkCount = 0;	
+	private int myDrinkCount = 0;
+	private boolean showDrinkCount = true;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -116,9 +117,7 @@ public class ChatActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 
-		SharedPreferences settings = getSharedPreferences(
-				MainActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
-		scrollback = settings.getInt(MainActivity.KEY_SCROLLBACK, 100);
+		loadPreferences();
 
 		try {
 			socket = new BerryTube(Username, Password);
@@ -167,6 +166,23 @@ public class ChatActivity extends Activity {
 		}
 	}
 
+	private void loadPreferences() {
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(getBaseContext());
+		try {
+			scrollback = Integer.parseInt(settings.getString(
+					MainActivity.KEY_SCROLLBACK, "100"));
+		} catch (NumberFormatException e) {
+			scrollback = 100;
+		}
+
+		if (scrollback <= 0)
+			scrollback = 100;
+
+		showDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
+		updateDrinkCount();
+	}
+
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -179,7 +195,7 @@ public class ChatActivity extends Activity {
 			socket = null;
 		}
 	}
-	
+
 	private void sendChatMsg() {
 		String textmsg = editChatMsg.getText().toString();
 		if (socket.isConnected() && Nick != "" && textmsg != "") {
@@ -187,31 +203,42 @@ public class ChatActivity extends Activity {
 			editChatMsg.setText("");
 		}
 	}
-	
+
 	private void updateDrinkCount() {
+		if (!showDrinkCount) {
+			setTextDrinksVisible(false);
+			return;
+		}
+
 		if (drinkCount > 0) {
-			if (textDrinks.getVisibility() != View.VISIBLE)
-				textDrinks.setVisibility(View.VISIBLE);
-			
-			textDrinks.setText(Integer.toString(myDrinkCount) + "/" + Integer.toString(drinkCount) + " drinks");
+			setTextDrinksVisible(false);
+
+			textDrinks.setText(Integer.toString(myDrinkCount) + "/"
+					+ Integer.toString(drinkCount) + " drinks");
 		} else {
-			textDrinks.setVisibility(View.GONE);
+			setTextDrinksVisible(false);
 			myDrinkCount = 0;
 		}
 	}
-	
+
 	public void drink(View view) {
 		if (myDrinkCount < drinkCount) {
 			myDrinkCount++;
 			updateDrinkCount();
 		}
 	}
-	
+
+	private void setTextDrinksVisible(boolean Visible) {
+		int visibility = (Visible) ? View.VISIBLE : View.GONE;
+
+		if (textDrinks != null && textDrinks.getVisibility() != visibility)
+			textDrinks.setVisibility(visibility);
+	}
+
 	private void selectUser() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.select_user);
-		
-		
+
 		ArrayList<ChatUser> userList = new ArrayList<ChatUser>();
 		for (ChatUser chatUser : this.userList) {
 			userList.add(chatUser.clone());
@@ -227,29 +254,31 @@ public class ChatActivity extends Activity {
 				} else {
 					return +1;
 				}
-					
+
 			}
 		});
-		
+
 		final ArrayList<String> userNicks = new ArrayList<String>();
 		for (ChatUser chatUser : userList) {
 			userNicks.add(chatUser.getNick());
 		}
-		
-		builder.setItems(userNicks.toArray(new String[userList.size()]), new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				String nick = userNicks.get(which);
-				int start = editChatMsg.getSelectionStart();
-				int end = editChatMsg.getSelectionEnd();
-				
-				editChatMsg.getText().replace(Math.min(start, end), Math.max(start, end), nick, 0, nick.length());
-				
-				dialog.dismiss();
-			}
-		});
-		
+
+		builder.setItems(userNicks.toArray(new String[userList.size()]),
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String nick = userNicks.get(which);
+						int start = editChatMsg.getSelectionStart();
+						int end = editChatMsg.getSelectionEnd();
+
+						editChatMsg.getText().replace(Math.min(start, end),
+								Math.max(start, end), nick, 0, nick.length());
+
+						dialog.dismiss();
+					}
+				});
+
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
