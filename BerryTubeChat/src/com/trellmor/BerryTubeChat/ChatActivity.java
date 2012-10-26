@@ -285,7 +285,7 @@ public class ChatActivity extends Activity {
 			if (myDrinkCount > drinkCount)
 				myDrinkCount = 0;
 
-			setTextDrinksVisible(false);
+			setTextDrinksVisible(true);
 
 			textDrinks.setText(Integer.toString(myDrinkCount) + "/"
 					+ Integer.toString(drinkCount) + " drinks");
