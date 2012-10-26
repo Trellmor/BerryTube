@@ -41,7 +41,13 @@ public class ChatMessage {
 		return flair;
 	}
 
-	public ChatMessage(String nick, String msg, int emote, int flair) {
+	private int multi;
+
+	public int getMulti() {
+		return multi;
+	}
+
+	public ChatMessage(String nick, String msg, int emote, int flair, int multi) {
 		this.nick = nick;
 		this.msg = msg;
 		this.emote = emote;
@@ -51,6 +57,7 @@ public class ChatMessage {
 	public ChatMessage(JSONObject message) throws JSONException {
 		nick = message.getString("nick");
 		msg = message.getString("msg");
+		multi = message.getInt("multi");
 
 		// check emote
 		if (message.has("emote") && message.get("emote") instanceof String) {

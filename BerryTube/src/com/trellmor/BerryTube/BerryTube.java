@@ -125,6 +125,8 @@ public class BerryTube {
 
 	class ConnectTask implements Runnable {
 		public void run() {
+			if (socket == null) return;
+			
 			socket.emit("chatOnly");
 
 			try {

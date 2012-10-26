@@ -1,27 +1,34 @@
 package com.trellmor.BerryTubeChat;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.view.MenuItem;
 
+@SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 	private EditTextPreference prefScrollback;
 
-	@SuppressWarnings("deprecation")
+	
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		addPreferencesFromResource(R.xml.preferences);
 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+		}		
+		
 		prefScrollback = (EditTextPreference) findPreference(MainActivity.KEY_SCROLLBACK);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -30,7 +37,6 @@ public class SettingsActivity extends PreferenceActivity implements
 				.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -40,6 +46,17 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		onSharedPreferenceChanged(null, MainActivity.KEY_SCROLLBACK);
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}	
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {

@@ -26,14 +26,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class ChatActivity extends Activity {
 
-	private ArrayAdapter<ChatMessage> chatAdapter = null;
+	private ChatMessageAdapter chatAdapter = null;
 	private ArrayList<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
 	private ListView listChat;
 	private TextView textNick;
@@ -78,7 +77,7 @@ public class ChatActivity extends Activity {
 		textNick.setText("Anonymous");
 
 		listChat = (ListView) findViewById(R.id.list_chat);
-		chatAdapter = new ArrayAdapter<ChatMessage>(this, R.layout.chat_item,
+		chatAdapter = new ChatMessageAdapter(this, R.layout.chat_item,
 				chatMessages);
 		listChat.setAdapter(chatAdapter);
 
@@ -86,33 +85,7 @@ public class ChatActivity extends Activity {
 		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
 		Password = intent.getStringExtra(MainActivity.KEY_PASSWORD);
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_chat, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = null;
-
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		case R.id.menu_settings:
-			intent = new Intent(this, SettingsActivity.class);
-			startActivity(intent);
-			return true;
-		case R.id.menu_users:
-			selectUser();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
+	
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -166,6 +139,45 @@ public class ChatActivity extends Activity {
 		}
 	}
 
+	@Override
+	public void onStop() {
+		super.onStop();
+
+		// Stop socket.io connection
+		if (socket != null) {
+			if (socket.isConnected())
+				socket.disconnect();
+
+			socket = null;
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity_chat, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
+
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		case R.id.menu_settings:
+			intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		case R.id.menu_users:
+			selectUser();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	private void loadPreferences() {
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
@@ -181,20 +193,7 @@ public class ChatActivity extends Activity {
 
 		showDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		updateDrinkCount();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-
-		// Stop socket.io connection
-		if (socket != null) {
-			if (socket.isConnected())
-				socket.disconnect();
-
-			socket = null;
-		}
-	}
+	}	
 
 	private void sendChatMsg() {
 		String textmsg = editChatMsg.getText().toString();
