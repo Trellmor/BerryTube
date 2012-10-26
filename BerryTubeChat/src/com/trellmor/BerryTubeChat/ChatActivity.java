@@ -6,18 +6,22 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import com.trellmor.BerryTube.BerryTube;
+import com.trellmor.BerryTube.BerryTubeBinder;
 import com.trellmor.BerryTube.BerryTubeCallback;
 import com.trellmor.BerryTube.ChatMessage;
 import com.trellmor.BerryTube.ChatUser;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
@@ -33,14 +37,47 @@ import android.widget.TextView;
 public class ChatActivity extends Activity {
 
 	private ChatMessageAdapter chatAdapter = null;
-	private ArrayList<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
+	private ArrayList<ChatMessage> chatMessages = null;
 	private ListView listChat;
 	private TextView textNick;
 	private EditText editChatMsg;
 	private TextView textDrinks;
-	private ArrayList<ChatUser> userList = new ArrayList<ChatUser>();
 
-	private BerryTube socket = null;
+	private BerryTubeBinder mBinder = null;
+	private boolean mServiceConnected = false;
+	private ServiceConnection mService = new ServiceConnection() {
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mServiceConnected = false;
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			mServiceConnected = true;
+			mBinder = (BerryTubeBinder) service;
+			mBinder.getService().registerCallback(mCallback);
+			if (mBinder.getService().isConnected()) {
+				if (mBinder.getService().getNick() != null) {
+					Nick = mBinder.getService().getNick();
+					textNick.setText(Nick);
+					editChatMsg.setEnabled(true);
+				} else {
+					Nick = "Anonymous";
+					textNick.setText(Nick);
+					editChatMsg.setEnabled(false);
+				}
+				drinkCount = mBinder.getService().getDrinkCount();
+				updateDrinkCount();
+			} else {
+				try {
+					mBinder.getService().connect(Username, Password);
+				} catch (MalformedURLException e) {
+					Log.w(ChatActivity.class.toString(), e);
+				}
+			}
+		}
+	};
 
 	private String Username = "";
 	private String Password = "";
@@ -49,6 +86,7 @@ public class ChatActivity extends Activity {
 	private int drinkCount = 0;
 	private int myDrinkCount = 0;
 	private boolean showDrinkCount = true;
+	private BerryTubeCallback mCallback = null;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -56,7 +94,7 @@ public class ChatActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chat);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+			getActionBar().setDisplayHomeAsUpEnabled(false);
 		}
 
 		editChatMsg = (EditText) findViewById(R.id.edit_chat_msg);
@@ -76,6 +114,9 @@ public class ChatActivity extends Activity {
 		textNick = (TextView) findViewById(R.id.text_nick);
 		textNick.setText("Anonymous");
 
+		getConfigurationInstance();
+		if (chatMessages == null)
+			chatMessages = new ArrayList<ChatMessage>();
 		listChat = (ListView) findViewById(R.id.list_chat);
 		chatAdapter = new ChatMessageAdapter(this, R.layout.chat_item,
 				chatMessages);
@@ -84,72 +125,36 @@ public class ChatActivity extends Activity {
 		Intent intent = getIntent();
 		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
 		Password = intent.getStringExtra(MainActivity.KEY_PASSWORD);
+
+		createCallback();
+
+		Intent serviceIntent = new Intent(this, BerryTube.class);
+		startService(serviceIntent);
+		bindService(serviceIntent, mService, BIND_ABOVE_CLIENT);
 	}
-	
+
 	@Override
 	public void onStart() {
 		super.onStart();
 
 		loadPreferences();
-
-		try {
-			socket = new BerryTube(Username, Password);
-			socket.connect(new BerryTubeCallback() {
-
-				@Override
-				public void onSetNick(String nick) {
-					Nick = nick;
-					textNick.setText(nick);
-					editChatMsg.setEnabled(true);
-				}
-
-				@Override
-				public void onChatMessage(ChatMessage chatMsg) {
-					if (!chatMessages.contains(chatMsg)) {
-						chatMessages.add(chatMsg);
-						while (chatMessages.size() > scrollback)
-							chatMessages.remove(0);
-						chatAdapter.notifyDataSetChanged();
-					}
-				}
-
-				@Override
-				public void onUserJoin(ChatUser user) {
-					userList.add(user);
-				}
-
-				@Override
-				public void onUserPart(ChatUser user) {
-					userList.remove(user);
-				}
-
-				@Override
-				public void onUserReset() {
-					userList.clear();
-				}
-
-				@Override
-				public void onDrinkCount(int count) {
-					drinkCount = count;
-					updateDrinkCount();
-				}
-			});
-		} catch (MalformedURLException e) {
-			Log.w(this.getClass().toString(), e.getMessage());
-		}
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
+	}
 
-		// Stop socket.io connection
-		if (socket != null) {
-			if (socket.isConnected())
-				socket.disconnect();
-
-			socket = null;
+	@Override
+	public void onDestroy() {
+		if (mBinder != null) {
+			mBinder.getService().unregisterCallback(mCallback);
+			mCallback = null;
 		}
+		if (mServiceConnected)
+			unbindService(mService);
+
+		super.onDestroy();
 	}
 
 	@Override
@@ -157,15 +162,20 @@ public class ChatActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_chat, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
+	
+	@Override
+	public void onBackPressed() {
+		Intent backtoHome = new Intent(Intent.ACTION_MAIN);
+		backtoHome.addCategory(Intent.CATEGORY_HOME);
+		backtoHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(backtoHome);
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent = null;
 
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
 		case R.id.menu_settings:
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
@@ -173,9 +183,64 @@ public class ChatActivity extends Activity {
 		case R.id.menu_users:
 			selectUser();
 			return true;
+		case R.id.menu_logout:
+			stopService(new Intent(this, BerryTube.class));
+			intent = new Intent(this, MainActivity.class);
+			startActivity(intent);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private class ConfigurationInstance {
+		public ArrayList<ChatMessage> ChatMessages;
+		public int MyDrinkCount;
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		ConfigurationInstance instance = new ConfigurationInstance();
+		instance.ChatMessages = chatMessages;
+		instance.MyDrinkCount = myDrinkCount;
+		return instance;
+	}
+
+	private void getConfigurationInstance() {
+		@SuppressWarnings("deprecation")
+		ConfigurationInstance instance = (ConfigurationInstance) getLastNonConfigurationInstance();
+		if (instance != null) {
+			chatMessages = instance.ChatMessages;
+			myDrinkCount = instance.MyDrinkCount;
+		}
+	}
+
+	private void createCallback() {
+		mCallback = new BerryTubeCallback() {
+
+			@Override
+			public void onSetNick(String nick) {
+				Nick = nick;
+				textNick.setText(nick);
+				editChatMsg.setEnabled(true);
+			}
+
+			@Override
+			public void onChatMessage(ChatMessage chatMsg) {
+				if (!chatMessages.contains(chatMsg)) {
+					chatMessages.add(chatMsg);
+					while (chatMessages.size() > scrollback)
+						chatMessages.remove(0);
+					chatAdapter.notifyDataSetChanged();
+				}
+			}
+
+			@Override
+			public void onDrinkCount(int count) {
+				drinkCount = count;
+				updateDrinkCount();
+			}
+		};
 	}
 
 	private void loadPreferences() {
@@ -193,12 +258,12 @@ public class ChatActivity extends Activity {
 
 		showDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		updateDrinkCount();
-	}	
+	}
 
 	private void sendChatMsg() {
 		String textmsg = editChatMsg.getText().toString();
-		if (socket.isConnected() && Nick != "" && textmsg != "") {
-			socket.sendChat(textmsg);
+		if (mBinder.getService().isConnected() && Nick != "" && textmsg != "") {
+			mBinder.getService().sendChat(textmsg);
 			editChatMsg.setText("");
 		}
 	}
@@ -210,6 +275,9 @@ public class ChatActivity extends Activity {
 		}
 
 		if (drinkCount > 0) {
+			if (myDrinkCount > drinkCount)
+				myDrinkCount = 0;
+
 			setTextDrinksVisible(false);
 
 			textDrinks.setText(Integer.toString(myDrinkCount) + "/"
@@ -239,7 +307,7 @@ public class ChatActivity extends Activity {
 		builder.setTitle(R.string.select_user);
 
 		ArrayList<ChatUser> userList = new ArrayList<ChatUser>();
-		for (ChatUser chatUser : this.userList) {
+		for (ChatUser chatUser : mBinder.getService().getUsers()) {
 			userList.add(chatUser.clone());
 		}
 		Collections.sort(userList, new Comparator<ChatUser>() {

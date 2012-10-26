@@ -2,13 +2,19 @@
     <item 
         android:id="@+id/menu_users"
         android:title="@string/menu_users"
-        android:orderInCategory="10"
+        android:orderInCategory="100"
         android:showAsAction="never" />
     
     <item 
         android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
+        android:showAsAction="never" />
+    
+    <item
+        android:id="@+id/menu_logout"
+        android:title="@string/menu_logout"
+        android:orderInCategory="300"
         android:showAsAction="never" />
     
 </menu>

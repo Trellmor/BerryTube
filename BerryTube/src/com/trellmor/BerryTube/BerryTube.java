@@ -6,106 +6,105 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Service;
+import android.content.Intent;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 
-public class BerryTube {
-	private String username;
+public class BerryTube extends Service {
+	private SocketIO mSocket = null;
+	private final ArrayList<BerryTubeCallback> mCallbacks = new ArrayList<BerryTubeCallback>();
 
-	public String getUserName() {
-		return username;
+	private URL mUrl;
+	private String mUsername;
+	private String mPassword;
+
+	private String mNick = null;
+
+	public String getNick() {
+		return mNick;
 	}
 
-	public void setUserName(String username) {
-		this.username = username;
-	}
-
-	private String password;
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	private URL url;
-
-	private SocketIO socket;
+	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
 	
-	private final Handler handler = new Handler();
-
-	protected final Handler getHandler() {
-		return handler;
+	public ArrayList<ChatUser> getUsers() {
+		return mUsers;
+	}
+	
+	private int mDrinkCount = 0;
+	
+	public int getDrinkCount() {
+		return mDrinkCount;
+	}
+	
+	private Handler mHandler = new Handler();
+	
+	Handler getHandler() {
+		return mHandler;
 	}
 
-	private BerryTubeCallback callback;
-
-	public URL getURL() {
-		return url;
+	@Override
+	public void onCreate() {
+		super.onCreate();
 	}
 
-	public void setURL(URL url) {
-		this.url = url;
+	@Override
+	public void onDestroy() {
+		if (mSocket != null && mSocket.isConnected())
+			mSocket.disconnect();
+
+		mSocket = null;
+		
+		super.onDestroy();
 	}
 
-	public BerryTube(String username, String password)
-			throws MalformedURLException {
-		this(new URL("http://96.127.152.99:8344"), username, password);
+	@Override
+	public IBinder onBind(Intent intent) {
+		return new BerryTubeBinder(this);
 	}
 
-	public BerryTube(String url, String username, String password)
-			throws MalformedURLException {
-		this(new URL(url), username, password);
+	public void connect(String username, String password)
+			throws MalformedURLException, IllegalStateException {
+		connect(new URL("http://96.127.152.99:8344"), username, password);
 	}
 
-	public BerryTube(URL url, String username, String password) {
-		this.url = url;
-		this.username = username;
-		this.password = password;
+	public void connect(String url, String username, String password)
+			throws MalformedURLException, IllegalStateException {
+		connect(new URL(url), username, password);
 	}
 
-	public void finalize() {
-		this.disconnect();
-	}
+	public void connect(URL url, String username, String password)
+			throws IllegalStateException {
+		if (mSocket != null && mSocket.isConnected())
+			throw new IllegalStateException("Already connected");
 
-	public void connect(BerryTubeCallback callback) {
-		if (socket != null) {
-			if (socket.isConnected()) {
-				throw new IllegalStateException("Already connected");
-			}
-			socket = null;
-		}
+		mUrl = url;
+		mUsername = username;
+		mPassword = password;
 
-		if (callback == null) {
-			throw new IllegalArgumentException();
-		}
-
-		this.callback = callback;
-
-		socket = new SocketIO(url);
-		socket.connect(new BerryTubeIOCallback(this));
-	}
-
-	public void disconnect() {
-		if (socket != null) {
-			if (socket.isConnected()) {
-				socket.disconnect();
-			}
-			socket = null;
-		}
+		mSocket = new SocketIO(mUrl);
+		mSocket.connect(new BerryTubeIOCallback(this));
 	}
 
 	public boolean isConnected() {
-		if (socket == null)
+		if (mSocket == null)
 			return false;
 		else
-			return socket.isConnected();
+			return mSocket.isConnected();
+	}
+
+	public void registerCallback(BerryTubeCallback callback) {
+		mCallbacks.add(callback);
+	}
+
+	public void unregisterCallback(BerryTubeCallback callback) {
+		mCallbacks.remove(callback);
 	}
 
 	public void sendChat(String message) {
@@ -117,7 +116,7 @@ public class BerryTube {
 			metadata.put("flair", 0);
 			msg.put("metadata", metadata);
 
-			socket.emit("chat", msg);
+			mSocket.emit("chat", msg);
 		} catch (JSONException e) {
 			Log.w(this.getClass().toString(), e);
 		}
@@ -125,13 +124,14 @@ public class BerryTube {
 
 	class ConnectTask implements Runnable {
 		public void run() {
-			if (socket == null) return;
-			
-			socket.emit("chatOnly");
+			if (mSocket == null)
+				return;
+
+			mSocket.emit("chatOnly");
 
 			try {
 				MessageDigest md = MessageDigest.getInstance("MD5");
-				byte[] digest = md.digest(password.getBytes());
+				byte[] digest = md.digest(mPassword.getBytes());
 
 				StringBuffer sb = new StringBuffer();
 				for (int i = 0; i < digest.length; ++i) {
@@ -142,10 +142,10 @@ public class BerryTube {
 				String pass = sb.toString();
 
 				JSONObject login = new JSONObject();
-				login.put("nick", username);
+				login.put("nick", mUsername);
 				login.put("pass", pass);
 
-				socket.emit("setNick", login);
+				mSocket.emit("setNick", login);
 			} catch (NoSuchAlgorithmException e) {
 				Log.w(this.getClass().toString(), e.getMessage());
 			} catch (JSONException e) {
@@ -162,7 +162,9 @@ public class BerryTube {
 		}
 
 		public void run() {
-			callback.onChatMessage(chatMsg);
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onChatMessage(chatMsg);
+			}
 		}
 
 	}
@@ -175,49 +177,55 @@ public class BerryTube {
 		}
 
 		public void run() {
-			callback.onSetNick(nick);
+			mNick = nick;
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onSetNick(nick);
+			}
 		}
 	}
-	
+
 	class UserJoinPartTask implements Runnable {
 		public final static int ACTION_JOIN = 0;
 		public final static int ACTION_PART = 1;
-		
+
 		private ChatUser user;
 		private int action;
-		
-		
+
 		public UserJoinPartTask(ChatUser user, int action) {
 			this.user = user;
 			this.action = action;
 		}
-		
+
 		public void run() {
-			switch(action) {
+			switch (action) {
 			case ACTION_JOIN:
-				callback.onUserJoin(user);
+				mUsers.add(user);
 				break;
 			case ACTION_PART:
-				callback.onUserPart(user);
+				mUsers.remove(user);
+				break;
 			}
 		}
 	}
-	
-	class UserResetTask implements Runnable {		
+
+	class UserResetTask implements Runnable {
 		public void run() {
-			callback.onUserReset();
+			mUsers.clear();
 		}
 	}
-	
+
 	class DrinkCountTask implements Runnable {
 		private int count;
-		
+
 		public DrinkCountTask(int count) {
 			this.count = count;
 		}
 
 		public void run() {
-			callback.onDrinkCount(this.count);
+			mDrinkCount = count;
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onDrinkCount(this.count);
+			}
 		}
 	}
 }

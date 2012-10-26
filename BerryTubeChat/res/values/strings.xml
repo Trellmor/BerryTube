@@ -3,13 +3,14 @@
     <string name="app_name">BerryTubeChat</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_users">Users</string>
+    <string name="menu_logout">Logout</string>
     <string name="title_activity_main">BerryTube</string>
     <string name="title_activity_chat">BerryTube Chat</string>
     <string name="title_activity_settings">Settings</string>   
     <string name="edit_user">Username</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Login</string>
-    <string name="check_remember">Remember?</string>
+    <string name="check_remember">Remember</string>
     <string name="edit_chat_msg">Message</string>
     <string name="edit_chat_msg_action_label">Send</string>
     <string name="hello_world">Hello world!</string>
