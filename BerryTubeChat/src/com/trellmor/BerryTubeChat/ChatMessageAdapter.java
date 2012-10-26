@@ -12,23 +12,32 @@ import android.widget.ArrayAdapter;
 
 public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
-	private LayoutInflater inflator;
-	private List<ChatMessage> chatMsgList;
+	private LayoutInflater mInflator;
+	private List<ChatMessage> mChatMsgList;
+	private String mNick = null;
+	
+	public String getNick() {
+		return mNick;
+	}
+	
+	public void setNick(String nick) {
+		mNick = nick;
+	}
 
 	public ChatMessageAdapter(Context context, int textViewResourceId,
 			List<ChatMessage> objects) {
 		super(context, textViewResourceId, objects);
 
-		chatMsgList = objects;
+		mChatMsgList = objects;
 
-		inflator = (LayoutInflater) context
+		mInflator = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ChatMessage msg = chatMsgList.get(position);
+		ChatMessage msg = mChatMsgList.get(position);
 
-		return ChatMessageFormatter.format(inflator, convertView, msg);
+		return ChatMessageFormatter.format(mInflator, convertView, msg, mNick);
 	}
 }

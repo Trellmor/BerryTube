@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -36,8 +35,8 @@ import android.widget.TextView;
 
 public class ChatActivity extends Activity {
 
-	private ChatMessageAdapter chatAdapter = null;
-	private ArrayList<ChatMessage> chatMessages = null;
+	private ChatMessageAdapter mChatAdapter = null;
+	private ArrayList<ChatMessage> mChatMessages = null;
 	private ListView listChat;
 	private TextView textNick;
 	private EditText editChatMsg;
@@ -58,15 +57,7 @@ public class ChatActivity extends Activity {
 			mBinder = (BerryTubeBinder) service;
 			mBinder.getService().registerCallback(mCallback);
 			if (mBinder.getService().isConnected()) {
-				if (mBinder.getService().getNick() != null) {
-					Nick = mBinder.getService().getNick();
-					textNick.setText(Nick);
-					editChatMsg.setEnabled(true);
-				} else {
-					Nick = "Anonymous";
-					textNick.setText(Nick);
-					editChatMsg.setEnabled(false);
-				}
+				setNick(mBinder.getService().getNick());
 				drinkCount = mBinder.getService().getDrinkCount();
 				updateDrinkCount();
 			} else {
@@ -81,7 +72,26 @@ public class ChatActivity extends Activity {
 
 	private String Username = "";
 	private String Password = "";
-	private String Nick = "";
+	private String mNick = "";
+
+	public String getNick() {
+		return mNick;
+	}
+
+	protected void setNick(String nick) {
+		if (nick != null) {
+			mNick = nick;
+			editChatMsg.setEnabled(true);
+		} else {
+			mNick = "Anonymous";
+			editChatMsg.setEnabled(false);
+		}
+
+		textNick.setText(mNick);
+		if (mChatAdapter != null)
+			mChatAdapter.setNick(nick);
+	}
+
 	private int scrollback = 100;
 	private int drinkCount = 0;
 	private int myDrinkCount = 0;
@@ -115,12 +125,12 @@ public class ChatActivity extends Activity {
 		textNick.setText("Anonymous");
 
 		getConfigurationInstance();
-		if (chatMessages == null)
-			chatMessages = new ArrayList<ChatMessage>();
+		if (mChatMessages == null)
+			mChatMessages = new ArrayList<ChatMessage>();
 		listChat = (ListView) findViewById(R.id.list_chat);
-		chatAdapter = new ChatMessageAdapter(this, R.layout.chat_item,
-				chatMessages);
-		listChat.setAdapter(chatAdapter);
+		mChatAdapter = new ChatMessageAdapter(this, R.layout.chat_item,
+				mChatMessages);
+		listChat.setAdapter(mChatAdapter);
 
 		Intent intent = getIntent();
 		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -162,7 +172,7 @@ public class ChatActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_chat, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		Intent backtoHome = new Intent(Intent.ACTION_MAIN);
@@ -201,7 +211,7 @@ public class ChatActivity extends Activity {
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		ConfigurationInstance instance = new ConfigurationInstance();
-		instance.ChatMessages = chatMessages;
+		instance.ChatMessages = mChatMessages;
 		instance.MyDrinkCount = myDrinkCount;
 		return instance;
 	}
@@ -210,7 +220,7 @@ public class ChatActivity extends Activity {
 		@SuppressWarnings("deprecation")
 		ConfigurationInstance instance = (ConfigurationInstance) getLastNonConfigurationInstance();
 		if (instance != null) {
-			chatMessages = instance.ChatMessages;
+			mChatMessages = instance.ChatMessages;
 			myDrinkCount = instance.MyDrinkCount;
 		}
 	}
@@ -220,19 +230,16 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onSetNick(String nick) {
-				Nick = nick;
-				textNick.setText(nick);
-				editChatMsg.setEnabled(true);
+				setNick(nick);
 			}
 
 			@Override
 			public void onChatMessage(ChatMessage chatMsg) {
-				if (!chatMessages.contains(chatMsg)) {
-					chatMessages.add(chatMsg);
-					while (chatMessages.size() > scrollback)
-						chatMessages.remove(0);
-					chatAdapter.notifyDataSetChanged();
-				}
+				mChatMessages.add(chatMsg);
+				while (mChatMessages.size() > scrollback)
+					mChatMessages.remove(0);
+				mChatAdapter.notifyDataSetChanged();
+
 			}
 
 			@Override
@@ -262,7 +269,7 @@ public class ChatActivity extends Activity {
 
 	private void sendChatMsg() {
 		String textmsg = editChatMsg.getText().toString();
-		if (mBinder.getService().isConnected() && Nick != "" && textmsg != "") {
+		if (mBinder.getService().isConnected() && !"".equals(mNick) && textmsg != "") {
 			mBinder.getService().sendChat(textmsg);
 			editChatMsg.setText("");
 		}

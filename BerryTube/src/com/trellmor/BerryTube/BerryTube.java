@@ -24,7 +24,6 @@ public class BerryTube extends Service {
 	private URL mUrl;
 	private String mUsername;
 	private String mPassword;
-
 	private String mNick = null;
 
 	public String getNick() {
@@ -151,7 +150,7 @@ public class BerryTube extends Service {
 			} catch (JSONException e) {
 				Log.w(this.getClass().toString(), e.getMessage());
 			}
-		}
+		}		
 	}
 
 	class ChatMsgTask implements Runnable {

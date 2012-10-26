@@ -19,5 +19,6 @@
     <string name="pref_scrollback_title">Scrollback size</string>
     <string name="pref_scrollback_summary">Up to %d lines</string>
     <string name="pref_show_drinks_title">Show drink count</string>
+    <string name="drink">BP</string>
 
 </resources>

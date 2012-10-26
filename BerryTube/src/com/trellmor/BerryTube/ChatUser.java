@@ -43,7 +43,7 @@ public class ChatUser implements Cloneable {
 		if (this.getClass() == obj.getClass()) {
 			ChatUser objUser = (ChatUser)obj;
 			
-			return nick.equals(objUser.getNick()); //only compare nick
+			return nick.toLowerCase().equals(objUser.getNick().toLowerCase()); //only compare nick
 		} else
 			return false;
 	}

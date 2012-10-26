@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/text_chat_message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/text_chat_drink_multiple"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:autoLink="all"
+        android:singleLine="false"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#c600ad"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_chat_drink_multiple"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/text_chat_message"
+        android:layout_alignTop="@+id/text_chat_message"
+        android:layout_toLeftOf="@+id/image_chat_drink"
+        android:gravity="center_vertical"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#c600ad"
+        android:textStyle="bold"
+        android:visibility="gone" />
+    
+    <ImageView 
+        android:id="@+id/image_chat_drink"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/text_chat_drink_multiple"
+        android:layout_alignTop="@+id/text_chat_drink_multiple"
+        android:scaleType="center"
+        android:layout_width="16dp"
+        android:layout_height="0dp"
+        android:src="@drawable/ic_drink"
+        android:contentDescription="@string/drink" />
+
+</RelativeLayout><!-- -->
