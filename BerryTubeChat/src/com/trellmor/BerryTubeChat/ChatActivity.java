@@ -10,6 +10,7 @@ import com.trellmor.BerryTube.BerryTubeBinder;
 import com.trellmor.BerryTube.BerryTubeCallback;
 import com.trellmor.BerryTube.ChatMessage;
 import com.trellmor.BerryTube.ChatUser;
+import com.trellmor.BerryTube.Poll;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -36,7 +38,6 @@ import android.widget.TextView;
 public class ChatActivity extends Activity {
 
 	private ChatMessageAdapter mChatAdapter = null;
-	private ArrayList<ChatMessage> mChatMessages = null;
 	private ListView listChat;
 	private TextView textNick;
 	private EditText editChatMsg;
@@ -67,6 +68,12 @@ public class ChatActivity extends Activity {
 					Log.w(ChatActivity.class.toString(), e);
 				}
 			}
+			
+			mBinder.getService().setChatMsgBufferSize(mScrollback);
+			
+			mChatAdapter = new ChatMessageAdapter(ChatActivity.this, R.layout.chat_item,
+					mBinder.getService().getChatMsgBuffer());
+			listChat.setAdapter(mChatAdapter);
 		}
 	};
 
@@ -92,7 +99,7 @@ public class ChatActivity extends Activity {
 			mChatAdapter.setNick(nick);
 	}
 
-	private int scrollback = 100;
+	private int mScrollback = 100;
 	private int drinkCount = 0;
 	private int myDrinkCount = 0;
 	private boolean showDrinkCount = true;
@@ -125,12 +132,7 @@ public class ChatActivity extends Activity {
 		textNick.setText("Anonymous");
 
 		getConfigurationInstance();
-		if (mChatMessages == null)
-			mChatMessages = new ArrayList<ChatMessage>();
 		listChat = (ListView) findViewById(R.id.list_chat);
-		mChatAdapter = new ChatMessageAdapter(this, R.layout.chat_item,
-				mChatMessages);
-		listChat.setAdapter(mChatAdapter);
 
 		Intent intent = getIntent();
 		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -148,11 +150,15 @@ public class ChatActivity extends Activity {
 		super.onStart();
 
 		loadPreferences();
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
+		
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
@@ -204,14 +210,12 @@ public class ChatActivity extends Activity {
 	}
 
 	private class ConfigurationInstance {
-		public ArrayList<ChatMessage> ChatMessages;
 		public int MyDrinkCount;
 	}
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		ConfigurationInstance instance = new ConfigurationInstance();
-		instance.ChatMessages = mChatMessages;
 		instance.MyDrinkCount = myDrinkCount;
 		return instance;
 	}
@@ -220,7 +224,6 @@ public class ChatActivity extends Activity {
 		@SuppressWarnings("deprecation")
 		ConfigurationInstance instance = (ConfigurationInstance) getLastNonConfigurationInstance();
 		if (instance != null) {
-			mChatMessages = instance.ChatMessages;
 			myDrinkCount = instance.MyDrinkCount;
 		}
 	}
@@ -235,9 +238,6 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onChatMessage(ChatMessage chatMsg) {
-				mChatMessages.add(chatMsg);
-				while (mChatMessages.size() > scrollback)
-					mChatMessages.remove(0);
 				mChatAdapter.notifyDataSetChanged();
 
 			}
@@ -247,6 +247,28 @@ public class ChatActivity extends Activity {
 				drinkCount = count;
 				updateDrinkCount();
 			}
+
+			@Override
+			public void onNewPoll(Poll poll) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onUpatePoll(Poll poll) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onClearPoll() {
+				
+			}
+			
+			@Override 
+			public void onKicked() {
+				finish();
+			}
 		};
 	}
 
@@ -254,14 +276,17 @@ public class ChatActivity extends Activity {
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
 		try {
-			scrollback = Integer.parseInt(settings.getString(
+			mScrollback = Integer.parseInt(settings.getString(
 					MainActivity.KEY_SCROLLBACK, "100"));
 		} catch (NumberFormatException e) {
-			scrollback = 100;
+			mScrollback = 100;
 		}
 
-		if (scrollback <= 0)
-			scrollback = 100;
+		if (mScrollback <= 0)
+			mScrollback = 100;
+		
+		if (mBinder != null) 
+			mBinder.getService().setChatMsgBufferSize(mScrollback);
 
 		showDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		updateDrinkCount();

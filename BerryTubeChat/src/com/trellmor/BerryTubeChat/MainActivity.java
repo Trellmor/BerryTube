@@ -1,14 +1,17 @@
 package com.trellmor.BerryTubeChat;
 
+import com.trellmor.BerryTube.BerryTube;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +39,11 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (isServiceRunning()) {
+			Intent chat = new Intent(this, ChatActivity.class);
+			startActivity(chat);
+		}
 
 		setContentView(R.layout.activity_main);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -81,9 +89,6 @@ public class MainActivity extends Activity {
 		Intent intent = null;
 		
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
 		case R.id.menu_settings:
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
@@ -139,5 +144,15 @@ public class MainActivity extends Activity {
 		chat.putExtra(KEY_PASSWORD, password);
 
 		startActivity(chat);
+	}
+	
+	protected boolean isServiceRunning() {
+		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+			if (BerryTube.class.getName().equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

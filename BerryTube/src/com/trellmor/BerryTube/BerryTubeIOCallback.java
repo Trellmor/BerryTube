@@ -143,21 +143,32 @@ class BerryTubeIOCallback implements IOCallback {
 		} else if (event.compareTo("drinkCount") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject drinks = (JSONObject) args[0];
-				berryTube.getHandler().post(berryTube.new DrinkCountTask(drinks.optInt("drinks")));
-			}			
+				berryTube.getHandler().post(
+						berryTube.new DrinkCountTask(drinks.optInt("drinks")));
+			}
 		} else if (event.compareTo("kicked") == 0) {
-			//you have been kicked
+			berryTube.getHandler().post(berryTube.new KickedTask());
 		} else if (event.compareTo("newPoll") == 0) {
 			if (args.length >= -1 && args[0] instanceof JSONObject) {
 				JSONObject poll = (JSONObject) args[0];
 				ChatMessage msg;
 				try {
-					msg = new ChatMessage(poll.getString("creator"), poll.getString("title"), ChatMessage.EMOTE_POLL, 0, 1);
+					msg = new ChatMessage(poll.getString("creator"),
+							poll.getString("title"), ChatMessage.EMOTE_POLL, 0,
+							1);
 					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
 				} catch (JSONException e) {
 					Log.w(this.getClass().toString(), e);
 				}
 			}
+		} else if (event.compareTo("updatePoll") == 0) {
+			Log.i(this.getClass().toString(), "updatePoll");
+		} else if (event.compareTo("clearPoll") == 0) {
+			berryTube.getHandler().post(berryTube.new ClearPollTask());
+		} else if (event.compareTo("setToggleable") == 0) {
+			Log.i(this.getClass().toString(), "setToggleable");
+		} else if (event.compareTo("setToggleables") == 0) {
+			Log.i(this.getClass().toString(), "setToggleables");
 		}
 	}
 

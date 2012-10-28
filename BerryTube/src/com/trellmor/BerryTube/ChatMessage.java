@@ -88,7 +88,7 @@ public class ChatMessage {
 		if (this.getClass() == obj.getClass()) {
 			ChatMessage msg = (ChatMessage) obj;
 
-			return this.nick.equals(msg.getNick())
+			return this.nick.toLowerCase().equals(msg.getNick().toLowerCase())
 					&& this.msg.equals(msg.getMsg());
 		}
 		return false;

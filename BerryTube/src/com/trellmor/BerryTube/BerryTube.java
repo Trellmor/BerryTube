@@ -17,6 +17,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+/**
+ * @author Daniel
+ * 
+ */
 public class BerryTube extends Service {
 	private SocketIO mSocket = null;
 	private final ArrayList<BerryTubeCallback> mCallbacks = new ArrayList<BerryTubeCallback>();
@@ -25,25 +29,59 @@ public class BerryTube extends Service {
 	private String mUsername;
 	private String mPassword;
 	private String mNick = null;
+	private Poll mPoll = null;
+
+	public Poll getPoll() {
+		return mPoll;
+	}
+
+	private ArrayList<ChatMessage> mChatMsgBuffer = new ArrayList<ChatMessage>();
+
+	public ArrayList<ChatMessage> getChatMsgBuffer() {
+		return mChatMsgBuffer;
+	}
+
+	private int mChatMsgBufferSize = 100;
+
+	public int getChatMsgBufferSize() {
+		return mChatMsgBufferSize;
+	}
+
+	/**
+	 * Set how many ChatMessages are kept in the ChatMsgBuffer
+	 * 
+	 * Use 0 to disable the ChatMsgBuffer Use -1 to set it to unlimited
+	 * 
+	 * @param chatMsgBufferSize
+	 *            Set size of the ChatMsgBuffer
+	 */
+	public void setChatMsgBufferSize(int chatMsgBufferSize) {
+		mChatMsgBufferSize = chatMsgBufferSize;
+
+		if (mChatMsgBufferSize == 0)
+			mChatMsgBuffer.clear();
+		while (mChatMsgBuffer.size() > mChatMsgBufferSize)
+			mChatMsgBuffer.remove(0);
+	}
 
 	public String getNick() {
 		return mNick;
 	}
 
 	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
-	
+
 	public ArrayList<ChatUser> getUsers() {
 		return mUsers;
 	}
-	
+
 	private int mDrinkCount = 0;
-	
+
 	public int getDrinkCount() {
 		return mDrinkCount;
 	}
-	
+
 	private Handler mHandler = new Handler();
-	
+
 	Handler getHandler() {
 		return mHandler;
 	}
@@ -59,7 +97,7 @@ public class BerryTube extends Service {
 			mSocket.disconnect();
 
 		mSocket = null;
-		
+
 		super.onDestroy();
 	}
 
@@ -150,19 +188,27 @@ public class BerryTube extends Service {
 			} catch (JSONException e) {
 				Log.w(this.getClass().toString(), e.getMessage());
 			}
-		}		
+		}
 	}
 
 	class ChatMsgTask implements Runnable {
-		private ChatMessage chatMsg;
+		private ChatMessage mChatMsg;
 
 		public ChatMsgTask(ChatMessage chatMsg) {
-			this.chatMsg = chatMsg;
+			this.mChatMsg = chatMsg;
 		}
 
 		public void run() {
 			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onChatMessage(chatMsg);
+				if (mChatMsgBufferSize != 0)
+					mChatMsgBuffer.add(mChatMsg);
+
+				if (mChatMsgBufferSize > 0) {
+					while (mChatMsgBuffer.size() > mChatMsgBufferSize)
+						mChatMsgBuffer.remove(0);
+				}
+
+				callback.onChatMessage(mChatMsg);
 			}
 		}
 
@@ -224,6 +270,58 @@ public class BerryTube extends Service {
 			mDrinkCount = count;
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onDrinkCount(this.count);
+			}
+		}
+	}
+
+	class KickedTask implements Runnable {
+		public void run() {
+			mPoll = null;
+			mUsers.clear();
+			
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onKicked();
+			}
+			
+			if (mSocket.isConnected())
+				mSocket.disconnect();
+			
+			BerryTube.this.stopSelf();
+		}
+	}
+	
+	class NewPollTask implements Runnable {
+		private Poll mPoll;
+		
+		public NewPollTask(Poll poll) {
+			this.mPoll = poll;
+		}
+		
+		public void run() {
+			BerryTube.this.mPoll = mPoll;
+			
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onNewPoll(mPoll);
+			}
+		}
+	}
+	
+	class UpdatePollTask implements Runnable {
+		public void run() {
+			//handle poll update
+			
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onUpatePoll(mPoll);
+			}
+		}
+	}
+	
+	class ClearPollTask implements Runnable {
+		public void run() {
+			mPoll = null;
+			
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onClearPoll();
 			}
 		}
 	}

@@ -25,7 +25,7 @@
         android:layout_above="@+id/bar_input"
         android:layout_below="@+id/text_drinks"
         android:stackFromBottom="true"
-        android:transcriptMode="alwaysScroll" />
+        android:transcriptMode="normal" />
 
     <RelativeLayout
         android:id="@+id/bar_input"
