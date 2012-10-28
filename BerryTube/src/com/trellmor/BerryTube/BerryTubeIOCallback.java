@@ -152,6 +152,8 @@ class BerryTubeIOCallback implements IOCallback {
 			if (args.length >= -1 && args[0] instanceof JSONObject) {
 				JSONObject poll = (JSONObject) args[0];
 				ChatMessage msg;
+				
+				//Send chat message for new poll
 				try {
 					msg = new ChatMessage(poll.getString("creator"),
 							poll.getString("title"), ChatMessage.EMOTE_POLL, 0,
@@ -160,9 +162,28 @@ class BerryTubeIOCallback implements IOCallback {
 				} catch (JSONException e) {
 					Log.w(this.getClass().toString(), e);
 				}
+
+				//Create new poll
+				try {
+					berryTube.getHandler().post(berryTube.new NewPollTask(new Poll(poll)));
+				} catch (JSONException e) {
+					Log.w(this.getClass().toString(), e);
+				}
 			}
 		} else if (event.compareTo("updatePoll") == 0) {
-			Log.i(this.getClass().toString(), "updatePoll");
+			if (args.length >= -1 && args[0] instanceof JSONObject) {
+				JSONObject poll = (JSONObject) args[0];
+				try {
+					JSONArray votes = poll.getJSONArray("votes");
+					int[] voteArray = new int[poll.length()];
+					for(int i = 0; i < votes.length(); i++) {
+						voteArray[i] = votes.getInt(i);
+					}
+					berryTube.getHandler().post(berryTube.new UpdatePollTask(voteArray));
+				} catch (JSONException e) {
+					Log.w(this.getClass().toString(), e);
+				}
+			}
 		} else if (event.compareTo("clearPoll") == 0) {
 			berryTube.getHandler().post(berryTube.new ClearPollTask());
 		} else if (event.compareTo("setToggleable") == 0) {

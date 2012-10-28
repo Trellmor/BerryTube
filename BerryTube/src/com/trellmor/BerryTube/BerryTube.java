@@ -278,48 +278,56 @@ public class BerryTube extends Service {
 		public void run() {
 			mPoll = null;
 			mUsers.clear();
-			
+
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onKicked();
 			}
-			
+
 			if (mSocket.isConnected())
 				mSocket.disconnect();
-			
+
 			BerryTube.this.stopSelf();
 		}
 	}
-	
+
 	class NewPollTask implements Runnable {
 		private Poll mPoll;
-		
+
 		public NewPollTask(Poll poll) {
 			this.mPoll = poll;
 		}
-		
+
 		public void run() {
 			BerryTube.this.mPoll = mPoll;
-			
+
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onNewPoll(mPoll);
 			}
 		}
 	}
-	
+
 	class UpdatePollTask implements Runnable {
+		private int[] mVotes;
+
+		public UpdatePollTask(int[] votes) {
+			mVotes = votes;
+		}
+		
 		public void run() {
-			//handle poll update
-			
+			if (mPoll != null) {
+				mPoll.update(mVotes);
+			}
+
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onUpatePoll(mPoll);
 			}
 		}
 	}
-	
+
 	class ClearPollTask implements Runnable {
 		public void run() {
 			mPoll = null;
-			
+
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onClearPoll();
 			}
