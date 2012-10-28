@@ -147,6 +147,17 @@ class BerryTubeIOCallback implements IOCallback {
 			}			
 		} else if (event.compareTo("kicked") == 0) {
 			//you have been kicked
+		} else if (event.compareTo("newPoll") == 0) {
+			if (args.length >= -1 && args[0] instanceof JSONObject) {
+				JSONObject poll = (JSONObject) args[0];
+				ChatMessage msg;
+				try {
+					msg = new ChatMessage(poll.getString("creator"), poll.getString("title"), ChatMessage.EMOTE_POLL, 0, 1);
+					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
+				} catch (JSONException e) {
+					Log.w(this.getClass().toString(), e);
+				}
+			}
 		}
 	}
 

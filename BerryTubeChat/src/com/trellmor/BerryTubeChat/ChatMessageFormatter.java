@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -74,9 +75,12 @@ public class ChatMessageFormatter {
 			textChatMessage.setText(message.getNick() + " " + message.getMsg());
 			break;
 		case ChatMessage.EMOTE_POLL:
-			textChatMessage.setTextColor(Color.GREEN);
+			textChatMessage.setTextColor(Color.parseColor("#008000"));
 			textChatMessage.setTypeface(null, Typeface.BOLD_ITALIC);
+			textChatMessage.setTextSize(18);
+			textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
 			textChatMessage.setText(message.getNick() + " created a new poll \"" + message.getMsg() + "\"");
+			break;
 		case ChatMessage.EMOTE_RCV:
 			textChatMessage.setTextColor(Color.RED);
 			textChatMessage.setTextSize(18);
@@ -99,7 +103,7 @@ public class ChatMessageFormatter {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<b>").append(nick).append("</b>: ");
 		
-		String m = msg.replaceAll("<span class=\"flutter\">(.*)</span>", "<font color\"#FF5499\">$1</font>");
+		String m = msg.replaceAll("<span class=\"flutter\">(.*)</span>", "<font color=\"#FF5499\">$1</font>");
 		sb.append(highlightNick(myNick, m));
 				
 		return Html.fromHtml(sb.toString());
