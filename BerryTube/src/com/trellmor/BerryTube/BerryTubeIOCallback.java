@@ -149,7 +149,7 @@ class BerryTubeIOCallback implements IOCallback {
 		} else if (event.compareTo("kicked") == 0) {
 			berryTube.getHandler().post(berryTube.new KickedTask());
 		} else if (event.compareTo("newPoll") == 0) {
-			if (args.length >= -1 && args[0] instanceof JSONObject) {
+			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject poll = (JSONObject) args[0];
 				ChatMessage msg;
 				
@@ -171,11 +171,11 @@ class BerryTubeIOCallback implements IOCallback {
 				}
 			}
 		} else if (event.compareTo("updatePoll") == 0) {
-			if (args.length >= -1 && args[0] instanceof JSONObject) {
+			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject poll = (JSONObject) args[0];
 				try {
 					JSONArray votes = poll.getJSONArray("votes");
-					int[] voteArray = new int[poll.length()];
+					int[] voteArray = new int[votes.length()];
 					for(int i = 0; i < votes.length(); i++) {
 						voteArray[i] = votes.getInt(i);
 					}
