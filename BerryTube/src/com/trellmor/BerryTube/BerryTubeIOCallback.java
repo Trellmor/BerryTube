@@ -186,10 +186,6 @@ class BerryTubeIOCallback implements IOCallback {
 			}
 		} else if (event.compareTo("clearPoll") == 0) {
 			berryTube.getHandler().post(berryTube.new ClearPollTask());
-		} else if (event.compareTo("setToggleable") == 0) {
-			Log.i(this.getClass().toString(), "setToggleable");
-		} else if (event.compareTo("setToggleables") == 0) {
-			Log.i(this.getClass().toString(), "setToggleables");
 		}
 	}
 
