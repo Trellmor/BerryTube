@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 	public final static String KEY_SETTINGS = "com.trellmor.BerryTubeChat.settings";
 	public final static String KEY_SCROLLBACK = "com.trellmor.BerryTubeChat.settings.scrollback";
 	public final static String KEY_DRINKCOUNT = "com.trellmor.BerryTubeChat.settings.drinkcount";
+	public final static String KEY_POPUP_POLL = "com.trellmor.BerryTubeChat.settings.popup_poll";
 
 	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
 

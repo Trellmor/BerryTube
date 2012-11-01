@@ -38,10 +38,10 @@ import android.widget.TextView;
 public class ChatActivity extends Activity {
 
 	private ChatMessageAdapter mChatAdapter = null;
-	private ListView listChat;
-	private TextView textNick;
-	private EditText editChatMsg;
-	private TextView textDrinks;
+	private ListView mListChat;
+	private TextView mTextNick;
+	private EditText mEditChatMsg;
+	private TextView mTextDrinks;
 
 	private BerryTubeBinder mBinder = null;
 	private boolean mServiceConnected = false;
@@ -59,7 +59,7 @@ public class ChatActivity extends Activity {
 			mBinder.getService().registerCallback(mCallback);
 			if (mBinder.getService().isConnected()) {
 				setNick(mBinder.getService().getNick());
-				drinkCount = mBinder.getService().getDrinkCount();
+				mDrinkCount = mBinder.getService().getDrinkCount();
 				updateDrinkCount();
 			} else {
 				try {
@@ -73,7 +73,7 @@ public class ChatActivity extends Activity {
 			
 			mChatAdapter = new ChatMessageAdapter(ChatActivity.this, R.layout.chat_item,
 					mBinder.getService().getChatMsgBuffer());
-			listChat.setAdapter(mChatAdapter);
+			mListChat.setAdapter(mChatAdapter);
 		}
 	};
 
@@ -88,21 +88,22 @@ public class ChatActivity extends Activity {
 	protected void setNick(String nick) {
 		if (nick != null) {
 			mNick = nick;
-			editChatMsg.setEnabled(true);
+			mEditChatMsg.setEnabled(true);
 		} else {
 			mNick = "Anonymous";
-			editChatMsg.setEnabled(false);
+			mEditChatMsg.setEnabled(false);
 		}
 
-		textNick.setText(mNick);
+		mTextNick.setText(mNick);
 		if (mChatAdapter != null)
 			mChatAdapter.setNick(nick);
 	}
 
 	private int mScrollback = 100;
-	private int drinkCount = 0;
-	private int myDrinkCount = 0;
-	private boolean showDrinkCount = true;
+	private int mDrinkCount = 0;
+	private int mMyDrinkCount = 0;
+	private boolean mShowDrinkCount = true;
+	private boolean mPopupPoll = false;
 	private BerryTubeCallback mCallback = null;
 	private boolean mLogout = false;
 
@@ -115,7 +116,7 @@ public class ChatActivity extends Activity {
 			getActionBar().setDisplayHomeAsUpEnabled(false);
 		}
 
-		editChatMsg = (EditText) findViewById(R.id.edit_chat_msg);
+		mEditChatMsg = (EditText) findViewById(R.id.edit_chat_msg);
 		TextView.OnEditorActionListener chatMsgListener = new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
@@ -126,14 +127,14 @@ public class ChatActivity extends Activity {
 				return true;
 			}
 		};
-		editChatMsg.setOnEditorActionListener(chatMsgListener);
+		mEditChatMsg.setOnEditorActionListener(chatMsgListener);
 
-		textDrinks = (TextView) findViewById(R.id.text_drinks);
-		textNick = (TextView) findViewById(R.id.text_nick);
-		textNick.setText("Anonymous");
+		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
+		mTextNick = (TextView) findViewById(R.id.text_nick);
+		mTextNick.setText("Anonymous");
 
 		getConfigurationInstance();
-		listChat = (ListView) findViewById(R.id.list_chat);
+		mListChat = (ListView) findViewById(R.id.list_chat);
 
 		Intent intent = getIntent();
 		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -221,7 +222,7 @@ public class ChatActivity extends Activity {
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		ConfigurationInstance instance = new ConfigurationInstance();
-		instance.MyDrinkCount = myDrinkCount;
+		instance.MyDrinkCount = mMyDrinkCount;
 		return instance;
 	}
 
@@ -229,7 +230,7 @@ public class ChatActivity extends Activity {
 		@SuppressWarnings("deprecation")
 		ConfigurationInstance instance = (ConfigurationInstance) getLastNonConfigurationInstance();
 		if (instance != null) {
-			myDrinkCount = instance.MyDrinkCount;
+			mMyDrinkCount = instance.MyDrinkCount;
 		}
 	}
 
@@ -249,14 +250,14 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onDrinkCount(int count) {
-				drinkCount = count;
+				mDrinkCount = count;
 				updateDrinkCount();
 			}
 
 			@Override
 			public void onNewPoll(Poll poll) {
-				// TODO Auto-generated method stub
-				
+				if (mPopupPoll)
+					showPoll();
 			}
 
 			@Override
@@ -272,6 +273,7 @@ public class ChatActivity extends Activity {
 			
 			@Override 
 			public void onKicked() {
+				mLogout = true;
 				finish();
 			}
 
@@ -312,41 +314,42 @@ public class ChatActivity extends Activity {
 		if (mBinder != null) 
 			mBinder.getService().setChatMsgBufferSize(mScrollback);
 
-		showDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
+		mShowDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
+		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);
 		updateDrinkCount();
 	}
 
 	private void sendChatMsg() {
-		String textmsg = editChatMsg.getText().toString();
+		String textmsg = mEditChatMsg.getText().toString();
 		if (mBinder.getService().isConnected() && !"".equals(mNick) && textmsg != "") {
 			mBinder.getService().sendChat(textmsg);
-			editChatMsg.setText("");
+			mEditChatMsg.setText("");
 		}
 	}
 
 	private void updateDrinkCount() {
-		if (!showDrinkCount) {
+		if (!mShowDrinkCount) {
 			setTextDrinksVisible(false);
 			return;
 		}
 
-		if (drinkCount > 0) {
-			if (myDrinkCount > drinkCount)
-				myDrinkCount = 0;
+		if (mDrinkCount > 0) {
+			if (mMyDrinkCount > mDrinkCount)
+				mMyDrinkCount = 0;
 
 			setTextDrinksVisible(true);
 
-			textDrinks.setText(Integer.toString(myDrinkCount) + "/"
-					+ Integer.toString(drinkCount) + " drinks");
+			mTextDrinks.setText(Integer.toString(mMyDrinkCount) + "/"
+					+ Integer.toString(mDrinkCount) + " drinks");
 		} else {
 			setTextDrinksVisible(false);
-			myDrinkCount = 0;
+			mMyDrinkCount = 0;
 		}
 	}
 
 	public void drink(View view) {
-		if (myDrinkCount < drinkCount) {
-			myDrinkCount++;
+		if (mMyDrinkCount < mDrinkCount) {
+			mMyDrinkCount++;
 			updateDrinkCount();
 		}
 	}
@@ -354,8 +357,8 @@ public class ChatActivity extends Activity {
 	private void setTextDrinksVisible(boolean Visible) {
 		int visibility = (Visible) ? View.VISIBLE : View.GONE;
 
-		if (textDrinks != null && textDrinks.getVisibility() != visibility)
-			textDrinks.setVisibility(visibility);
+		if (mTextDrinks != null && mTextDrinks.getVisibility() != visibility)
+			mTextDrinks.setVisibility(visibility);
 	}
 
 	private void selectUser() {
@@ -392,10 +395,10 @@ public class ChatActivity extends Activity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						String nick = userNicks.get(which);
-						int start = editChatMsg.getSelectionStart();
-						int end = editChatMsg.getSelectionEnd();
+						int start = mEditChatMsg.getSelectionStart();
+						int end = mEditChatMsg.getSelectionEnd();
 
-						editChatMsg.getText().replace(Math.min(start, end),
+						mEditChatMsg.getText().replace(Math.min(start, end),
 								Math.max(start, end), nick, 0, nick.length());
 
 						dialog.dismiss();

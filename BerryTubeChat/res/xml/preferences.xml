@@ -10,8 +10,14 @@
         android:numeric="integer" />
     
     <CheckBoxPreference
-        android:key="show_drinks"
+        android:key="com.trellmor.BerryTubeChat.settings.drinkcount"
         android:title="@string/pref_show_drinks_title"
         android:defaultValue="true" />
+    
+    <CheckBoxPreference
+        android:key="com.trellmor.BerryTubeChat.settings.popup_poll"
+        android:title="@string/pref_show_popup_poll_title"
+        android:summary="@string/pref_show_popup_poll_summary"
+        android:defaultValue="false" />
 
 </PreferenceScreen>
