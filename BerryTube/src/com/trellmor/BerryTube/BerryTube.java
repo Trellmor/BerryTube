@@ -158,6 +158,17 @@ public class BerryTube extends Service {
 			Log.w(this.getClass().toString(), e);
 		}
 	}
+	
+	public void votePoll(int option) {
+		try {
+			JSONObject msg = new JSONObject();
+			msg.put("op", option);
+			
+			mSocket.emit("votePoll", msg);
+		} catch (JSONException e) {
+			Log.w(this.getClass().toString(), e);
+		}
+	}
 
 	class ConnectTask implements Runnable {
 		public void run() {
@@ -189,6 +200,16 @@ public class BerryTube extends Service {
 				Log.w(this.getClass().toString(), e.getMessage());
 			}
 		}
+	}
+	
+	class DisconnectTask implements Runnable {
+		@Override
+		public void run() {
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onDisconnect();
+			}
+		}
+		
 	}
 
 	class ChatMsgTask implements Runnable {

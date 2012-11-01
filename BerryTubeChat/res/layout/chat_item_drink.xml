@@ -10,7 +10,7 @@
         android:layout_toLeftOf="@+id/text_chat_drink_multiple"
         android:paddingBottom="2dp"
         android:paddingTop="2dp"
-        android:autoLink="all"
+        android:autoLink="web"
         android:singleLine="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#c600ad"

@@ -6,4 +6,4 @@
     android:layout_height="wrap_content"
     android:textAppearance="?android:attr/textAppearanceSmall"
     android:singleLine="false"
-    android:autoLink="all" />
+    android:autoLink="web" />

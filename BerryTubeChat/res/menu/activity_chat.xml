@@ -1,20 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_poll"
+        android:title="@string/menu_poll"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    
     <item 
         android:id="@+id/menu_users"
         android:title="@string/menu_users"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
         android:showAsAction="never" />
     
     <item 
         android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
-        android:orderInCategory="200"
+        android:orderInCategory="300"
         android:showAsAction="never" />
     
     <item
         android:id="@+id/menu_logout"
         android:title="@string/menu_logout"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         android:showAsAction="never" />
     
 </menu>

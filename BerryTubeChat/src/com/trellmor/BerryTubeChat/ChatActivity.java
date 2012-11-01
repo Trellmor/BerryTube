@@ -104,6 +104,7 @@ public class ChatActivity extends Activity {
 	private int myDrinkCount = 0;
 	private boolean showDrinkCount = true;
 	private BerryTubeCallback mCallback = null;
+	private boolean mLogout = false;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -200,10 +201,14 @@ public class ChatActivity extends Activity {
 			selectUser();
 			return true;
 		case R.id.menu_logout:
+			mLogout = true;
 			stopService(new Intent(this, BerryTube.class));
-			intent = new Intent(this, MainActivity.class);
-			startActivity(intent);
+			//intent = new Intent(this, MainActivity.class);
+			//startActivity(intent);
+			finish();
 			return true;
+		case R.id.menu_poll:
+			showPoll();
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -268,6 +273,25 @@ public class ChatActivity extends Activity {
 			@Override 
 			public void onKicked() {
 				finish();
+			}
+
+			@Override
+			public void onDisconnect() {
+				if (mLogout) return;
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+				builder.setTitle(R.string.disconnected);
+				builder.setMessage(R.string.message_disconnected);
+				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						stopService(new Intent(ChatActivity.this, BerryTube.class));
+						ChatActivity.this.finish();						
+					}
+				});
+				
+				AlertDialog dialog = builder.create();
+				dialog.show();
 			}
 		};
 	}
@@ -380,5 +404,36 @@ public class ChatActivity extends Activity {
 
 		AlertDialog alert = builder.create();
 		alert.show();
+	}
+	
+	private void showPoll() {
+		Poll poll = mBinder.getService().getPoll();
+		if (poll == null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.nopoll);
+			builder.setMessage(R.string.message_nopoll);
+			builder.setPositiveButton(android.R.string.ok, null);
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(poll.getTitle());
+			
+			String[] options = new String[mBinder.getService().getPoll().getOptions().size()];
+			for (int i = 0; i < options.length; i++) {
+				options[i] = "[" + Integer.toString(poll.getVotes().get(i)) + "] " + poll.getOptions().get(i);
+			}
+			builder.setItems(options, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mBinder.getService().votePoll(which);
+				}
+			});
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
 	}
 }

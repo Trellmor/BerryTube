@@ -30,8 +30,7 @@ class BerryTubeIOCallback implements IOCallback {
 	 * @see io.socket.IOCallback#onDisconnect()
 	 */
 	public void onDisconnect() {
-		// TODO Auto-generated method stub
-
+		berryTube.getHandler().post(berryTube.new DisconnectTask());
 	}
 
 	/*

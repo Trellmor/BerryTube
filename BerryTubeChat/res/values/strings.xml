@@ -4,6 +4,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_users">Users</string>
     <string name="menu_logout">Logout</string>
+    <string name="menu_poll">Poll</string>
     <string name="title_activity_main">BerryTube</string>
     <string name="title_activity_chat">BerryTube Chat</string>
     <string name="title_activity_settings">Settings</string>   
@@ -20,5 +21,9 @@
     <string name="pref_scrollback_summary">Up to %d lines</string>
     <string name="pref_show_drinks_title">Show drink count</string>
     <string name="drink">BP</string>
+    <string name="disconnected">Connection lost</string>
+    <string name="message_disconnected">Connection to BerryTube.tv lost.</string>
+    <string name="nopoll">No poll</string>
+    <string name="message_nopoll">There is no open poll.</string>
 
 </resources>

@@ -14,4 +14,6 @@ public interface BerryTubeCallback {
 	void onClearPoll();
 
 	void onKicked();
+	
+	void onDisconnect();
 }
