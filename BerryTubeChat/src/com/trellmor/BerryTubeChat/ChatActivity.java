@@ -57,6 +57,13 @@ public class ChatActivity extends Activity {
 			mServiceConnected = true;
 			mBinder = (BerryTubeBinder) service;
 			mBinder.getService().registerCallback(mCallback);
+			
+			mBinder.getService().setChatMsgBufferSize(mScrollback);
+			
+			mChatAdapter = new ChatMessageAdapter(ChatActivity.this, R.layout.chat_item,
+					mBinder.getService().getChatMsgBuffer());
+			mListChat.setAdapter(mChatAdapter);
+			
 			if (mBinder.getService().isConnected()) {
 				setNick(mBinder.getService().getNick());
 				mDrinkCount = mBinder.getService().getDrinkCount();
@@ -68,12 +75,6 @@ public class ChatActivity extends Activity {
 					Log.w(ChatActivity.class.toString(), e);
 				}
 			}
-			
-			mBinder.getService().setChatMsgBufferSize(mScrollback);
-			
-			mChatAdapter = new ChatMessageAdapter(ChatActivity.this, R.layout.chat_item,
-					mBinder.getService().getChatMsgBuffer());
-			mListChat.setAdapter(mChatAdapter);
 		}
 	};
 

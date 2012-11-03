@@ -117,7 +117,7 @@ public class ChatMessageFormatter {
 				"<font color=\"#FF5499\">$1</font>");
 
 		// implying
-		if (m.startsWith(">"))
+		if (m.startsWith("&gt;"))
 			m = "<font color=\"#789922\">" + m + "</font>";
 
 		sb.append(highlightNick(myNick, m));
