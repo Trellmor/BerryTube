@@ -38,6 +38,6 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ChatMessage msg = mChatMsgList.get(position);
 
-		return ChatMessageFormatter.format(mInflator, convertView, msg, mNick);
+		return ChatMessageFormatter.format(mInflator, convertView, msg, mNick, getContext());
 	}
 }

@@ -1,7 +1,6 @@
 package com.trellmor.BerryTubeChat;
 
-import com.trellmor.BerryTube.ChatMessage;
-
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
@@ -11,9 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.trellmor.BerryTube.ChatMessage;
+
 public class ChatMessageFormatter {
 	public static View format(LayoutInflater inflator, View view,
-			ChatMessage message, String myNick) {
+			ChatMessage message, String myNick, Context context) {
 
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_DRINK:
@@ -22,9 +23,9 @@ public class ChatMessageFormatter {
 		case ChatMessage.EMOTE_REQUEST:
 		case ChatMessage.EMOTE_POLL:
 		case ChatMessage.EMOTE_RCV:
-			return formatEmote(inflator, view, message);
+			return formatEmote(inflator, view, message, context);
 		default:
-			return formatDefault(inflator, view, message, myNick);
+			return formatDefault(inflator, view, message, myNick, context);
 		}
 	}
 
@@ -48,20 +49,19 @@ public class ChatMessageFormatter {
 	}
 
 	private static View formatDefault(LayoutInflater inflator, View view,
-			ChatMessage message, String myNick) {
+			ChatMessage message, String myNick, Context context) {
 		view = inflator.inflate(R.layout.chat_item, null);
 
 		TextView textChatMessage = (TextView) view
 				.findViewById(R.id.text_chat_message);
 
-		textChatMessage.setText(formatChatMsg(message.getNick(),
-				message.getMsg(), myNick));
+		textChatMessage.setText(formatChatMsg(message, myNick, context));
 
 		return view;
 	}
 
 	protected static View formatEmote(LayoutInflater inflator, View view,
-			ChatMessage message) {
+			ChatMessage message, Context context) {
 
 		view = inflator.inflate(R.layout.chat_item, null);
 		TextView textChatMessage = (TextView) view
@@ -93,8 +93,7 @@ public class ChatMessageFormatter {
 			textChatMessage
 					.setText(message.getNick() + ": " + message.getMsg());
 		default:
-			textChatMessage.setText(formatChatMsg(message.getNick(),
-					message.getMsg(), null));
+			textChatMessage.setText(formatChatMsg(message, null, context));
 			break;
 
 		}
@@ -108,12 +107,16 @@ public class ChatMessageFormatter {
 		return msg.replace(nick, "<font color=\"#ff0000\">" + nick + "</font>");
 	}
 
-	private static Spanned formatChatMsg(String nick, String msg, String myNick) {
+	private static Spanned formatChatMsg(ChatMessage message, String myNick, Context context) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("<b>").append(nick).append("</b>: ");
+		sb.append("<b>").append(message.getNick()).append("</b>");
+		if (message.getFlair() > 0) {
+			sb.append("<img src=\"").append(message.getFlair()).append("\" />");
+		}
+		sb.append(": ");
 
 		// flutter shit
-		String m = msg.replaceAll("<span class=\"flutter\">(.*)</span>",
+		String m = message.getMsg().replaceAll("<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
 		// implying
@@ -122,6 +125,6 @@ public class ChatMessageFormatter {
 
 		sb.append(highlightNick(myNick, m));
 
-		return Html.fromHtml(sb.toString());
+		return Html.fromHtml(sb.toString(), new FlairGetter(context.getResources()), null);
 	}
 }

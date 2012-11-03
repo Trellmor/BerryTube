@@ -81,6 +81,8 @@ public class ChatActivity extends Activity {
 	private String Username = "";
 	private String Password = "";
 	private String mNick = "";
+	
+	private int mFlair = 0;
 
 	public String getNick() {
 		return mNick;
@@ -314,6 +316,13 @@ public class ChatActivity extends Activity {
 		
 		if (mBinder != null) 
 			mBinder.getService().setChatMsgBufferSize(mScrollback);
+		
+		try {
+			mFlair = Integer.parseInt(settings.getString(MainActivity.KEY_FLAIR, "0"));
+		}
+		catch (NumberFormatException e) {
+			mFlair = 0;
+		}
 
 		mShowDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);
@@ -323,7 +332,7 @@ public class ChatActivity extends Activity {
 	private void sendChatMsg() {
 		String textmsg = mEditChatMsg.getText().toString();
 		if (mBinder.getService().isConnected() && !"".equals(mNick) && textmsg != "") {
-			mBinder.getService().sendChat(textmsg);
+			mBinder.getService().sendChat(textmsg, mFlair);
 			mEditChatMsg.setText("");
 		}
 	}

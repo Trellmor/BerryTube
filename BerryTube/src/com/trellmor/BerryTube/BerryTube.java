@@ -145,12 +145,16 @@ public class BerryTube extends Service {
 	}
 
 	public void sendChat(String message) {
+		sendChat(message, 0);
+	}
+	
+	public void sendChat(String message, int flair) {
 		try {
 			JSONObject msg = new JSONObject();
 			msg.put("msg", message);
 
 			JSONObject metadata = new JSONObject();
-			metadata.put("flair", 0);
+			metadata.put("flair", flair);
 			msg.put("metadata", metadata);
 
 			mSocket.emit("chat", msg);

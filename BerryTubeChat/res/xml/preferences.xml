@@ -20,4 +20,12 @@
         android:summary="@string/pref_show_popup_poll_summary"
         android:defaultValue="false" />
 
+    <ListPreference 
+        android:key="com.trellmor.BerryTubeChat.settings.flair"
+        android:title="@string/pref_flair_title"
+        android:summary="@string/pref_flair_summary"
+        android:entries="@array/pref_flair_options"
+        android:entryValues="@array/pref_flair_values"
+        android:defaultValue="0" />
+
 </PreferenceScreen>
