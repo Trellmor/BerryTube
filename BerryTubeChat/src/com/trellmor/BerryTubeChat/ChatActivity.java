@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -42,6 +43,7 @@ public class ChatActivity extends Activity {
 	private TextView mTextNick;
 	private EditText mEditChatMsg;
 	private TextView mTextDrinks;
+	private MediaPlayer mPlayer;
 
 	private BerryTubeBinder mBinder = null;
 	private boolean mServiceConnected = false;
@@ -83,6 +85,7 @@ public class ChatActivity extends Activity {
 	private String mNick = "";
 	
 	private int mFlair = 0;
+	private boolean mSquee = false;
 
 	public String getNick() {
 		return mNick;
@@ -153,6 +156,8 @@ public class ChatActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
+		
+		mPlayer = MediaPlayer.create(this, R.raw.squee);
 
 		loadPreferences();
 		
@@ -162,6 +167,10 @@ public class ChatActivity extends Activity {
 	@Override
 	public void onStop() {
 		super.onStop();
+		
+		if(mPlayer != null) {
+			mPlayer.release();
+		}
 		
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
@@ -247,6 +256,17 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onChatMessage(ChatMessage chatMsg) {
+				if (mSquee && mNick != null && mNick.length() > 0 && chatMsg.isHighlightable() && 
+						!chatMsg.getNick().equals(mNick) && chatMsg.getMsg().contains(mNick)) {
+					try {
+						mPlayer.stop();
+						mPlayer.prepare();
+						mPlayer.start();
+					}
+					catch (Exception e) {
+						//Just eat it; if the squee fails, whatever
+					}
+				}
 				mChatAdapter.notifyDataSetChanged();
 
 			}
@@ -323,6 +343,8 @@ public class ChatActivity extends Activity {
 		catch (NumberFormatException e) {
 			mFlair = 0;
 		}
+		
+		mSquee = settings.getBoolean(MainActivity.KEY_SQUEE, false);
 
 		mShowDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);

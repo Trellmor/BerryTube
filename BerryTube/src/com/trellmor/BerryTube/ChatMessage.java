@@ -34,6 +34,16 @@ public class ChatMessage {
 	public boolean isEmpote() {
 		return emote != EMOTE_FALSE;
 	}
+	
+	public boolean isHighlightable() {
+		switch(emote) {
+			case EMOTE_ACT:
+			case EMOTE_FALSE:
+				return true;
+			default:
+				return false;
+		}
+	}
 
 	private int flair;
 

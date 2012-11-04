@@ -27,5 +27,11 @@
         android:entries="@array/pref_flair_options"
         android:entryValues="@array/pref_flair_values"
         android:defaultValue="0" />
+    
+    <CheckBoxPreference 
+        android:key="com.trellmor.BerryTubeChat.settings.squee"
+        android:title="@string/pref_squee_title"
+        android:summary="@string/pref_squee_summary"
+        android:defaultValue="false" />
 
 </PreferenceScreen>

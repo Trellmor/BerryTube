@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
 	public final static String KEY_DRINKCOUNT = "com.trellmor.BerryTubeChat.settings.drinkcount";
 	public final static String KEY_POPUP_POLL = "com.trellmor.BerryTubeChat.settings.popup_poll";
 	public final static String KEY_FLAIR = "com.trellmor.BerryTubeChat.settings.flair";
+	public final static String KEY_SQUEE = "com.trellmor.BerryTubeChat.settings.squee";
 
 	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
 

@@ -123,7 +123,12 @@ public class ChatMessageFormatter {
 		if (m.startsWith("&gt;"))
 			m = "<font color=\"#789922\">" + m + "</font>";
 
-		sb.append(highlightNick(myNick, m));
+		if (message.isHighlightable()) {
+			sb.append(highlightNick(myNick, m));	
+		}
+		else {
+			sb.append(m);
+		}
 
 		return Html.fromHtml(sb.toString(), new FlairGetter(context.getResources()), null);
 	}
