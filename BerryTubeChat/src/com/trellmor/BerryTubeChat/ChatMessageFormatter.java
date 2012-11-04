@@ -13,25 +13,45 @@ import android.widget.TextView;
 import com.trellmor.BerryTube.ChatMessage;
 
 public class ChatMessageFormatter {
-	public static View format(LayoutInflater inflator, View view,
-			ChatMessage message, String myNick, Context context) {
+	private Context mContext = null;
+	private LayoutInflater mInflater = null;
+	private FlairGetter mFlairGetter = null;
+	private String mNick = null;
+
+	public String getNick() {
+		return mNick;
+	}
+
+	public void setNick(String nick) {
+		mNick = nick;
+	}
+	
+	public ChatMessageFormatter(Context contest, LayoutInflater inflater) {
+		mContext = contest;
+		mInflater = inflater;
+		
+		mFlairGetter = new FlairGetter(mContext.getResources());
+	}
+	
+	public View format(View view,
+			ChatMessage message) {
 
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_DRINK:
-			return formatDrinks(inflator, view, message);
+			return formatDrinks(view, message);
 		case ChatMessage.EMOTE_ACT:
 		case ChatMessage.EMOTE_REQUEST:
 		case ChatMessage.EMOTE_POLL:
 		case ChatMessage.EMOTE_RCV:
-			return formatEmote(inflator, view, message, context);
+			return formatEmote(view, message);
 		default:
-			return formatDefault(inflator, view, message, myNick, context);
+			return formatDefault(view, message);
 		}
 	}
 
-	private static View formatDrinks(LayoutInflater inflator, View view,
+	private View formatDrinks(View view,
 			ChatMessage message) {
-		view = inflator.inflate(R.layout.chat_item_drink, null);
+		view = mInflater.inflate(R.layout.chat_item_drink, null);
 		TextView textChatMessage = (TextView) view
 				.findViewById(R.id.text_chat_message);
 		TextView textChatMultiple = (TextView) view
@@ -48,22 +68,22 @@ public class ChatMessageFormatter {
 		return view;
 	}
 
-	private static View formatDefault(LayoutInflater inflator, View view,
-			ChatMessage message, String myNick, Context context) {
-		view = inflator.inflate(R.layout.chat_item, null);
+	private View formatDefault(View view,
+			ChatMessage message) {
+		view = mInflater.inflate(R.layout.chat_item, null);
 
 		TextView textChatMessage = (TextView) view
 				.findViewById(R.id.text_chat_message);
 
-		textChatMessage.setText(formatChatMsg(message, myNick, context));
+		textChatMessage.setText(formatChatMsg(message));
 
 		return view;
 	}
 
-	protected static View formatEmote(LayoutInflater inflator, View view,
-			ChatMessage message, Context context) {
+	protected View formatEmote(View view,
+			ChatMessage message) {
 
-		view = inflator.inflate(R.layout.chat_item, null);
+		view = mInflater.inflate(R.layout.chat_item, null);
 		TextView textChatMessage = (TextView) view
 				.findViewById(R.id.text_chat_message);
 
@@ -93,7 +113,7 @@ public class ChatMessageFormatter {
 			textChatMessage
 					.setText(message.getNick() + ": " + message.getMsg());
 		default:
-			textChatMessage.setText(formatChatMsg(message, null, context));
+			textChatMessage.setText(formatChatMsg(message));
 			break;
 
 		}
@@ -101,13 +121,13 @@ public class ChatMessageFormatter {
 		return view;
 	}
 
-	private static String highlightNick(String nick, String msg) {
-		if (nick == null)
+	private String highlightNick(String msg) {
+		if (mNick == null)
 			return msg;
-		return msg.replace(nick, "<font color=\"#ff0000\">" + nick + "</font>");
+		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick + "</font>");
 	}
 
-	private static Spanned formatChatMsg(ChatMessage message, String myNick, Context context) {
+	private Spanned formatChatMsg(ChatMessage message) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<b>").append(message.getNick()).append("</b>");
 		if (message.getFlair() > 0) {
@@ -124,12 +144,12 @@ public class ChatMessageFormatter {
 			m = "<font color=\"#789922\">" + m + "</font>";
 
 		if (message.isHighlightable()) {
-			sb.append(highlightNick(myNick, m));	
+			sb.append(highlightNick(m));	
 		}
 		else {
 			sb.append(m);
 		}
 
-		return Html.fromHtml(sb.toString(), new FlairGetter(context.getResources()), null);
+		return Html.fromHtml(sb.toString(), mFlairGetter, null);
 	}
 }

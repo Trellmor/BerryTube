@@ -12,9 +12,9 @@ import android.widget.ArrayAdapter;
 
 public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
-	private LayoutInflater mInflator;
 	private List<ChatMessage> mChatMsgList;
 	private String mNick = null;
+	private ChatMessageFormatter mFormatter = null;
 	
 	public String getNick() {
 		return mNick;
@@ -22,6 +22,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 	
 	public void setNick(String nick) {
 		mNick = nick;
+		mFormatter.setNick(mNick);
 	}
 
 	public ChatMessageAdapter(Context context, int textViewResourceId,
@@ -30,14 +31,16 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
 		mChatMsgList = objects;
 
-		mInflator = (LayoutInflater) context
+		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		mFormatter = new ChatMessageFormatter(context, inflater);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ChatMessage msg = mChatMsgList.get(position);
 
-		return ChatMessageFormatter.format(mInflator, convertView, msg, mNick, getContext());
+		return mFormatter.format(convertView, msg);
 	}
 }
