@@ -5,17 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.trellmor.BerryTube.BerryTube;
-import com.trellmor.BerryTube.BerryTubeBinder;
-import com.trellmor.BerryTube.BerryTubeCallback;
-import com.trellmor.BerryTube.ChatMessage;
-import com.trellmor.BerryTube.ChatUser;
-import com.trellmor.BerryTube.Poll;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,7 +14,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +29,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.trellmor.BerryTube.BerryTube;
+import com.trellmor.BerryTube.BerryTubeBinder;
+import com.trellmor.BerryTube.BerryTubeCallback;
+import com.trellmor.BerryTube.ChatMessage;
+import com.trellmor.BerryTube.ChatUser;
+import com.trellmor.BerryTube.Poll;
 
 public class ChatActivity extends Activity {
 
@@ -59,13 +61,13 @@ public class ChatActivity extends Activity {
 			mServiceConnected = true;
 			mBinder = (BerryTubeBinder) service;
 			mBinder.getService().registerCallback(mCallback);
-			
+
 			mBinder.getService().setChatMsgBufferSize(mScrollback);
-			
-			mChatAdapter = new ChatMessageAdapter(ChatActivity.this, R.layout.chat_item,
-					mBinder.getService().getChatMsgBuffer());
+
+			mChatAdapter = new ChatMessageAdapter(ChatActivity.this,
+					R.layout.chat_item, mBinder.getService().getChatMsgBuffer());
 			mListChat.setAdapter(mChatAdapter);
-			
+
 			if (mBinder.getService().isConnected()) {
 				setNick(mBinder.getService().getNick());
 				mDrinkCount = mBinder.getService().getDrinkCount();
@@ -83,7 +85,7 @@ public class ChatActivity extends Activity {
 	private String Username = "";
 	private String Password = "";
 	private String mNick = "";
-	
+
 	private int mFlair = 0;
 	private boolean mSquee = false;
 
@@ -134,6 +136,7 @@ public class ChatActivity extends Activity {
 			}
 		};
 		mEditChatMsg.setOnEditorActionListener(chatMsgListener);
+		registerForContextMenu(mEditChatMsg);
 
 		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
 		mTextNick = (TextView) findViewById(R.id.text_nick);
@@ -156,22 +159,22 @@ public class ChatActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		
+
 		mPlayer = MediaPlayer.create(this, R.raw.squee);
 
 		loadPreferences();
-		
+
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		
-		if(mPlayer != null) {
+
+		if (mPlayer != null) {
 			mPlayer.release();
 		}
-		
+
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
@@ -211,13 +214,13 @@ public class ChatActivity extends Activity {
 			startActivity(intent);
 			return true;
 		case R.id.menu_users:
-			selectUser();
+			selectUser(null);
 			return true;
 		case R.id.menu_logout:
 			mLogout = true;
 			stopService(new Intent(this, BerryTube.class));
-			//intent = new Intent(this, MainActivity.class);
-			//startActivity(intent);
+			// intent = new Intent(this, MainActivity.class);
+			// startActivity(intent);
 			finish();
 			return true;
 		case R.id.menu_poll:
@@ -225,6 +228,56 @@ public class ChatActivity extends Activity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		if (v == mEditChatMsg) {
+			getMenuInflater().inflate(R.menu.context_edit_chat_msg, menu);
+		}
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_autocomplete_nick:
+			int selStart = Math.min(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
+			int selEnd = Math.max(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
+			String msg = mEditChatMsg.getText().toString();
+			
+			// no text selected, select word
+			if (selStart == selEnd) {
+				if (msg.length() > 0) {
+
+					selStart--;
+					for (int i = selStart; i >= 0; i--) {
+						if (msg.charAt(i) == ' ')
+							break;
+						selStart--;
+					}
+					selStart++;
+
+					for (int i = selEnd; i < msg.length(); i++) {
+						if (msg.charAt(i) == ' ')
+							break;
+						selEnd++;
+					}
+					mEditChatMsg.setSelection(selStart, selEnd);
+				}
+			}
+
+			if (msg.length() > 0) {
+				selectUser(msg.substring(selStart, selEnd));
+			} else {
+				selectUser(null);
+			}
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+
 	}
 
 	private class ConfigurationInstance {
@@ -256,15 +309,16 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onChatMessage(ChatMessage chatMsg) {
-				if (mSquee && mNick != null && mNick.length() > 0 && chatMsg.isHighlightable() && 
-						!chatMsg.getNick().equals(mNick) && chatMsg.getMsg().contains(mNick)) {
+				if (mSquee && mNick != null && mNick.length() > 0
+						&& chatMsg.isHighlightable()
+						&& !chatMsg.getNick().equals(mNick)
+						&& chatMsg.getMsg().contains(mNick)) {
 					try {
 						mPlayer.stop();
 						mPlayer.prepare();
 						mPlayer.start();
-					}
-					catch (Exception e) {
-						//Just eat it; if the squee fails, whatever
+					} catch (Exception e) {
+						// Just eat it; if the squee fails, whatever
 					}
 				}
 				mChatAdapter.notifyDataSetChanged();
@@ -286,15 +340,15 @@ public class ChatActivity extends Activity {
 			@Override
 			public void onUpatePoll(Poll poll) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void onClearPoll() {
-				
+
 			}
-			
-			@Override 
+
+			@Override
 			public void onKicked() {
 				mLogout = true;
 				finish();
@@ -302,19 +356,24 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onDisconnect() {
-				if (mLogout) return;
-				
-				AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+				if (mLogout)
+					return;
+
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						ChatActivity.this);
 				builder.setTitle(R.string.disconnected);
 				builder.setMessage(R.string.message_disconnected);
-				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						stopService(new Intent(ChatActivity.this, BerryTube.class));
-						ChatActivity.this.finish();						
-					}
-				});
-				
+				builder.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								stopService(new Intent(ChatActivity.this,
+										BerryTube.class));
+								ChatActivity.this.finish();
+							}
+						});
+
 				AlertDialog dialog = builder.create();
 				dialog.show();
 			}
@@ -333,27 +392,29 @@ public class ChatActivity extends Activity {
 
 		if (mScrollback <= 0)
 			mScrollback = 100;
-		
-		if (mBinder != null) 
+
+		if (mBinder != null)
 			mBinder.getService().setChatMsgBufferSize(mScrollback);
-		
+
 		try {
-			mFlair = Integer.parseInt(settings.getString(MainActivity.KEY_FLAIR, "0"));
-		}
-		catch (NumberFormatException e) {
+			mFlair = Integer.parseInt(settings.getString(
+					MainActivity.KEY_FLAIR, "0"));
+		} catch (NumberFormatException e) {
 			mFlair = 0;
 		}
-		
+
 		mSquee = settings.getBoolean(MainActivity.KEY_SQUEE, false);
 
-		mShowDrinkCount = settings.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
+		mShowDrinkCount = settings
+				.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);
 		updateDrinkCount();
 	}
 
 	private void sendChatMsg() {
 		String textmsg = mEditChatMsg.getText().toString();
-		if (mBinder.getService().isConnected() && !"".equals(mNick) && textmsg != "") {
+		if (mBinder.getService().isConnected() && !"".equals(mNick)
+				&& textmsg != "") {
 			mBinder.getService().sendChat(textmsg, mFlair);
 			mEditChatMsg.setText("");
 		}
@@ -393,7 +454,7 @@ public class ChatActivity extends Activity {
 			mTextDrinks.setVisibility(visibility);
 	}
 
-	private void selectUser() {
+	private void selectUser(String filter) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.select_user);
 
@@ -418,29 +479,42 @@ public class ChatActivity extends Activity {
 
 		final ArrayList<String> userNicks = new ArrayList<String>();
 		for (ChatUser chatUser : userList) {
-			userNicks.add(chatUser.getNick());
+			if (filter != null) {
+				if (chatUser.getNick().toLowerCase().startsWith(filter)) {
+					userNicks.add(chatUser.getNick());
+				}
+			} else {
+				userNicks.add(chatUser.getNick());
+			}
 		}
 
-		builder.setItems(userNicks.toArray(new String[userList.size()]),
-				new DialogInterface.OnClickListener() {
+		if (userNicks.size() != 0) {
+			builder.setItems(userNicks.toArray(new String[userNicks.size()]),
+					new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						String nick = userNicks.get(which);
-						int start = mEditChatMsg.getSelectionStart();
-						int end = mEditChatMsg.getSelectionEnd();
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String nick = userNicks.get(which);
+							int selStart = mEditChatMsg.getSelectionStart();
+							int selEnd = mEditChatMsg.getSelectionEnd();
 
-						mEditChatMsg.getText().replace(Math.min(start, end),
-								Math.max(start, end), nick, 0, nick.length());
+							mEditChatMsg.getText().replace(
+									Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+									nick, 0, nick.length());
 
-						dialog.dismiss();
-					}
-				});
+							dialog.dismiss();
+						}
+					});
 
-		AlertDialog alert = builder.create();
-		alert.show();
+			AlertDialog alert = builder.create();
+			alert.show();
+		} else {
+			Toast toast = Toast.makeText(this, R.string.toast_no_users,
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
 	}
-	
+
 	private void showPoll() {
 		Poll poll = mBinder.getService().getPoll();
 		if (poll == null) {
@@ -448,25 +522,27 @@ public class ChatActivity extends Activity {
 			builder.setTitle(R.string.nopoll);
 			builder.setMessage(R.string.message_nopoll);
 			builder.setPositiveButton(android.R.string.ok, null);
-			
+
 			AlertDialog dialog = builder.create();
 			dialog.show();
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(poll.getTitle());
-			
-			String[] options = new String[mBinder.getService().getPoll().getOptions().size()];
+
+			String[] options = new String[mBinder.getService().getPoll()
+					.getOptions().size()];
 			for (int i = 0; i < options.length; i++) {
-				options[i] = "[" + Integer.toString(poll.getVotes().get(i)) + "] " + poll.getOptions().get(i);
+				options[i] = "[" + Integer.toString(poll.getVotes().get(i))
+						+ "] " + poll.getOptions().get(i);
 			}
 			builder.setItems(options, new DialogInterface.OnClickListener() {
-				
+
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					mBinder.getService().votePoll(which);
 				}
 			});
-			
+
 			AlertDialog dialog = builder.create();
 			dialog.show();
 		}

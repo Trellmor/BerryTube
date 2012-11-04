@@ -5,6 +5,7 @@
     <string name="menu_users">Users</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_poll">Poll</string>
+    <string name="menu_autocomplete_nick">Autocomplete nick</string>
     <string name="title_activity_main">BerryTube</string>
     <string name="title_activity_chat">BerryTube Chat</string>
     <string name="title_activity_settings">Settings</string>   
@@ -28,6 +29,7 @@
     <string name="message_disconnected">Connection to BerryTube.tv lost.</string>
     <string name="nopoll">No poll</string>
     <string name="message_nopoll">There is no open poll.</string>
+    <string name="toast_no_users">No users found.</string>
     
     <string-array name="pref_flair_options">
         <item>None</item>
