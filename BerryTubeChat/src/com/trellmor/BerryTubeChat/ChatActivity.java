@@ -488,31 +488,37 @@ public class ChatActivity extends Activity {
 			}
 		}
 
-		if (userNicks.size() != 0) {
+		if (userNicks.size() > 1 || filter == null) {
 			builder.setItems(userNicks.toArray(new String[userNicks.size()]),
 					new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							String nick = userNicks.get(which);
-							int selStart = mEditChatMsg.getSelectionStart();
-							int selEnd = mEditChatMsg.getSelectionEnd();
-
-							mEditChatMsg.getText().replace(
-									Math.min(selStart, selEnd), Math.max(selStart, selEnd),
-									nick, 0, nick.length());
-
+							replaceNick(nick);
 							dialog.dismiss();
 						}
 					});
 
 			AlertDialog alert = builder.create();
 			alert.show();
+		} else if (userNicks.size() == 1 && filter != null) {
+			replaceNick(userNicks.get(0));
 		} else {
 			Toast toast = Toast.makeText(this, R.string.toast_no_users,
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+	}
+	
+	private void replaceNick(String nick) {
+		int selStart = mEditChatMsg.getSelectionStart();
+		int selEnd = mEditChatMsg.getSelectionEnd();
+
+		mEditChatMsg.getText().replace(
+				Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+				nick, 0, nick.length());
+
 	}
 
 	private void showPoll() {
