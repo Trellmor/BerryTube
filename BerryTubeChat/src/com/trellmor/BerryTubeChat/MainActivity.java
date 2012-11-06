@@ -134,12 +134,7 @@ public class MainActivity extends Activity {
 		if ("".equals(username)) {
 			editUser.requestFocus();
 			return;
-		}
-
-		if ("".equals(password)) {
-			editPassword.requestFocus();
-			return;
-		}
+		}		
 
 		Intent chat = new Intent(this, ChatActivity.class);
 		chat.putExtra(KEY_USERNAME, username);

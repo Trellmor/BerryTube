@@ -122,7 +122,9 @@ public class BerryTube extends Service {
 			throw new IllegalStateException("Already connected");
 
 		mUrl = url;
+		if (username == null) throw new NullPointerException("username == null");
 		mUsername = username;
+		if (password == null) throw new NullPointerException("password == null");
 		mPassword = password;
 
 		mSocket = new SocketIO(mUrl);

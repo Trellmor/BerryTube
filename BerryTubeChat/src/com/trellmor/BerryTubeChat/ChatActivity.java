@@ -74,16 +74,21 @@ public class ChatActivity extends Activity {
 				updateDrinkCount();
 			} else {
 				try {
-					mBinder.getService().connect(Username, Password);
+					//Only connect if we got Username and Password from MainActivity, otherwise wait until BerryTube reconnect normally
+					if (mUsername != null && mPassword != null) {
+						mBinder.getService().connect(mUsername, mPassword);
+					}
 				} catch (MalformedURLException e) {
 					Log.w(ChatActivity.class.toString(), e);
+				} catch (IllegalStateException e) {
+					//already connect, ignore
 				}
 			}
 		}
 	};
 
-	private String Username = "";
-	private String Password = "";
+	private String mUsername = "";
+	private String mPassword = "";
 	private String mNick = "";
 
 	private int mFlair = 0;
@@ -146,8 +151,8 @@ public class ChatActivity extends Activity {
 		mListChat = (ListView) findViewById(R.id.list_chat);
 
 		Intent intent = getIntent();
-		Username = intent.getStringExtra(MainActivity.KEY_USERNAME);
-		Password = intent.getStringExtra(MainActivity.KEY_PASSWORD);
+		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);
+		mPassword = intent.getStringExtra(MainActivity.KEY_PASSWORD);
 
 		createCallback();
 
