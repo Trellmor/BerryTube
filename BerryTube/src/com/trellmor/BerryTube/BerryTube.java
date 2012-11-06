@@ -105,6 +105,11 @@ public class BerryTube extends Service {
 	public IBinder onBind(Intent intent) {
 		return new BerryTubeBinder(this);
 	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flag, int startId) {
+		return START_NOT_STICKY;
+	}
 
 	public void connect(String username, String password)
 			throws MalformedURLException, IllegalStateException {
@@ -214,6 +219,8 @@ public class BerryTube extends Service {
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onDisconnect();
 			}
+
+			BerryTube.this.stopSelf();
 		}
 		
 	}
