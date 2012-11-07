@@ -485,7 +485,7 @@ public class ChatActivity extends Activity {
 		final ArrayList<String> userNicks = new ArrayList<String>();
 		for (ChatUser chatUser : userList) {
 			if (filter != null) {
-				if (chatUser.getNick().toLowerCase().startsWith(filter)) {
+				if (chatUser.getNick().toLowerCase().startsWith(filter.toLowerCase())) {
 					userNicks.add(chatUser.getNick());
 				}
 			} else {
@@ -519,11 +519,15 @@ public class ChatActivity extends Activity {
 	private void replaceNick(String nick) {
 		int selStart = mEditChatMsg.getSelectionStart();
 		int selEnd = mEditChatMsg.getSelectionEnd();
-
+		/*
 		mEditChatMsg.getText().replace(
 				Math.min(selStart, selEnd), Math.max(selStart, selEnd),
 				nick, 0, nick.length());
-
+		*/	
+		String msg = mEditChatMsg.getText().toString();
+		msg = msg.substring(0, Math.min(selStart, selEnd)) + nick + msg.substring(Math.max(selStart, selEnd));
+		mEditChatMsg.setText(msg); //SetText to refresh suggestions from some keyboards
+		mEditChatMsg.setSelection(Math.min(selStart, selEnd) + nick.length());
 	}
 
 	private void showPoll() {
