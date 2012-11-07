@@ -2,28 +2,26 @@ package com.trellmor.BerryTubeChat;
 
 import java.util.List;
 
-import com.trellmor.BerryTube.ChatMessage;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.trellmor.BerryTube.ChatMessage;
+
+/**
+ * Custom ChatMessage array adapter to create suitable views for the different
+ * <code>ChatMessage</code> emote types
+ * 
+ * @author Daniel Triendl
+ * @see android.widget.ArrayAdapter
+ */
 public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
 	private List<ChatMessage> mChatMsgList;
 	private String mNick = null;
 	private ChatMessageFormatter mFormatter = null;
-	
-	public String getNick() {
-		return mNick;
-	}
-	
-	public void setNick(String nick) {
-		mNick = nick;
-		mFormatter.setNick(mNick);
-	}
 
 	public ChatMessageAdapter(Context context, int textViewResourceId,
 			List<ChatMessage> objects) {
@@ -33,7 +31,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
+
 		mFormatter = new ChatMessageFormatter(context, inflater);
 	}
 
@@ -43,4 +41,10 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
 		return mFormatter.format(convertView, msg);
 	}
+
+	public void setNick(String nick) {
+		mNick = nick;
+		mFormatter.setNick(mNick);
+	}
+
 }

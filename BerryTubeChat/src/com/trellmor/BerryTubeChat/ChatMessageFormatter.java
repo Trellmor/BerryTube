@@ -12,29 +12,27 @@ import android.widget.TextView;
 
 import com.trellmor.BerryTube.ChatMessage;
 
+/**
+ * This class is used to inflate and populate a <code>View</code> to display a
+ * <code>ChatMessage</code>
+ * 
+ * @author Daniel Triendl
+ * @see com.trellmor.BerryTube.ChatMessage
+ */
 public class ChatMessageFormatter {
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
 	private FlairGetter mFlairGetter = null;
 	private String mNick = null;
 
-	public String getNick() {
-		return mNick;
-	}
-
-	public void setNick(String nick) {
-		mNick = nick;
-	}
-	
 	public ChatMessageFormatter(Context contest, LayoutInflater inflater) {
 		mContext = contest;
 		mInflater = inflater;
-		
+
 		mFlairGetter = new FlairGetter(mContext.getResources());
 	}
-	
-	public View format(View view,
-			ChatMessage message) {
+
+	public View format(View view, ChatMessage message) {
 
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_DRINK:
@@ -49,8 +47,11 @@ public class ChatMessageFormatter {
 		}
 	}
 
-	private View formatDrinks(View view,
-			ChatMessage message) {
+	public void setNick(String nick) {
+		mNick = nick;
+	}
+
+	private View formatDrinks(View view, ChatMessage message) {
 		view = mInflater.inflate(R.layout.chat_item_drink, null);
 		TextView textChatMessage = (TextView) view
 				.findViewById(R.id.text_chat_message);
@@ -68,8 +69,7 @@ public class ChatMessageFormatter {
 		return view;
 	}
 
-	private View formatDefault(View view,
-			ChatMessage message) {
+	private View formatDefault(View view, ChatMessage message) {
 		view = mInflater.inflate(R.layout.chat_item, null);
 
 		TextView textChatMessage = (TextView) view
@@ -80,8 +80,7 @@ public class ChatMessageFormatter {
 		return view;
 	}
 
-	protected View formatEmote(View view,
-			ChatMessage message) {
+	private View formatEmote(View view, ChatMessage message) {
 
 		view = mInflater.inflate(R.layout.chat_item, null);
 		TextView textChatMessage = (TextView) view
@@ -124,7 +123,8 @@ public class ChatMessageFormatter {
 	private String highlightNick(String msg) {
 		if (mNick == null)
 			return msg;
-		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick + "</font>");
+		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick
+				+ "</font>");
 	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
@@ -136,7 +136,8 @@ public class ChatMessageFormatter {
 		sb.append(": ");
 
 		// flutter shit
-		String m = message.getMsg().replaceAll("<span class=\"flutter\">(.*)</span>",
+		String m = message.getMsg().replaceAll(
+				"<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
 		// implying
@@ -144,9 +145,8 @@ public class ChatMessageFormatter {
 			m = "<font color=\"#789922\">" + m + "</font>";
 
 		if (message.isHighlightable()) {
-			sb.append(highlightNick(m));	
-		}
-		else {
+			sb.append(highlightNick(m));
+		} else {
 			sb.append(m);
 		}
 

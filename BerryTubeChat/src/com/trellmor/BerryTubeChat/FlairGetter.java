@@ -6,6 +6,12 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.Html.ImageGetter;
 
+/**
+ * Image getter for user flair images
+ * 
+ * @author Toastdeib
+ * @see Android.Text.Html.ImageGetter
+ */
 public class FlairGetter implements ImageGetter {
 
 	private Resources mResources;

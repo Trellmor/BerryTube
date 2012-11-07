@@ -11,11 +11,15 @@ import android.util.Log;
 
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
+import io.socket.SocketIO;
 import io.socket.SocketIOException;
 
 /**
- * @author Daniel
+ * Internal class to handle callbacks from <code>SocketIO</code>
  * 
+ * @author Daniel Triendl
+ * @see IOCallback
+ * @see SocketIO
  */
 class BerryTubeIOCallback implements IOCallback {
 	private BerryTube berryTube;
@@ -24,51 +28,41 @@ class BerryTubeIOCallback implements IOCallback {
 		this.berryTube = berryTube;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#onDisconnect()
 	 */
 	public void onDisconnect() {
 		berryTube.getHandler().post(berryTube.new DisconnectTask());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#onConnect()
 	 */
 	public void onConnect() {
 		berryTube.getHandler().post(berryTube.new ConnectTask());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#onMessage(java.lang.String,
-	 * io.socket.IOAcknowledge)
+	 *      io.socket.IOAcknowledge)
 	 */
 	public void onMessage(String data, IOAcknowledge ack) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#onMessage(org.json.JSONObject,
-	 * io.socket.IOAcknowledge)
+	 *      io.socket.IOAcknowledge)
 	 */
 	public void onMessage(JSONObject json, IOAcknowledge ack) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#on(java.lang.String, io.socket.IOAcknowledge,
-	 * java.lang.Object[])
+	 *      java.lang.Object[])
 	 */
 	public void on(String event, IOAcknowledge ack, Object... args) {
 		if (event.compareTo("chatMsg") == 0) {
@@ -80,7 +74,7 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new ChatMsgTask(new ChatMessage(jsonMsg
 									.getJSONObject("msg"))));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "chatMsg", e);
 				}
 			} else
 				Log.w(this.getClass().toString(),
@@ -100,7 +94,7 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new UserJoinPartTask(new ChatUser(user),
 									BerryTube.UserJoinPartTask.ACTION_JOIN));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "userJoin", e);
 				}
 			} else
 				Log.w(this.getClass().toString(),
@@ -119,7 +113,7 @@ class BerryTubeIOCallback implements IOCallback {
 											new ChatUser(user),
 											BerryTube.UserJoinPartTask.ACTION_JOIN));
 						} catch (JSONException e) {
-							Log.w(this.getClass().toString(), e);
+							Log.e(this.getClass().toString(), "newChatList", e);
 						}
 					}
 				}
@@ -134,7 +128,7 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new UserJoinPartTask(new ChatUser(user),
 									BerryTube.UserJoinPartTask.ACTION_PART));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "userPart", e);
 				}
 			} else
 				Log.w(this.getClass().toString(),
@@ -151,22 +145,23 @@ class BerryTubeIOCallback implements IOCallback {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject poll = (JSONObject) args[0];
 				ChatMessage msg;
-				
-				//Send chat message for new poll
+
+				// Send chat message for new poll
 				try {
 					msg = new ChatMessage(poll.getString("creator"),
 							poll.getString("title"), ChatMessage.EMOTE_POLL, 0,
 							1);
 					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "newPoll", e);
 				}
 
-				//Create new poll
+				// Create new poll
 				try {
-					berryTube.getHandler().post(berryTube.new NewPollTask(new Poll(poll)));
+					berryTube.getHandler().post(
+							berryTube.new NewPollTask(new Poll(poll)));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "newPoll", e);
 				}
 			}
 		} else if (event.compareTo("updatePoll") == 0) {
@@ -175,12 +170,13 @@ class BerryTubeIOCallback implements IOCallback {
 				try {
 					JSONArray votes = poll.getJSONArray("votes");
 					int[] voteArray = new int[votes.length()];
-					for(int i = 0; i < votes.length(); i++) {
+					for (int i = 0; i < votes.length(); i++) {
 						voteArray[i] = votes.getInt(i);
 					}
-					berryTube.getHandler().post(berryTube.new UpdatePollTask(voteArray));
+					berryTube.getHandler().post(
+							berryTube.new UpdatePollTask(voteArray));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.e(this.getClass().toString(), "updatePoll", e);
 				}
 			}
 		} else if (event.compareTo("clearPoll") == 0) {
@@ -188,12 +184,10 @@ class BerryTubeIOCallback implements IOCallback {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see io.socket.IOCallback#onError(io.socket.SocketIOException)
 	 */
 	public void onError(SocketIOException socketIOException) {
-		Log.w(this.getClass().toString(), socketIOException);
+		Log.wtf(this.getClass().toString(), socketIOException);
 	}
 }

@@ -19,21 +19,52 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+/**
+ * BerryTubeChat Main Activity
+ * 
+ * @author Daniel Triendl
+ */
 public class MainActivity extends Activity {
 	private EditText editUser;
 	private EditText editPassword;
 	private CheckBox checkRemember;
 
+	/**
+	 * Key for login settings
+	 */
 	public final static String KEY_LOGIN = "com.trellmor.BerryTubeChat.login";
+	/**
+	 * Key for login username settins
+	 */
 	public final static String KEY_USERNAME = "com.trellmor.BerryTubeChat.login.username";
+	/**
+	 * Key for login password settings
+	 */
 	public final static String KEY_PASSWORD = "com.trellmor.BerryTubeChat.login.password";
+	/**
+	 * Key for login remember username and password setting
+	 */
 	public final static String KEY_REMEMBER = "com.trellmor.BerryTubeChat.login.rememberLogin";
 
-	public final static String KEY_SETTINGS = "com.trellmor.BerryTubeChat.settings";
+	/**
+	 * Key for scrollback buffer size setting
+	 */
 	public final static String KEY_SCROLLBACK = "com.trellmor.BerryTubeChat.settings.scrollback";
+	/**
+	 * Key for show drink count setting
+	 */
 	public final static String KEY_DRINKCOUNT = "com.trellmor.BerryTubeChat.settings.drinkcount";
+	/**
+	 * Key for show pop up on new poll setting
+	 */
 	public final static String KEY_POPUP_POLL = "com.trellmor.BerryTubeChat.settings.popup_poll";
+	/**
+	 * Key for user flair index setting
+	 */
 	public final static String KEY_FLAIR = "com.trellmor.BerryTubeChat.settings.flair";
+	/**
+	 * Key for play squee sound setting
+	 */
 	public final static String KEY_SQUEE = "com.trellmor.BerryTubeChat.settings.squee";
 
 	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
@@ -42,7 +73,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		if (isServiceRunning()) {
 			Intent chat = new Intent(this, ChatActivity.class);
 			startActivity(chat);
@@ -134,7 +165,7 @@ public class MainActivity extends Activity {
 		if ("".equals(username)) {
 			editUser.requestFocus();
 			return;
-		}		
+		}
 
 		Intent chat = new Intent(this, ChatActivity.class);
 		chat.putExtra(KEY_USERNAME, username);
@@ -142,11 +173,13 @@ public class MainActivity extends Activity {
 
 		startActivity(chat);
 	}
-	
+
 	protected boolean isServiceRunning() {
 		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-			if (BerryTube.class.getName().equals(service.service.getClassName())) {
+		for (RunningServiceInfo service : manager
+				.getRunningServices(Integer.MAX_VALUE)) {
+			if (BerryTube.class.getName()
+					.equals(service.service.getClassName())) {
 				return true;
 			}
 		}

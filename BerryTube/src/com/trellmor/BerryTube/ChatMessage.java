@@ -3,60 +3,60 @@ package com.trellmor.BerryTube;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * This class encapsulates a chat message
+ * 
+ * @author Daniel Triendl
+ */
 public class ChatMessage {
+	/**
+	 * Message is not an emote
+	 */
 	public final static int EMOTE_FALSE = 0;
+	/**
+	 * Message is a royal Canterlot voice emote
+	 */
 	public final static int EMOTE_RCV = 1;
+	/**
+	 * Message is a sweetiebot emote
+	 */
 	public final static int EMOTE_SWEETIEBOT = 2;
+	/**
+	 * Message is a spoiler
+	 */
 	public final static int EMOTE_SPOILER = 3;
+	/**
+	 * Message is a /me activity
+	 */
 	public final static int EMOTE_ACT = 4;
+	/**
+	 * Message is a video request
+	 */
 	public final static int EMOTE_REQUEST = 5;
+	/**
+	 * Message is new poll notification
+	 */
 	public final static int EMOTE_POLL = 6;
+	/**
+	 * Message is a drink notification
+	 */
 	public final static int EMOTE_DRINK = 7;
 
 	private String nick;
-
-	public String getNick() {
-		return nick;
-	};
-
 	private String msg;
-
-	public String getMsg() {
-		return msg;
-	}
-
 	private int emote = EMOTE_FALSE;
-
-	public int getEmote() {
-		return emote;
-	}
-
-	public boolean isEmpote() {
-		return emote != EMOTE_FALSE;
-	}
-	
-	public boolean isHighlightable() {
-		switch(emote) {
-			case EMOTE_ACT:
-			case EMOTE_FALSE:
-				return true;
-			default:
-				return false;
-		}
-	}
-
-	private int flair;
-
-	public int getFlair() {
-		return flair;
-	}
-
+	private int flair = 0;
 	private int multi;
 
-	public int getMulti() {
-		return multi;
-	}
-
+	/**
+	 * Constructs a <code>ChatMessage</code>
+	 * 
+	 * @param nick Sender name
+	 * @param msg Text content
+	 * @param emote Emote type
+	 * @param flair Sender flair
+	 * @param multi Multiplier for <code>EMOTE_DRINK</code> notifications
+	 */
 	public ChatMessage(String nick, String msg, int emote, int flair, int multi) {
 		this.nick = nick;
 		this.msg = msg;
@@ -64,6 +64,12 @@ public class ChatMessage {
 		this.flair = flair;
 	}
 
+	/**
+	 * Constructs a <code>ChatMessage</code> from an <code>JSONObject</code>
+	 * 
+	 * @param message <code>JSONObject<code> containing all the required fields to form a chat message
+	 * @throws JSONException
+	 */
 	public ChatMessage(JSONObject message) throws JSONException {
 		nick = message.getString("nick");
 		msg = message.getString("msg");
@@ -93,6 +99,80 @@ public class ChatMessage {
 		flair = metadata.getInt("flair");
 	}
 
+	/**
+	 * Get the sender name
+	 * 
+	 * @return Sender name
+	 */
+	public String getNick() {
+		return nick;
+	}
+
+	/**
+	 * Get the chat messages content
+	 * 
+	 * @return Text content
+	 */
+	public String getMsg() {
+		return msg;
+	}
+
+	/**
+	 * Get the emote type
+	 * 
+	 * @return Emote type
+	 */
+	public int getEmote() {
+		return emote;
+	}
+
+	/**
+	 * Check if the message is an emote
+	 * 
+	 * @return
+	 */
+	public boolean isEmpote() {
+		return emote != EMOTE_FALSE;
+	}
+	
+	/**
+	 * Check if a notification should be displayed if the users nick is mentioned in the message
+	 * 
+	 * @return
+	 */
+	public boolean isHighlightable() {
+		switch (emote) {
+		case EMOTE_ACT:
+		case EMOTE_FALSE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	/**
+	 * Get the senders flair
+	 * 
+	 * @return Flair index
+	 */
+	public int getFlair() {
+		return flair;
+	}
+
+	/**
+	 * Get the multiplication number for <code>EMOTE_DRINK</code> notifications
+	 * 
+	 * @return Multiplier
+	 */
+	public int getMulti() {
+		return multi;
+	}
+
+	/**
+	 * Compares the lower case nick and the message
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this.getClass() == obj.getClass()) {
@@ -104,6 +184,9 @@ public class ChatMessage {
 		return false;
 	}
 
+	/**
+	 * Converts the chat message to a String containing the sender name and the text
+	 */
 	@Override
 	public String toString() {
 		return nick + ": " + msg;

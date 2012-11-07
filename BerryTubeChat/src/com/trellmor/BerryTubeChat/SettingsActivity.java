@@ -10,12 +10,16 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
+/**
+ * BerryTubeChat settings
+ * 
+ * @author Daniel Triendl
+ */
 @SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 	private EditTextPreference prefScrollback;
 
-	
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -24,8 +28,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}		
-		
+		}
+
 		prefScrollback = (EditTextPreference) findPreference(MainActivity.KEY_SCROLLBACK);
 	}
 
@@ -46,7 +50,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		onSharedPreferenceChanged(null, MainActivity.KEY_SCROLLBACK);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -56,7 +60,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}	
+	}
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {

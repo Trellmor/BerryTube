@@ -18,8 +18,14 @@ import android.os.IBinder;
 import android.util.Log;
 
 /**
- * @author Daniel
+ * BerryTube handles to communication with the BerryTube Server and provides
+ * synchronous callbacks for an UI application.
  * 
+ * This is an android service intended to run in the same process as the main
+ * application
+ * 
+ * @author Daniel Triendl
+ * @see android.app.Service
  */
 public class BerryTube extends Service {
 	private SocketIO mSocket = null;
@@ -30,61 +36,11 @@ public class BerryTube extends Service {
 	private String mPassword;
 	private String mNick = null;
 	private Poll mPoll = null;
-
-	public Poll getPoll() {
-		return mPoll;
-	}
-
 	private ArrayList<ChatMessage> mChatMsgBuffer = new ArrayList<ChatMessage>();
-
-	public ArrayList<ChatMessage> getChatMsgBuffer() {
-		return mChatMsgBuffer;
-	}
-
 	private int mChatMsgBufferSize = 100;
-
-	public int getChatMsgBufferSize() {
-		return mChatMsgBufferSize;
-	}
-
-	/**
-	 * Set how many ChatMessages are kept in the ChatMsgBuffer
-	 * 
-	 * Use 0 to disable the ChatMsgBuffer Use -1 to set it to unlimited
-	 * 
-	 * @param chatMsgBufferSize
-	 *            Set size of the ChatMsgBuffer
-	 */
-	public void setChatMsgBufferSize(int chatMsgBufferSize) {
-		mChatMsgBufferSize = chatMsgBufferSize;
-
-		if (mChatMsgBufferSize == 0)
-			mChatMsgBuffer.clear();
-		while (mChatMsgBuffer.size() > mChatMsgBufferSize)
-			mChatMsgBuffer.remove(0);
-	}
-
-	public String getNick() {
-		return mNick;
-	}
-
 	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
-
-	public ArrayList<ChatUser> getUsers() {
-		return mUsers;
-	}
-
 	private int mDrinkCount = 0;
-
-	public int getDrinkCount() {
-		return mDrinkCount;
-	}
-
 	private Handler mHandler = new Handler();
-
-	Handler getHandler() {
-		return mHandler;
-	}
 
 	@Override
 	public void onCreate() {
@@ -105,37 +61,81 @@ public class BerryTube extends Service {
 	public IBinder onBind(Intent intent) {
 		return new BerryTubeBinder(this);
 	}
-	
+
 	@Override
 	public int onStartCommand(Intent intent, int flag, int startId) {
 		return START_NOT_STICKY;
 	}
 
+	/**
+	 * Connect to default BerryTube Server
+	 * 
+	 * @param username
+	 *            Username to set
+	 * @param password
+	 *            Password to set, may be null if the user doesn't have an
+	 *            account
+	 * @throws MalformedURLException
+	 * @throws IllegalStateException
+	 */
 	public void connect(String username, String password)
 			throws MalformedURLException, IllegalStateException {
 		connect(new URL("http://96.127.152.99:8344"), username, password);
 	}
 
+	/**
+	 * Connect to a BerryTube (compatible) server
+	 * 
+	 * @param url
+	 *            Socket.io endpoint
+	 * @param username
+	 *            Username to set
+	 * @param password
+	 *            Password to set, may be null if the user doesn't have an
+	 *            account
+	 * @throws MalformedURLException
+	 * @throws IllegalStateException
+	 */
 	public void connect(String url, String username, String password)
 			throws MalformedURLException, IllegalStateException {
 		connect(new URL(url), username, password);
 	}
 
+	/**
+	 * Connect to a BerryTube (combatible) server
+	 * 
+	 * @param url
+	 *            Socket.io endpoint
+	 * @param username
+	 *            Username to set
+	 * @param password
+	 *            Password to set, may be null if the user doesn't have an
+	 *            account
+	 * @throws MalformedURLException
+	 * @throws IllegalStateException
+	 */
 	public void connect(URL url, String username, String password)
 			throws IllegalStateException {
 		if (mSocket != null && mSocket.isConnected())
 			throw new IllegalStateException("Already connected");
 
 		mUrl = url;
-		if (username == null) throw new NullPointerException("username == null");
+		if (username == null)
+			throw new NullPointerException("username == null");
+
 		mUsername = username;
-		if (password == null) throw new NullPointerException("password == null");
+
 		mPassword = password;
 
 		mSocket = new SocketIO(mUrl);
 		mSocket.connect(new BerryTubeIOCallback(this));
 	}
 
+	/**
+	 * Check if the socket is currently connected to the BerryTube server
+	 * 
+	 * @return Connection status
+	 */
 	public boolean isConnected() {
 		if (mSocket == null)
 			return false;
@@ -143,18 +143,46 @@ public class BerryTube extends Service {
 			return mSocket.isConnected();
 	}
 
+	/**
+	 * Register a callback handler if it's not yet registered
+	 * 
+	 * @param callback
+	 *            Callback implementation instance
+	 */
 	public void registerCallback(BerryTubeCallback callback) {
-		mCallbacks.add(callback);
+		if (!mCallbacks.contains(callback)) {
+			mCallbacks.add(callback);
+		}
 	}
 
+	/**
+	 * Removes a callback handler
+	 * 
+	 * @param callback
+	 *            Callback implementation instance
+	 */
 	public void unregisterCallback(BerryTubeCallback callback) {
 		mCallbacks.remove(callback);
 	}
 
+	/**
+	 * Convenience for <code>sendChat(String, 0)</code>
+	 * 
+	 * @param message
+	 *            Chat message to send
+	 */
 	public void sendChat(String message) {
 		sendChat(message, 0);
 	}
-	
+
+	/**
+	 * Submits a chat message to the server
+	 * 
+	 * @param message
+	 *            Chat message to send
+	 * @param flair
+	 *            Number of flair to display, use 0 to show now flair
+	 */
 	public void sendChat(String message, int flair) {
 		try {
 			JSONObject msg = new JSONObject();
@@ -169,16 +197,100 @@ public class BerryTube extends Service {
 			Log.w(this.getClass().toString(), e);
 		}
 	}
-	
+
+	/**
+	 * Submit a vote on the current poll
+	 * 
+	 * @param option
+	 *            Index of the poll option to vote for
+	 */
 	public void votePoll(int option) {
 		try {
 			JSONObject msg = new JSONObject();
 			msg.put("op", option);
-			
+
 			mSocket.emit("votePoll", msg);
 		} catch (JSONException e) {
 			Log.w(this.getClass().toString(), e);
 		}
+	}
+
+	/**
+	 * Get the current running poll
+	 * 
+	 * @return Current Poll or null if no poll is open
+	 */
+	public Poll getPoll() {
+		return mPoll;
+	}
+
+	/**
+	 * Get the chat message list
+	 * 
+	 * To configure the size of this list use
+	 * <code>setChatMsgBufferSize(int)</code>
+	 * 
+	 * @return ArrayList containing chat messages
+	 * @see com.Trellmor.BerryTube.BerryTube.setChatMsgBufferSize(int)
+	 */
+	public ArrayList<ChatMessage> getChatMsgBuffer() {
+		return mChatMsgBuffer;
+	}
+
+	/**
+	 * Get the configured chat message buffer size
+	 * 
+	 * @return chat message buffer max size
+	 */
+	public int getChatMsgBufferSize() {
+		return mChatMsgBufferSize;
+	}
+
+	/**
+	 * Set how many ChatMessages are kept in the ChatMsgBuffer
+	 * 
+	 * Use 0 to disable the ChatMsgBuffer Use -1 to set it to unlimited
+	 * 
+	 * @param chatMsgBufferSize
+	 */
+	public void setChatMsgBufferSize(int chatMsgBufferSize) {
+		mChatMsgBufferSize = chatMsgBufferSize;
+
+		if (mChatMsgBufferSize == 0)
+			mChatMsgBuffer.clear();
+		while (mChatMsgBuffer.size() > mChatMsgBufferSize)
+			mChatMsgBuffer.remove(0);
+	}
+
+	/**
+	 * Get the nick that was returned from the server
+	 * 
+	 * @return Server side nick
+	 */
+	public String getNick() {
+		return mNick;
+	}
+
+	/**
+	 * Get the list of chat users
+	 * 
+	 * @return User list
+	 */
+	public ArrayList<ChatUser> getUsers() {
+		return mUsers;
+	}
+
+	/**
+	 * Get the number of drinks for the current video
+	 * 
+	 * @return Drink count
+	 */
+	public int getDrinkCount() {
+		return mDrinkCount;
+	}
+
+	Handler getHandler() {
+		return mHandler;
 	}
 
 	class ConnectTask implements Runnable {
@@ -212,7 +324,7 @@ public class BerryTube extends Service {
 			}
 		}
 	}
-	
+
 	class DisconnectTask implements Runnable {
 		@Override
 		public void run() {
@@ -222,7 +334,7 @@ public class BerryTube extends Service {
 
 			BerryTube.this.stopSelf();
 		}
-		
+
 	}
 
 	class ChatMsgTask implements Runnable {
@@ -346,7 +458,7 @@ public class BerryTube extends Service {
 		public UpdatePollTask(int[] votes) {
 			mVotes = votes;
 		}
-		
+
 		public void run() {
 			if (mPoll != null) {
 				mPoll.update(mVotes);

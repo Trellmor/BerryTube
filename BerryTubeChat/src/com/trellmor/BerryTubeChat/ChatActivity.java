@@ -38,6 +38,11 @@ import com.trellmor.BerryTube.ChatMessage;
 import com.trellmor.BerryTube.ChatUser;
 import com.trellmor.BerryTube.Poll;
 
+/**
+ * BerryTubeChat chat window
+ * 
+ * @author Daniel
+ */
 public class ChatActivity extends Activity {
 
 	private ChatMessageAdapter mChatAdapter = null;
@@ -74,14 +79,16 @@ public class ChatActivity extends Activity {
 				updateDrinkCount();
 			} else {
 				try {
-					//Only connect if we got Username and Password from MainActivity, otherwise wait until BerryTube reconnect normally
+					// Only connect if we got Username and Password from
+					// MainActivity, otherwise wait until BerryTube reconnect
+					// normally
 					if (mUsername != null && mPassword != null) {
 						mBinder.getService().connect(mUsername, mPassword);
 					}
 				} catch (MalformedURLException e) {
 					Log.w(ChatActivity.class.toString(), e);
 				} catch (IllegalStateException e) {
-					//already connect, ignore
+					// already connect, ignore
 				}
 			}
 		}
@@ -90,28 +97,8 @@ public class ChatActivity extends Activity {
 	private String mUsername = "";
 	private String mPassword = "";
 	private String mNick = "";
-
 	private int mFlair = 0;
 	private boolean mSquee = false;
-
-	public String getNick() {
-		return mNick;
-	}
-
-	protected void setNick(String nick) {
-		if (nick != null) {
-			mNick = nick;
-			mEditChatMsg.setEnabled(true);
-		} else {
-			mNick = "Anonymous";
-			mEditChatMsg.setEnabled(false);
-		}
-
-		mTextNick.setText(mNick);
-		if (mChatAdapter != null)
-			mChatAdapter.setNick(nick);
-	}
-
 	private int mScrollback = 100;
 	private int mDrinkCount = 0;
 	private int mMyDrinkCount = 0;
@@ -248,10 +235,12 @@ public class ChatActivity extends Activity {
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_autocomplete_nick:
-			int selStart = Math.min(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
-			int selEnd = Math.max(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
+			int selStart = Math.min(mEditChatMsg.getSelectionStart(),
+					mEditChatMsg.getSelectionEnd());
+			int selEnd = Math.max(mEditChatMsg.getSelectionStart(),
+					mEditChatMsg.getSelectionEnd());
 			String msg = mEditChatMsg.getText().toString();
-			
+
 			// no text selected, select word
 			if (selStart == selEnd) {
 				if (msg.length() > 0) {
@@ -425,6 +414,20 @@ public class ChatActivity extends Activity {
 		}
 	}
 
+	protected void setNick(String nick) {
+		if (nick != null) {
+			mNick = nick;
+			mEditChatMsg.setEnabled(true);
+		} else {
+			mNick = "Anonymous";
+			mEditChatMsg.setEnabled(false);
+		}
+
+		mTextNick.setText(mNick);
+		if (mChatAdapter != null)
+			mChatAdapter.setNick(nick);
+	}
+
 	private void updateDrinkCount() {
 		if (!mShowDrinkCount) {
 			setTextDrinksVisible(false);
@@ -485,7 +488,8 @@ public class ChatActivity extends Activity {
 		final ArrayList<String> userNicks = new ArrayList<String>();
 		for (ChatUser chatUser : userList) {
 			if (filter != null) {
-				if (chatUser.getNick().toLowerCase().startsWith(filter.toLowerCase())) {
+				if (chatUser.getNick().toLowerCase()
+						.startsWith(filter.toLowerCase())) {
 					userNicks.add(chatUser.getNick());
 				}
 			} else {
@@ -515,18 +519,19 @@ public class ChatActivity extends Activity {
 			toast.show();
 		}
 	}
-	
+
 	private void replaceNick(String nick) {
 		int selStart = mEditChatMsg.getSelectionStart();
 		int selEnd = mEditChatMsg.getSelectionEnd();
 		/*
-		mEditChatMsg.getText().replace(
-				Math.min(selStart, selEnd), Math.max(selStart, selEnd),
-				nick, 0, nick.length());
-		*/	
+		 * mEditChatMsg.getText().replace( Math.min(selStart, selEnd),
+		 * Math.max(selStart, selEnd), nick, 0, nick.length());
+		 */
 		String msg = mEditChatMsg.getText().toString();
-		msg = msg.substring(0, Math.min(selStart, selEnd)) + nick + msg.substring(Math.max(selStart, selEnd));
-		mEditChatMsg.setText(msg); //SetText to refresh suggestions from some keyboards
+		msg = msg.substring(0, Math.min(selStart, selEnd)) + nick
+				+ msg.substring(Math.max(selStart, selEnd));
+		mEditChatMsg.setText(msg); // SetText to refresh suggestions from some
+									// keyboards
 		mEditChatMsg.setSelection(Math.min(selStart, selEnd) + nick.length());
 	}
 
