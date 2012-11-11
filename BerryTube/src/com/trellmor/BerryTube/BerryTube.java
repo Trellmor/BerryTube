@@ -70,7 +70,7 @@ public class BerryTube extends Service {
 			mSocket.disconnect();
 
 		mSocket = null;
-
+		
 		super.onDestroy();
 	}
 
@@ -80,7 +80,7 @@ public class BerryTube extends Service {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flag, int startId) {
+	public int onStartCommand(Intent intent, int flag, int startId) {		
 		return START_NOT_STICKY;
 	}
 
@@ -361,16 +361,16 @@ public class BerryTube extends Service {
 			this.mChatMsg = chatMsg;
 		}
 
-		public void run() {
+		public void run() {		
+			if (mChatMsgBufferSize != 0)
+				mChatMsgBuffer.add(mChatMsg);
+
+			if (mChatMsgBufferSize > 0) {
+				while (mChatMsgBuffer.size() > mChatMsgBufferSize)
+					mChatMsgBuffer.remove(0);
+			}
+
 			for (BerryTubeCallback callback : mCallbacks) {
-				if (mChatMsgBufferSize != 0)
-					mChatMsgBuffer.add(mChatMsg);
-
-				if (mChatMsgBufferSize > 0) {
-					while (mChatMsgBuffer.size() > mChatMsgBufferSize)
-						mChatMsgBuffer.remove(0);
-				}
-
 				callback.onChatMessage(mChatMsg);
 			}
 		}
@@ -385,7 +385,7 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
-			mNick = nick;
+			mNick = nick;		
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onSetNick(nick);
 			}
