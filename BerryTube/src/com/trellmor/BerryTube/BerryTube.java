@@ -28,7 +28,11 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActivityManager;
+import android.app.Notification;
 import android.app.Service;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -58,10 +62,14 @@ public class BerryTube extends Service {
 	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
 	private int mDrinkCount = 0;
 	private Handler mHandler = new Handler();
+	
+	public static final int KEY_ID_NOTIFICATION = 1000;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		Log.i(this.getClass().toString(), "onCreate");
 	}
 
 	@Override
@@ -95,9 +103,9 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String username, String password)
+	public void connect(String username, String password, NotificationBuilder notification)
 			throws MalformedURLException, IllegalStateException {
-		connect(new URL("http://96.127.152.99:8344"), username, password);
+		connect(new URL("http://96.127.152.99:8344"), username, password, notification);
 	}
 
 	/**
@@ -113,9 +121,9 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String url, String username, String password)
+	public void connect(String url, String username, String password, NotificationBuilder notification)
 			throws MalformedURLException, IllegalStateException {
-		connect(new URL(url), username, password);
+		connect(new URL(url), username, password, notification);
 	}
 
 	/**
@@ -131,7 +139,7 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(URL url, String username, String password)
+	public void connect(URL url, String username, String password, NotificationBuilder notification)
 			throws IllegalStateException {
 		if (mSocket != null && mSocket.isConnected())
 			throw new IllegalStateException("Already connected");
@@ -146,6 +154,9 @@ public class BerryTube extends Service {
 
 		mSocket = new SocketIO(mUrl);
 		mSocket.connect(new BerryTubeIOCallback(this));
+		
+		Notification note = notification.build(this);
+		startForeground(KEY_ID_NOTIFICATION, note);
 	}
 
 	/**
@@ -305,13 +316,25 @@ public class BerryTube extends Service {
 	public int getDrinkCount() {
 		return mDrinkCount;
 	}
+	
+	public static boolean isServiceRunning(Context context) {
+		ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager
+				.getRunningServices(Integer.MAX_VALUE)) {
+			if (BerryTube.class.getName()
+					.equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	Handler getHandler() {
 		return mHandler;
 	}
 
 	class ConnectTask implements Runnable {
-		public void run() {
+		public void run() {		
 			if (mSocket == null)
 				return;
 
@@ -344,7 +367,7 @@ public class BerryTube extends Service {
 
 	class DisconnectTask implements Runnable {
 		@Override
-		public void run() {
+		public void run() {		
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onDisconnect();
 			}

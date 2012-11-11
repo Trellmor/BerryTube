@@ -39,7 +39,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
 	@SuppressLint("NewApi")
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 
@@ -59,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity implements
 	}
 
 	@Override
-	public void onResume() {
+	protected void onResume() {
 		super.onResume();
 
 		getPreferenceScreen().getSharedPreferences()

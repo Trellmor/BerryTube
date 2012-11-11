@@ -47,6 +47,7 @@ class BerryTubeIOCallback implements IOCallback {
 	 */
 	public void onDisconnect() {
 		berryTube.getHandler().post(berryTube.new DisconnectTask());
+		Log.i(this.getClass().toString(), "Disconnected");
 	}
 
 	/**

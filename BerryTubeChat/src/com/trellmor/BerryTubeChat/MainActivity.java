@@ -17,24 +17,22 @@
  */
 package com.trellmor.BerryTubeChat;
 
-import com.trellmor.BerryTube.BerryTube;
-
-import android.os.Build;
-import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
+import com.trellmor.BerryTube.BerryTube;
 
 /**
  * BerryTubeChat Main Activity
@@ -88,10 +86,10 @@ public class MainActivity extends Activity {
 
 	@SuppressLint("NewApi")
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (isServiceRunning()) {
+		if (BerryTube.isServiceRunning(this)) {
 			Intent chat = new Intent(this, ChatActivity.class);
 			startActivity(chat);
 		}
@@ -148,7 +146,7 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	public void onStop() {
+	protected void onStop() {
 		super.onStop();
 
 		SharedPreferences settings = getSharedPreferences(KEY_LOGIN,
@@ -189,17 +187,5 @@ public class MainActivity extends Activity {
 		chat.putExtra(KEY_PASSWORD, password);
 
 		startActivity(chat);
-	}
-
-	protected boolean isServiceRunning() {
-		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager
-				.getRunningServices(Integer.MAX_VALUE)) {
-			if (BerryTube.class.getName()
-					.equals(service.service.getClassName())) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

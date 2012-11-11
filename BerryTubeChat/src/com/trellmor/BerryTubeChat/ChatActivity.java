@@ -53,6 +53,7 @@ import com.trellmor.BerryTube.BerryTubeBinder;
 import com.trellmor.BerryTube.BerryTubeCallback;
 import com.trellmor.BerryTube.ChatMessage;
 import com.trellmor.BerryTube.ChatUser;
+import com.trellmor.BerryTube.NotificationBuilder;
 import com.trellmor.BerryTube.Poll;
 
 /**
@@ -61,6 +62,8 @@ import com.trellmor.BerryTube.Poll;
  * @author Daniel
  */
 public class ChatActivity extends Activity {
+	private static final String KEY_DRINKCOUT = "drinkCount";
+	private static final String KEY_MYDRINKCOUNT = "myDrinkCount";
 
 	private ChatMessageAdapter mChatAdapter = null;
 	private ListView mListChat;
@@ -76,38 +79,13 @@ public class ChatActivity extends Activity {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mServiceConnected = false;
+			mService = null;
 		}
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mServiceConnected = true;
-			mBinder = (BerryTubeBinder) service;
-			mBinder.getService().registerCallback(mCallback);
-
-			mBinder.getService().setChatMsgBufferSize(mScrollback);
-
-			mChatAdapter = new ChatMessageAdapter(ChatActivity.this,
-					R.layout.chat_item, mBinder.getService().getChatMsgBuffer());
-			mListChat.setAdapter(mChatAdapter);
-
-			if (mBinder.getService().isConnected()) {
-				setNick(mBinder.getService().getNick());
-				mDrinkCount = mBinder.getService().getDrinkCount();
-				updateDrinkCount();
-			} else {
-				try {
-					// Only connect if we got Username and Password from
-					// MainActivity, otherwise wait until BerryTube reconnect
-					// normally
-					if (mUsername != null && mPassword != null) {
-						mBinder.getService().connect(mUsername, mPassword);
-					}
-				} catch (MalformedURLException e) {
-					Log.w(ChatActivity.class.toString(), e);
-				} catch (IllegalStateException e) {
-					// already connect, ignore
-				}
-			}
+			initService((BerryTubeBinder) service);
 		}
 	};
 
@@ -126,8 +104,9 @@ public class ChatActivity extends Activity {
 
 	@SuppressLint("NewApi")
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_chat);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActionBar().setDisplayHomeAsUpEnabled(false);
@@ -148,53 +127,67 @@ public class ChatActivity extends Activity {
 		registerForContextMenu(mEditChatMsg);
 
 		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
+		registerForContextMenu(mTextDrinks);
+		
 		mTextNick = (TextView) findViewById(R.id.text_nick);
 		mTextNick.setText("Anonymous");
 
-		getConfigurationInstance();
 		mListChat = (ListView) findViewById(R.id.list_chat);
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);
 		mPassword = intent.getStringExtra(MainActivity.KEY_PASSWORD);
 
-		createCallback();
-
-		Intent serviceIntent = new Intent(this, BerryTube.class);
-		startService(serviceIntent);
-		bindService(serviceIntent, mService, BIND_ABOVE_CLIENT);
+		if (savedInstanceState != null) {
+			mDrinkCount = savedInstanceState.getInt(KEY_DRINKCOUT);
+			mMyDrinkCount = savedInstanceState.getInt(KEY_MYDRINKCOUNT);
+		}
+		
+		startService(new Intent(this, BerryTube.class));
+		bindService(new Intent(this, BerryTube.class), mService,
+				BIND_ABOVE_CLIENT);
 	}
 
 	@Override
-	public void onStart() {
+	protected void onStart() {
 		super.onStart();
 
 		mPlayer = MediaPlayer.create(this, R.raw.squee);
 
 		loadPreferences();
 
+		if (mBinder != null) {
+			initService(mBinder);
+		}
+
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
-	public void onStop() {
+	protected void onStop() {
 		super.onStop();
 
 		if (mPlayer != null) {
 			mPlayer.release();
 		}
 
+		// Kill the callback
+		if (mBinder != null) {
+			mBinder.getService().unregisterCallback(mCallback);
+		}
+
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
-	public void onDestroy() {
-		if (mBinder != null) {
-			mBinder.getService().unregisterCallback(mCallback);
-			mCallback = null;
-		}
-		if (mServiceConnected)
+	protected void onDestroy() {
+		if (mServiceConnected) {
 			unbindService(mService);
+			mService = null;
+			mBinder = null;
+		}
+
+		mCallback = null;
 
 		super.onDestroy();
 	}
@@ -243,8 +236,13 @@ public class ChatActivity extends Activity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		if (v == mEditChatMsg) {
+		switch (v.getId()) {
+		case R.id.edit_chat_msg:
 			getMenuInflater().inflate(R.menu.context_edit_chat_msg, menu);
+			break;
+		case R.id.text_drinks:
+			getMenuInflater().inflate(R.menu.context_text_drinks, menu);
+			break;
 		}
 	}
 
@@ -285,29 +283,22 @@ public class ChatActivity extends Activity {
 				selectUser(null);
 			}
 			return true;
+		case R.id.menu_reset_my_drinks:
+			mMyDrinkCount = 0;
+			updateDrinkCount();
+			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
 
 	}
 
-	private class ConfigurationInstance {
-		public int MyDrinkCount;
-	}
-
 	@Override
-	public Object onRetainNonConfigurationInstance() {
-		ConfigurationInstance instance = new ConfigurationInstance();
-		instance.MyDrinkCount = mMyDrinkCount;
-		return instance;
-	}
-
-	private void getConfigurationInstance() {
-		@SuppressWarnings("deprecation")
-		ConfigurationInstance instance = (ConfigurationInstance) getLastNonConfigurationInstance();
-		if (instance != null) {
-			mMyDrinkCount = instance.MyDrinkCount;
-		}
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putInt(KEY_DRINKCOUT, mDrinkCount);
+		outState.putInt(KEY_MYDRINKCOUNT, mMyDrinkCount);
 	}
 
 	private void createCallback() {
@@ -582,6 +573,47 @@ public class ChatActivity extends Activity {
 
 			AlertDialog dialog = builder.create();
 			dialog.show();
+		}
+	}
+
+	private void initService(BerryTubeBinder service) {
+		mBinder = service;
+
+		if (mCallback == null) {
+			createCallback();
+		}
+		mBinder.getService().registerCallback(mCallback);
+
+		mBinder.getService().setChatMsgBufferSize(mScrollback);
+
+		if (mChatAdapter == null) {
+			mChatAdapter = new ChatMessageAdapter(ChatActivity.this,
+					R.layout.chat_item, mBinder.getService().getChatMsgBuffer());
+			mListChat.setAdapter(mChatAdapter);
+		}
+
+		mChatAdapter.notifyDataSetChanged();
+		setNick(mBinder.getService().getNick());
+		mDrinkCount = mBinder.getService().getDrinkCount();
+		updateDrinkCount();
+
+		if (!mBinder.getService().isConnected()) {
+			try {
+				// Only connect if we got Username and Password from
+				// MainActivity, otherwise wait until BerryTube reconnect
+				// normally
+				if (mUsername != null && mPassword != null) {
+					NotificationBuilder nb = new NotificationBuilder(
+							R.drawable.ic_stat_notify_berrytube,
+							getString(R.string.title_activity_chat),
+							ChatActivity.class);
+					mBinder.getService().connect(mUsername, mPassword, nb);
+				}
+			} catch (MalformedURLException e) {
+				Log.w(ChatActivity.class.toString(), e);
+			} catch (IllegalStateException e) {
+				// already connect, ignore
+			}
 		}
 	}
 }
