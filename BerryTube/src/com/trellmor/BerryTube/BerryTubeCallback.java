@@ -76,6 +76,14 @@ public interface BerryTubeCallback {
 	 * The poll has been closed
 	 */
 	void onClearPoll();
+	
+	/**
+	 * The currently playing video was updated
+	 * 
+	 * @param name The name of the video (e.g. Sh-Pony).
+	 * @param id The 11-character YouTube ID of the video (e.g. JWa0kkIRumk).
+	 */
+	void onVideoUpdate(String name, String id);
 
 	/**
 	 * The user was kicked from the server

@@ -331,14 +331,18 @@ public class BerryTube extends Service {
 
 	Handler getHandler() {
 		return mHandler;
+	}	
+	
+	public void disableVideoMessages() {
+		if(mSocket != null) {
+			mSocket.emit("chatOnly");
+		}
 	}
 
 	class ConnectTask implements Runnable {
 		public void run() {		
 			if (mSocket == null)
 				return;
-
-			mSocket.emit("chatOnly");
 
 			try {
 				MessageDigest md = MessageDigest.getInstance("MD5");
@@ -516,6 +520,22 @@ public class BerryTube extends Service {
 
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onClearPoll();
+			}
+		}
+	}
+
+	class NewVideoTask implements Runnable {
+		private String mName;
+		private String mId;
+		
+		public NewVideoTask(String name, String id) {
+			this.mName = name;
+			this.mId = id;
+		}
+		
+		public void run() {
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onVideoUpdate(mName,  mId);
 			}
 		}
 	}

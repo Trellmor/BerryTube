@@ -35,6 +35,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -70,6 +72,7 @@ public class ChatActivity extends Activity {
 	private TextView mTextNick;
 	private EditText mEditChatMsg;
 	private TextView mTextDrinks;
+	private TextView mCurrentVideo;
 	private MediaPlayer mPlayer;
 
 	private BerryTubeBinder mBinder = null;
@@ -94,6 +97,8 @@ public class ChatActivity extends Activity {
 	private String mNick = "";
 	private int mFlair = 0;
 	private boolean mSquee = false;
+	private boolean mShowVideo = false;
+	private boolean mFirstPrefLoad = true;
 	private int mScrollback = 100;
 	private int mDrinkCount = 0;
 	private int mMyDrinkCount = 0;
@@ -128,6 +133,9 @@ public class ChatActivity extends Activity {
 
 		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
 		registerForContextMenu(mTextDrinks);
+		
+		mCurrentVideo = (TextView) findViewById(R.id.text_video);
+		mCurrentVideo.setMovementMethod(LinkMovementMethod.getInstance());
 		
 		mTextNick = (TextView) findViewById(R.id.text_nick);
 		mTextNick.setText("Anonymous");
@@ -349,6 +357,12 @@ public class ChatActivity extends Activity {
 			public void onClearPoll() {
 
 			}
+			
+			@Override
+			public void onVideoUpdate(String name, String id) {
+				setTextVideoVisible(true);
+				updateCurrentVideo(name, id);
+			}
 
 			@Override
 			public void onKicked() {
@@ -406,11 +420,27 @@ public class ChatActivity extends Activity {
 		}
 
 		mSquee = settings.getBoolean(MainActivity.KEY_SQUEE, false);
+		boolean showVideo = settings.getBoolean(MainActivity.KEY_VIDEO, false);
+		if (showVideo != mShowVideo) {
+			// If the value has changed, act on it
+			if (showVideo) {
+				if (!mFirstPrefLoad) {
+					Toast.makeText(this, R.string.toast_video_enabled, Toast.LENGTH_LONG).show();
+				}
+			}
+			else {
+				mBinder.getService().disableVideoMessages();
+				setTextVideoVisible(false);
+			}
+		}
+		mShowVideo = showVideo;
 
 		mShowDrinkCount = settings
 				.getBoolean(MainActivity.KEY_DRINKCOUNT, true);
 		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);
 		updateDrinkCount();
+
+		mFirstPrefLoad = false;
 	}
 
 	private void sendChatMsg() {
@@ -468,6 +498,22 @@ public class ChatActivity extends Activity {
 
 		if (mTextDrinks != null && mTextDrinks.getVisibility() != visibility)
 			mTextDrinks.setVisibility(visibility);
+	}
+
+	private void updateCurrentVideo(String title, String id) {
+		mCurrentVideo.setText(Html.fromHtml(getString(R.string.current_video) + 
+				" <a href=\"http://www.youtube.com/watch?v=" + id + "\">" + title + "</a>"));
+	}
+	
+	private void setTextVideoVisible(boolean visible) {
+		if(!mShowVideo) {
+			return;
+		}
+		
+		int visibility = (visible) ? View.VISIBLE : View.GONE;
+
+		if (mCurrentVideo != null && mCurrentVideo.getVisibility() != visibility)
+			mCurrentVideo.setVisibility(visibility);
 	}
 
 	private void selectUser(String filter) {

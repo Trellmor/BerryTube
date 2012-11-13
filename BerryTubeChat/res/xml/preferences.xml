@@ -33,5 +33,16 @@
         android:title="@string/pref_squee_title"
         android:summary="@string/pref_squee_summary"
         android:defaultValue="false" />
+    
+    <CheckBoxPreference 
+        android:key="com.trellmor.BerryTubeChat.settings.timestamp"
+        android:title="@string/pref_timestamp_title"
+        android:defaultValue="false" />
+    
+    <CheckBoxPreference
+        android:key="com.trellmor.BerryTubeChat.settings.video"
+        android:title="@string/pref_video_title"
+        android:summary="@string/pref_video_summary"
+        android:defaultValue="false" />
 
 </PreferenceScreen>

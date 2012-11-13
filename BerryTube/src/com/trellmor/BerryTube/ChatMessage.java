@@ -64,6 +64,7 @@ public class ChatMessage {
 	private int emote = EMOTE_FALSE;
 	private int flair = 0;
 	private int multi;
+	private long timeStamp;
 
 	/**
 	 * Constructs a <code>ChatMessage</code>
@@ -79,6 +80,7 @@ public class ChatMessage {
 		this.msg = msg;
 		this.emote = emote;
 		this.flair = flair;
+		this.timeStamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -114,6 +116,8 @@ public class ChatMessage {
 
 		JSONObject metadata = message.getJSONObject("metadata");
 		flair = metadata.getInt("flair");
+		
+		this.timeStamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -148,7 +152,7 @@ public class ChatMessage {
 	 * 
 	 * @return
 	 */
-	public boolean isEmpote() {
+	public boolean isEmote() {
 		return emote != EMOTE_FALSE;
 	}
 	
@@ -183,6 +187,15 @@ public class ChatMessage {
 	 */
 	public int getMulti() {
 		return multi;
+	}
+	
+	/**
+	 * Get the timestamp for this message
+	 * 
+	 * @return The timestamp, in milliseconds since 1970
+	 */
+	public long getTimestamp() {
+		return timeStamp;
 	}
 
 	/**

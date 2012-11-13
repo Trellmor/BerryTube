@@ -61,6 +61,8 @@ public class MainActivity extends Activity {
 	 */
 	public final static String KEY_REMEMBER = "com.trellmor.BerryTubeChat.login.rememberLogin";
 
+	public final static String KEY_SETTINGS = "com.trellmor.BerryTubeChat.settings";
+
 	/**
 	 * Key for scrollback buffer size setting
 	 */
@@ -81,6 +83,8 @@ public class MainActivity extends Activity {
 	 * Key for play squee sound setting
 	 */
 	public final static String KEY_SQUEE = "com.trellmor.BerryTubeChat.settings.squee";
+	public final static String KEY_TIMESTAMP = "com.trellmor.BerryTubeChat.settings.timestamp";
+	public final static String KEY_VIDEO = "com.trellmor.BerryTubeChat.settings.video";
 
 	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
 

@@ -25,11 +25,19 @@
     <string name="pref_flair_summary">Your flair will be displayed next to all of your messages</string>
     <string name="pref_squee_title">Play notify sound</string>
     <string name="pref_squee_summary">Squee!</string>
+    <string name="pref_timestamp_title">Display timestamps</string>
+    <string name="pref_video_title">Show current video</string>
+    <string name="pref_video_summary">The currently playing video will display at the top of the screen</string>
     <string name="drink">BP</string>
+    <string name="chat_drink">drink!</string>
+    <string name="drink_count_single">drink</string>
+    <string name="drink_count_plural">drinks</string>
+    <string name="current_video">Current video:</string>
     <string name="disconnected">Connection lost</string>
     <string name="message_disconnected">Connection to BerryTube.tv lost.</string>
     <string name="nopoll">No poll</string>
     <string name="message_nopoll">There is no open poll.</string>
+    <string name="toast_video_enabled">Video titles will begin displaying after you reconnect.</string>
     <string name="toast_no_users">No users found.</string>
     
     <string-array name="pref_flair_options">

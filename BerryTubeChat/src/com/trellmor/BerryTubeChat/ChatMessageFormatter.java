@@ -17,9 +17,15 @@
  */
 package com.trellmor.BerryTubeChat;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Gravity;
@@ -75,7 +81,7 @@ public class ChatMessageFormatter {
 		TextView textChatMultiple = (TextView) view
 				.findViewById(R.id.text_chat_drink_multiple);
 
-		textChatMessage.setText(message.getNick() + ": " + message.getMsg());
+		textChatMessage.setText(message.getNick() + ": " + message.getMsg() + " " + mContext.getString(R.string.chat_drink));
 
 		if (message.getMulti() > 1) {
 			textChatMultiple
@@ -107,13 +113,13 @@ public class ChatMessageFormatter {
 		case ChatMessage.EMOTE_REQUEST:
 			textChatMessage.setTextColor(Color.BLUE);
 			textChatMessage.setTypeface(null, Typeface.BOLD);
-			textChatMessage.setText(message.getNick() + " requests "
+			textChatMessage.setText(createTimestamp(message.getTimestamp()) + message.getNick() + " requests "
 					+ message.getMsg());
 			break;
 		case ChatMessage.EMOTE_ACT:
 			textChatMessage.setTextColor(Color.GRAY);
 			textChatMessage.setTypeface(null, Typeface.ITALIC);
-			textChatMessage.setText(message.getNick() + " " + message.getMsg());
+			textChatMessage.setText(createTimestamp(message.getTimestamp()) + message.getNick() + " " + message.getMsg());
 			break;
 		case ChatMessage.EMOTE_POLL:
 			textChatMessage.setTextColor(Color.parseColor("#008000"));
@@ -127,7 +133,7 @@ public class ChatMessageFormatter {
 			textChatMessage.setTextColor(Color.RED);
 			textChatMessage.setTextSize(18);
 			textChatMessage
-					.setText(message.getNick() + ": " + message.getMsg());
+					.setText(createTimestamp(message.getTimestamp()) + message.getNick() + ": " + message.getMsg());
 		default:
 			textChatMessage.setText(formatChatMsg(message));
 			break;
@@ -140,12 +146,23 @@ public class ChatMessageFormatter {
 	private String highlightNick(String msg) {
 		if (mNick == null)
 			return msg;
-		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick
-				+ "</font>");
+		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick + "</font>");
+	}
+	
+	private String createTimestamp(long timeStamp) {
+		String result = "";
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false) && timeStamp > 0) {
+			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
+			result = sdf.format(new Date(timeStamp));
+		}
+		
+		return result;
 	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
 		StringBuffer sb = new StringBuffer();
+		sb.append(createTimestamp(message.getTimestamp()));
 		sb.append("<b>").append(message.getNick()).append("</b>");
 		if (message.getFlair() > 0) {
 			sb.append("<img src=\"").append(message.getFlair()).append("\" />");

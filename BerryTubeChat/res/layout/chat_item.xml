@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/text_chat_message"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:autoLink="web"
+    android:paddingBottom="2dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:paddingTop="2dp"
     android:singleLine="false"
-    android:autoLink="web" />
+    android:textAppearance="?android:attr/textAppearanceSmall" />

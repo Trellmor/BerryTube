@@ -17,6 +17,9 @@
  */
 package com.trellmor.BerryTube;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -196,6 +199,22 @@ class BerryTubeIOCallback implements IOCallback {
 			}
 		} else if (event.compareTo("clearPoll") == 0) {
 			berryTube.getHandler().post(berryTube.new ClearPollTask());
+		} else if (event.compareTo("forceVideoChange") == 0 || event.compareTo("hbVideoDetail") == 0) {
+			if (args.length >= 1 && args[0] instanceof JSONObject) {
+				JSONObject videoMsg = (JSONObject) args[0];
+				try {
+					JSONObject video = videoMsg.getJSONObject("video");
+					String name = URLDecoder.decode(video.getString("videotitle"), "UTF-8");
+					String id = video.getString("videoid");
+					berryTube.getHandler().post(berryTube.new NewVideoTask(name, id));
+				}
+				catch (JSONException e) {
+					Log.w(this.getClass().toString(), e);
+				}
+				catch (UnsupportedEncodingException e) {
+					Log.w(this.getClass().toString(), e);
+				}
+			}
 		}
 	}
 
