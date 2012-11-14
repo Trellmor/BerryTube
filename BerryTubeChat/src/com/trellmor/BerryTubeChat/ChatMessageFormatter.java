@@ -24,7 +24,6 @@ import java.util.Locale;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
@@ -112,22 +111,19 @@ public class ChatMessageFormatter {
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_REQUEST:
 			textChatMessage.setTextColor(Color.BLUE);
-			textChatMessage.setTypeface(null, Typeface.BOLD);
-			textChatMessage.setText(createTimestamp(message.getTimestamp()) + message.getNick() + " requests "
-					+ message.getMsg());
+			textChatMessage.setText(Html.fromHtml(createTimestamp(message.getTimestamp()) + "<b><i>" + message.getNick() + 
+					" requests " + message.getMsg() + "</i></b>"));
 			break;
 		case ChatMessage.EMOTE_ACT:
 			textChatMessage.setTextColor(Color.GRAY);
-			textChatMessage.setTypeface(null, Typeface.ITALIC);
-			textChatMessage.setText(createTimestamp(message.getTimestamp()) + message.getNick() + " " + message.getMsg());
+			textChatMessage.setText(Html.fromHtml(createTimestamp(message.getTimestamp()) + "<i>" + message.getNick() + " " +
+					message.getMsg() + "</i>"));
 			break;
 		case ChatMessage.EMOTE_POLL:
 			textChatMessage.setTextColor(Color.parseColor("#008000"));
-			textChatMessage.setTypeface(null, Typeface.BOLD_ITALIC);
 			textChatMessage.setTextSize(18);
 			textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
-			textChatMessage.setText(message.getNick()
-					+ " created a new poll \"" + message.getMsg() + "\"");
+			textChatMessage.setText(Html.fromHtml("<b>" + message.getNick() + " created a new poll \"" + message.getMsg() + "\"</b>"));
 			break;
 		case ChatMessage.EMOTE_RCV:
 			textChatMessage.setTextColor(Color.RED);
