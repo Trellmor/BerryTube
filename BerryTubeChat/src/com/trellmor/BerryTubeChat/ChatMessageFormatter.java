@@ -54,6 +54,11 @@ public class ChatMessageFormatter {
 		mFlairGetter = new FlairGetter(mContext.getResources());
 	}
 
+	static class ViewHolder {
+		public TextView textChatMessage;
+		public TextView textChatMultiple;
+	}
+
 	public View format(View view, ChatMessage message) {
 
 		switch (message.getEmote()) {
@@ -74,64 +79,99 @@ public class ChatMessageFormatter {
 	}
 
 	private View formatDrinks(View view, ChatMessage message) {
-		view = mInflater.inflate(R.layout.chat_item_drink, null);
-		TextView textChatMessage = (TextView) view
-				.findViewById(R.id.text_chat_message);
-		TextView textChatMultiple = (TextView) view
-				.findViewById(R.id.text_chat_drink_multiple);
+		ViewHolder holder;
 
-		textChatMessage.setText(message.getNick() + ": " + message.getMsg() + " " + mContext.getString(R.string.chat_drink));
+		if (view == null || view.getId() != R.id.chat_item_drink) {
+			view = mInflater.inflate(R.layout.chat_item_drink, null);
+			holder = new ViewHolder();
+			holder.textChatMessage = (TextView) view
+					.findViewById(R.id.text_chat_message);
+			holder.textChatMultiple = (TextView) view
+					.findViewById(R.id.text_chat_drink_multiple);
+			view.setTag(holder);
+		} else {
+			holder = (ViewHolder) view.getTag();
+		}
+
+		holder.textChatMessage.setText(message.getNick() + ": "
+				+ message.getMsg() + " "
+				+ mContext.getString(R.string.chat_drink));
 
 		if (message.getMulti() > 1) {
-			textChatMultiple
+			holder.textChatMultiple
 					.setText(Integer.toString(message.getMulti()) + "x");
-			textChatMultiple.setVisibility(View.VISIBLE);
+			holder.textChatMultiple.setVisibility(View.VISIBLE);
+		} else {
+			holder.textChatMultiple.setVisibility(View.GONE);
+		}
+
+		return view;
+	}
+
+	private View inflateDefault(View view) {
+		if (view == null || view.getId() != R.id.text_chat_message) {
+			view = mInflater.inflate(R.layout.chat_item, null);
+			ViewHolder holder = new ViewHolder();
+			holder.textChatMessage = (TextView) view
+					.findViewById(R.id.text_chat_message);
+			view.setTag(holder);
+		} else {
+			ViewHolder holder = (ViewHolder) view.getTag();
+			holder.textChatMessage.setTextAppearance(mContext,
+					android.R.style.TextAppearance_Small);
+			holder.textChatMessage.setGravity(Gravity.LEFT);
 		}
 
 		return view;
 	}
 
 	private View formatDefault(View view, ChatMessage message) {
-		view = mInflater.inflate(R.layout.chat_item, null);
+		view = inflateDefault(view);
+		ViewHolder holder = (ViewHolder) view.getTag();
 
-		TextView textChatMessage = (TextView) view
-				.findViewById(R.id.text_chat_message);
-
-		textChatMessage.setText(formatChatMsg(message));
+		holder.textChatMessage.setText(formatChatMsg(message));
 
 		return view;
 	}
 
 	private View formatEmote(View view, ChatMessage message) {
 
-		view = mInflater.inflate(R.layout.chat_item, null);
-		TextView textChatMessage = (TextView) view
-				.findViewById(R.id.text_chat_message);
+		view = inflateDefault(view);
+		ViewHolder holder = (ViewHolder) view.getTag();
 
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_REQUEST:
-			textChatMessage.setTextColor(Color.BLUE);
-			textChatMessage.setText(Html.fromHtml(createTimestamp(message.getTimestamp()) + "<b><i>" + message.getNick() + 
-					" requests " + message.getMsg() + "</i></b>"));
+			holder.textChatMessage.setTextColor(Color.BLUE);
+			holder.textChatMessage.setText(Html
+					.fromHtml(createTimestamp(message.getTimestamp())
+							+ "<b><i>" + message.getNick() + " requests "
+							+ message.getMsg() + "</i></b>"));
 			break;
 		case ChatMessage.EMOTE_ACT:
-			textChatMessage.setTextColor(Color.GRAY);
-			textChatMessage.setText(Html.fromHtml(createTimestamp(message.getTimestamp()) + "<i>" + message.getNick() + " " +
-					message.getMsg() + "</i>"));
+			holder.textChatMessage.setTextColor(Color.GRAY);
+			holder.textChatMessage.setText(Html
+					.fromHtml(createTimestamp(message.getTimestamp()) + "<i>"
+							+ message.getNick() + " " + message.getMsg()
+							+ "</i>"));
 			break;
 		case ChatMessage.EMOTE_POLL:
-			textChatMessage.setTextColor(Color.parseColor("#008000"));
-			textChatMessage.setTextSize(18);
-			textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
-			textChatMessage.setText(Html.fromHtml("<b>" + message.getNick() + " created a new poll \"" + message.getMsg() + "\"</b>"));
+			holder.textChatMessage.setTextColor(Color.parseColor("#008000"));
+			holder.textChatMessage.setTextSize(18);
+			holder.textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
+			holder.textChatMessage.setText(Html.fromHtml("<b>"
+					+ message.getNick() + " created a new poll \""
+					+ message.getMsg() + "\"</b>"));
 			break;
 		case ChatMessage.EMOTE_RCV:
-			textChatMessage.setTextColor(Color.RED);
-			textChatMessage.setTextSize(18);
-			textChatMessage
-					.setText(createTimestamp(message.getTimestamp()) + message.getNick() + ": " + message.getMsg());
+			holder.textChatMessage.setTextColor(Color.RED);
+			holder.textChatMessage.setTextSize(18);
+			holder.textChatMessage.setText(createTimestamp(message
+					.getTimestamp())
+					+ message.getNick()
+					+ ": "
+					+ message.getMsg());
 		default:
-			textChatMessage.setText(formatChatMsg(message));
+			holder.textChatMessage.setText(formatChatMsg(message));
 			break;
 
 		}
@@ -142,17 +182,21 @@ public class ChatMessageFormatter {
 	private String highlightNick(String msg) {
 		if (mNick == null)
 			return msg;
-		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick + "</font>");
+		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick
+				+ "</font>");
 	}
-	
+
 	private String createTimestamp(long timeStamp) {
 		String result = "";
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false) && timeStamp > 0) {
-			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(mContext);
+		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false)
+				&& timeStamp > 0) {
+			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ",
+					Locale.ENGLISH);
 			result = sdf.format(new Date(timeStamp));
 		}
-		
+
 		return result;
 	}
 
