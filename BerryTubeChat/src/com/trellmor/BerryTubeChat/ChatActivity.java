@@ -45,6 +45,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -141,6 +143,14 @@ public class ChatActivity extends Activity {
 		mTextNick.setText("Anonymous");
 
 		mListChat = (ListView) findViewById(R.id.list_chat);
+		mListChat.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mChatAdapter.getItem(position).toggleHidden();
+				mChatAdapter.notifyDataSetChanged();
+			}
+		});
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);

@@ -214,10 +214,31 @@ public class ChatMessageFormatter {
 				"<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
-		// implying
-		if (m.startsWith("&gt;"))
-			m = "<font color=\"#789922\">" + m + "</font>";
+		String fontModifiers = ""; // For the full-string modifiers (as distinct from yay)
 
+		// Spoiler coloring (since background highlighting is hard)
+		if (message.isHidden()) {
+			fontModifiers += " color=\"#FFFFFF\"";
+		}
+		// implying
+		else if (m.startsWith("&gt;")) {
+			fontModifiers += " color=\"#789922\"";
+		}
+
+		// SWEETIEBOT
+		if (message.getEmote() == ChatMessage.EMOTE_SWEETIEBOT) {
+			fontModifiers += " face=\"courier new\"";
+		}
+		
+		if (fontModifiers.length() > 0) {
+			m = "<font" + fontModifiers + ">" + m + "</font>";
+		}
+		
+		// Spoilers
+		if (message.getEmote() == ChatMessage.EMOTE_SPOILER) {
+			m = "SPOILER: " + m;
+		}
+		
 		if (message.isHighlightable()) {
 			sb.append(highlightNick(m));
 		} else {

@@ -65,6 +65,7 @@ public class ChatMessage {
 	private int flair = 0;
 	private int multi;
 	private long timeStamp;
+	private boolean hidden;
 
 	/**
 	 * Constructs a <code>ChatMessage</code>
@@ -81,6 +82,7 @@ public class ChatMessage {
 		this.emote = emote;
 		this.flair = flair;
 		this.timeStamp = System.currentTimeMillis();
+		this.hidden = (emote == EMOTE_SPOILER);
 	}
 
 	/**
@@ -118,6 +120,7 @@ public class ChatMessage {
 		flair = metadata.getInt("flair");
 		
 		this.timeStamp = System.currentTimeMillis();
+		this.hidden = (this.emote == EMOTE_SPOILER);
 	}
 
 	/**
@@ -196,6 +199,25 @@ public class ChatMessage {
 	 */
 	public long getTimestamp() {
 		return timeStamp;
+	}
+	
+	/**
+	 * Get whether or not this message is hidden. This is only applicable if the
+	 * message's emote type is <code>EMOTE_SPOILER</code>.
+	 * 
+	 * @return <b>true</b> if this message is a <code>EMOTE_SPOILER</code> and if its
+	 * hidden flag is true; <b>false</b> otherwise
+	 */
+	public boolean isHidden() {
+		return hidden && (emote == EMOTE_SPOILER);
+	}
+	
+	/**
+	 * Flips the flag indicating whether this message should be hidden. This is only
+	 * applicable if the message's emote type is <code>EMOTE_SPOILER</code>.
+	 */
+	public void toggleHidden() {
+		hidden = !hidden;
 	}
 
 	/**
