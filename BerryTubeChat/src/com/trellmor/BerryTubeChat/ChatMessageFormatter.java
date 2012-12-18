@@ -201,7 +201,7 @@ public class ChatMessageFormatter {
 	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(createTimestamp(message.getTimestamp()));
 		sb.append("<b>").append(message.getNick()).append("</b>");
 		if (message.getFlair() > 0) {
@@ -214,31 +214,41 @@ public class ChatMessageFormatter {
 				"<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
-		String fontModifiers = ""; // For the full-string modifiers (as distinct from yay)
+		StringBuilder fontModifiers = new StringBuilder(); // For the
+															// full-string
+															// modifiers (as
+															// distinct from
+															// yay)
 
 		// Spoiler coloring (since background highlighting is hard)
 		if (message.isHidden()) {
-			fontModifiers += " color=\"#FFFFFF\"";
+			int color = mContext.getResources().getColor(
+					R.color.background_chat);
+
+			fontModifiers.append(" color=\"#")
+					.append(Integer.toHexString(color).substring(2))
+					.append("\"");
 		}
 		// implying
 		else if (m.startsWith("&gt;")) {
-			fontModifiers += " color=\"#789922\"";
+			fontModifiers.append(" color=\"#789922\"");
 		}
 
 		// SWEETIEBOT
 		if (message.getEmote() == ChatMessage.EMOTE_SWEETIEBOT) {
-			fontModifiers += " face=\"courier new\"";
+			fontModifiers.append(" face=\"courier new\"");
 		}
-		
+
 		if (fontModifiers.length() > 0) {
-			m = "<font" + fontModifiers + ">" + m + "</font>";
+			m = fontModifiers.insert(0, "<font").append(">").append(m)
+					.append("</font>").toString();
 		}
-		
+
 		// Spoilers
 		if (message.getEmote() == ChatMessage.EMOTE_SPOILER) {
-			m = "SPOILER: " + m;
+			sb.append("SPOILER: ");
 		}
-		
+
 		if (message.isHighlightable()) {
 			sb.append(highlightNick(m));
 		} else {
