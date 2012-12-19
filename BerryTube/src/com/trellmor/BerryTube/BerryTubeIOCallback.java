@@ -168,7 +168,7 @@ class BerryTubeIOCallback implements IOCallback {
 				try {
 					msg = new ChatMessage(poll.getString("creator"),
 							poll.getString("title"), ChatMessage.EMOTE_POLL, 0,
-							1);
+							0, false, 1);
 					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
 				} catch (JSONException e) {
 					Log.e(this.getClass().toString(), "newPoll", e);
@@ -199,19 +199,20 @@ class BerryTubeIOCallback implements IOCallback {
 			}
 		} else if (event.compareTo("clearPoll") == 0) {
 			berryTube.getHandler().post(berryTube.new ClearPollTask());
-		} else if (event.compareTo("forceVideoChange") == 0 || event.compareTo("hbVideoDetail") == 0) {
+		} else if (event.compareTo("forceVideoChange") == 0
+				|| event.compareTo("hbVideoDetail") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject videoMsg = (JSONObject) args[0];
 				try {
 					JSONObject video = videoMsg.getJSONObject("video");
-					String name = URLDecoder.decode(video.getString("videotitle"), "UTF-8");
+					String name = URLDecoder.decode(
+							video.getString("videotitle"), "UTF-8");
 					String id = video.getString("videoid");
-					berryTube.getHandler().post(berryTube.new NewVideoTask(name, id));
-				}
-				catch (JSONException e) {
+					berryTube.getHandler().post(
+							berryTube.new NewVideoTask(name, id));
+				} catch (JSONException e) {
 					Log.w(this.getClass().toString(), e);
-				}
-				catch (UnsupportedEncodingException e) {
+				} catch (UnsupportedEncodingException e) {
 					Log.w(this.getClass().toString(), e);
 				}
 			}

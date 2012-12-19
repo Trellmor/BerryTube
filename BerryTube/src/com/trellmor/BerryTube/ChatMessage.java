@@ -59,13 +59,15 @@ public class ChatMessage {
 	 */
 	public final static int EMOTE_DRINK = 7;
 
-	private String nick;
-	private String msg;
-	private int emote = EMOTE_FALSE;
-	private int flair = 0;
-	private int multi;
-	private long timeStamp;
-	private boolean hidden;
+	private String mNick;
+	private String mMsg;
+	private int mEmote = EMOTE_FALSE;
+	private int mFlair = 0;
+	private int mMulti;
+	private long mTimeStamp;
+	private boolean mHidden;
+	private boolean mFlaunt = false;
+	private int mType = 0;
 
 	/**
 	 * Constructs a <code>ChatMessage</code>
@@ -74,15 +76,19 @@ public class ChatMessage {
 	 * @param msg Text content
 	 * @param emote Emote type
 	 * @param flair Sender flair
+	 * @param type User level
+	 * @param flaunt User is flaunting
 	 * @param multi Multiplier for <code>EMOTE_DRINK</code> notifications
 	 */
-	public ChatMessage(String nick, String msg, int emote, int flair, int multi) {
-		this.nick = nick;
-		this.msg = msg;
-		this.emote = emote;
-		this.flair = flair;
-		this.timeStamp = System.currentTimeMillis();
-		this.hidden = (emote == EMOTE_SPOILER);
+	public ChatMessage(String nick, String msg, int emote, int flair, int type, boolean flaunt, int multi) {
+		this.mNick = nick;
+		this.mMsg = msg;
+		this.mEmote = emote;
+		this.mFlair = flair;
+		this.mTimeStamp = System.currentTimeMillis();
+		this.mHidden = (emote == EMOTE_SPOILER);
+		this.mType = type;
+		this.mFlaunt = flaunt;
 	}
 
 	/**
@@ -92,35 +98,37 @@ public class ChatMessage {
 	 * @throws JSONException
 	 */
 	public ChatMessage(JSONObject message) throws JSONException {
-		nick = message.getString("nick");
-		msg = message.getString("msg");
-		multi = message.getInt("multi");
+		mNick = message.getString("nick");
+		mMsg = message.getString("msg");
+		mMulti = message.getInt("multi");
+		mType = message.getInt("type");
 
 		// check emote
 		if (message.has("emote") && message.get("emote") instanceof String) {
 			String emote = message.getString("emote");
 			if (emote.compareTo("rcv") == 0)
-				this.emote = EMOTE_RCV;
+				this.mEmote = EMOTE_RCV;
 			else if (emote.compareTo("sweetiebot") == 0)
-				this.emote = EMOTE_SWEETIEBOT;
+				this.mEmote = EMOTE_SWEETIEBOT;
 			else if (emote.compareTo("spoiler") == 0)
-				this.emote = EMOTE_SPOILER;
+				this.mEmote = EMOTE_SPOILER;
 			else if (emote.compareTo("act") == 0)
-				this.emote = EMOTE_ACT;
+				this.mEmote = EMOTE_ACT;
 			else if (emote.compareTo("request") == 0)
-				this.emote = EMOTE_REQUEST;
+				this.mEmote = EMOTE_REQUEST;
 			else if (emote.compareTo("poll") == 0)
-				this.emote = EMOTE_POLL;
+				this.mEmote = EMOTE_POLL;
 			else if (emote.compareTo("drink") == 0)
-				this.emote = EMOTE_DRINK;
+				this.mEmote = EMOTE_DRINK;
 		} else
-			emote = 0;
+			mEmote = 0;
 
 		JSONObject metadata = message.getJSONObject("metadata");
-		flair = metadata.getInt("flair");
+		mFlair = metadata.getInt("flair");
+		mFlaunt = metadata.optBoolean("nameflaunt");
 		
-		this.timeStamp = System.currentTimeMillis();
-		this.hidden = (this.emote == EMOTE_SPOILER);
+		this.mTimeStamp = System.currentTimeMillis();
+		this.mHidden = (this.mEmote == EMOTE_SPOILER);
 	}
 
 	/**
@@ -129,7 +137,7 @@ public class ChatMessage {
 	 * @return Sender name
 	 */
 	public String getNick() {
-		return nick;
+		return mNick;
 	}
 
 	/**
@@ -138,7 +146,7 @@ public class ChatMessage {
 	 * @return Text content
 	 */
 	public String getMsg() {
-		return msg;
+		return mMsg;
 	}
 
 	/**
@@ -147,7 +155,7 @@ public class ChatMessage {
 	 * @return Emote type
 	 */
 	public int getEmote() {
-		return emote;
+		return mEmote;
 	}
 
 	/**
@@ -156,7 +164,7 @@ public class ChatMessage {
 	 * @return
 	 */
 	public boolean isEmote() {
-		return emote != EMOTE_FALSE;
+		return mEmote != EMOTE_FALSE;
 	}
 	
 	/**
@@ -165,7 +173,7 @@ public class ChatMessage {
 	 * @return
 	 */
 	public boolean isHighlightable() {
-		switch (emote) {
+		switch (mEmote) {
 		case EMOTE_ACT:
 		case EMOTE_FALSE:
 			return true;
@@ -180,7 +188,7 @@ public class ChatMessage {
 	 * @return Flair index
 	 */
 	public int getFlair() {
-		return flair;
+		return mFlair;
 	}
 
 	/**
@@ -189,7 +197,7 @@ public class ChatMessage {
 	 * @return Multiplier
 	 */
 	public int getMulti() {
-		return multi;
+		return mMulti;
 	}
 	
 	/**
@@ -198,7 +206,26 @@ public class ChatMessage {
 	 * @return The timestamp, in milliseconds since 1970
 	 */
 	public long getTimestamp() {
-		return timeStamp;
+		return mTimeStamp;
+	}
+	
+	/**
+	 * Get the user level
+	 * 
+	 * @return user lever
+	 * @see com.Trellmor.BerryTube.ChatUser
+	 */
+	public int getType() {
+		return mType;
+	}
+	
+	/**
+	 * User is flaunting and nick should be colored according to type
+	 * 
+	 * @return flaunting
+	 */
+	public boolean isFlaunt() {
+		return mFlaunt;
 	}
 	
 	/**
@@ -209,7 +236,7 @@ public class ChatMessage {
 	 * hidden flag is true; <b>false</b> otherwise
 	 */
 	public boolean isHidden() {
-		return hidden && (emote == EMOTE_SPOILER);
+		return mHidden && (mEmote == EMOTE_SPOILER);
 	}
 	
 	/**
@@ -217,7 +244,7 @@ public class ChatMessage {
 	 * applicable if the message's emote type is <code>EMOTE_SPOILER</code>.
 	 */
 	public void toggleHidden() {
-		hidden = !hidden;
+		mHidden = !mHidden;
 	}
 
 	/**
@@ -230,8 +257,8 @@ public class ChatMessage {
 		if (this.getClass() == obj.getClass()) {
 			ChatMessage msg = (ChatMessage) obj;
 
-			return this.nick.toLowerCase().equals(msg.getNick().toLowerCase())
-					&& this.msg.equals(msg.getMsg());
+			return this.mNick.toLowerCase().equals(msg.getNick().toLowerCase())
+					&& this.mMsg.equals(msg.getMsg());
 		}
 		return false;
 	}
@@ -241,6 +268,6 @@ public class ChatMessage {
 	 */
 	@Override
 	public String toString() {
-		return nick + ": " + msg;
+		return mNick + ": " + mMsg;
 	}
 }
