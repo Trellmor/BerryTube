@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
 				Context.MODE_PRIVATE);
 		String user = settings.getString(KEY_USERNAME, "");
 		String password = settings.getString(KEY_PASSWORD, "");
-		Boolean remember = settings.getBoolean(KEY_REMEMBER, false);
+		boolean remember = settings.getBoolean(KEY_REMEMBER, false);
 		try {
 			password = SimpleCrypto.decrypt(CRYPT_SECRET, password);
 		} catch (Exception e) {
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
 				Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 
-		Boolean remember = checkRemember.isChecked();
+		boolean remember = checkRemember.isChecked();
 		String password = editPassword.getText().toString();
 		try {
 			password = SimpleCrypto.encrypt(CRYPT_SECRET, password);
