@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.trellmor.BerryTube.ChatMessage;
+import com.trellmor.BerryTube.ChatUser;
 
 /**
  * This class is used to inflate and populate a <code>View</code> to display a
@@ -199,11 +200,24 @@ public class ChatMessageFormatter {
 
 		return result;
 	}
+	
+	private String flauntNick(ChatMessage message) {
+		if (message.isFlaunt()) {
+			switch(message.getType()) {
+			case ChatUser.TYPE_ADMIN:
+				return "<font color=\"#008000\">" + message.getNick() + "</font>";
+			case ChatUser.TYPE_MOD:
+				return "<font color=\"#FF0000\">" + message.getNick() + "</font>";
+			default:
+				return message.getNick();
+			}
+		} else return message.getNick();
+	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(createTimestamp(message.getTimestamp()));
-		sb.append("<b>").append(message.getNick()).append("</b>");
+		sb.append("<b>").append(flauntNick(message)).append("</b>");
 		if (message.getFlair() > 0) {
 			sb.append("<img src=\"").append(message.getFlair()).append("\" />");
 		}
