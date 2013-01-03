@@ -47,10 +47,12 @@ public class ChatMessageFormatter {
 	private LayoutInflater mInflater = null;
 	private FlairGetter mFlairGetter = null;
 	private String mNick = null;
+	private ChatMessageAdapter mAdapter;
 
-	public ChatMessageFormatter(Context contest, LayoutInflater inflater) {
-		mContext = contest;
-		mInflater = inflater;
+	public ChatMessageFormatter(ChatMessageAdapter adapter, Context context) {
+		mAdapter = adapter;
+		mContext = context;
+		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		mFlairGetter = new FlairGetter(mContext.getResources());
 	}
@@ -69,6 +71,7 @@ public class ChatMessageFormatter {
 		case ChatMessage.EMOTE_REQUEST:
 		case ChatMessage.EMOTE_POLL:
 		case ChatMessage.EMOTE_RCV:
+		case ChatMessage.EMOTE_SPOILER:
 			return formatEmote(view, message);
 		default:
 			return formatDefault(view, message);
@@ -110,19 +113,21 @@ public class ChatMessageFormatter {
 	}
 
 	private View inflateDefault(View view) {
+		ViewHolder holder;
 		if (view == null || view.getId() != R.id.text_chat_message) {
 			view = mInflater.inflate(R.layout.chat_item, null);
-			ViewHolder holder = new ViewHolder();
+			holder = new ViewHolder();
 			holder.textChatMessage = (TextView) view
 					.findViewById(R.id.text_chat_message);
 			view.setTag(holder);
 		} else {
-			ViewHolder holder = (ViewHolder) view.getTag();
+			view.setOnClickListener(null);
+			holder = (ViewHolder) view.getTag();
 			holder.textChatMessage.setTextAppearance(mContext,
 					android.R.style.TextAppearance_Small);
 			holder.textChatMessage.setGravity(Gravity.LEFT);
 		}
-
+		
 		return view;
 	}
 
@@ -131,7 +136,7 @@ public class ChatMessageFormatter {
 		ViewHolder holder = (ViewHolder) view.getTag();
 
 		holder.textChatMessage.setText(formatChatMsg(message));
-
+		
 		return view;
 	}
 
@@ -171,12 +176,17 @@ public class ChatMessageFormatter {
 					+ message.getNick()
 					+ ": "
 					+ message.getMsg());
+			break;
+		case ChatMessage.EMOTE_SPOILER:
+			holder.textChatMessage.setText(formatChatMsg(message));
+			view.setOnClickListener(new SpoilerClickListener(message));
+			break;
 		default:
 			holder.textChatMessage.setText(formatChatMsg(message));
 			break;
 
 		}
-
+		
 		return view;
 	}
 
@@ -270,5 +280,19 @@ public class ChatMessageFormatter {
 		}
 
 		return Html.fromHtml(sb.toString(), mFlairGetter, null);
+	}
+	
+	class SpoilerClickListener implements View.OnClickListener {
+		private ChatMessage mMsg;
+		
+		public SpoilerClickListener(ChatMessage message) {
+			mMsg = message;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			mMsg.toggleHidden();
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 }

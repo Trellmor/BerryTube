@@ -143,14 +143,6 @@ public class ChatActivity extends Activity {
 		mTextNick.setText("Anonymous");
 
 		mListChat = (ListView) findViewById(R.id.list_chat);
-		mListChat.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				mChatAdapter.getItem(position).toggleHidden();
-				mChatAdapter.notifyDataSetChanged();
-			}
-		});
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);

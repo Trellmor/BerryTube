@@ -46,10 +46,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
 		mChatMsgList = objects;
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		mFormatter = new ChatMessageFormatter(context, inflater);
+		mFormatter = new ChatMessageFormatter(this, context);
 	}
 
 	@Override
