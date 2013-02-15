@@ -208,8 +208,9 @@ class BerryTubeIOCallback implements IOCallback {
 					String name = URLDecoder.decode(
 							video.getString("videotitle"), "UTF-8");
 					String id = video.getString("videoid");
+					String type = video.getString("videotype");
 					berryTube.getHandler().post(
-							berryTube.new NewVideoTask(name, id));
+							berryTube.new NewVideoTask(name, id, type));
 				} catch (JSONException e) {
 					Log.w(this.getClass().toString(), e);
 				} catch (UnsupportedEncodingException e) {

@@ -361,9 +361,9 @@ public class ChatActivity extends Activity {
 			}
 			
 			@Override
-			public void onVideoUpdate(String name, String id) {
+			public void onVideoUpdate(String name, String id, String type) {
 				setTextVideoVisible(true);
-				updateCurrentVideo(name, id);
+				updateCurrentVideo(name, id, type);
 			}
 
 			@Override
@@ -502,9 +502,17 @@ public class ChatActivity extends Activity {
 			mTextDrinks.setVisibility(visibility);
 	}
 
-	private void updateCurrentVideo(String title, String id) {
-		mCurrentVideo.setText(Html.fromHtml(getString(R.string.current_video) + 
-				" <a href=\"http://www.youtube.com/watch?v=" + id + "\">" + title + "</a>"));
+	private void updateCurrentVideo(String title, String id, String type) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getString(R.string.current_video));
+		sb.append(" <a href=\"http://");
+		if ("yt".equals(type)) {
+			sb.append("youtu.be/");
+		} else if("vimeo".equals(type)) {
+			sb.append("vimeo.com/");
+		}
+		sb.append(id).append("\">").append(title).append("</a>");
+		mCurrentVideo.setText(Html.fromHtml(sb.toString()));
 	}
 	
 	private void setTextVideoVisible(boolean visible) {

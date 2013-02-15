@@ -83,7 +83,7 @@ public interface BerryTubeCallback {
 	 * @param name The name of the video (e.g. Sh-Pony).
 	 * @param id The 11-character YouTube ID of the video (e.g. JWa0kkIRumk).
 	 */
-	void onVideoUpdate(String name, String id);
+	void onVideoUpdate(String name, String id, String type);
 
 	/**
 	 * The user was kicked from the server

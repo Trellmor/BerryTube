@@ -527,15 +527,17 @@ public class BerryTube extends Service {
 	class NewVideoTask implements Runnable {
 		private String mName;
 		private String mId;
+		private String mType;
 		
-		public NewVideoTask(String name, String id) {
+		public NewVideoTask(String name, String id, String type) {
 			this.mName = name;
 			this.mId = id;
+			this.mType = type;
 		}
 		
 		public void run() {
 			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onVideoUpdate(mName,  mId);
+				callback.onVideoUpdate(mName,  mId, mType);
 			}
 		}
 	}
