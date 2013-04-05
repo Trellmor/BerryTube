@@ -616,8 +616,16 @@ public class ChatActivity extends Activity {
 			String[] options = new String[mBinder.getService().getPoll()
 					.getOptions().size()];
 			for (int i = 0; i < options.length; i++) {
-				options[i] = "[" + Integer.toString(poll.getVotes().get(i))
-						+ "] " + poll.getOptions().get(i);
+				StringBuilder option = new StringBuilder();
+				option.append("[");
+				if (poll.getObscure()) {
+					option.append("??");
+				} else {
+					option.append(poll.getVotes().get(i));
+				}
+				option.append("] ").append(poll.getOptions().get(i));
+				
+				options[i] = option.toString();
 			}
 			builder.setItems(options, new DialogInterface.OnClickListener() {
 

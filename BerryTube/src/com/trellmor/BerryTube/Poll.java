@@ -33,6 +33,7 @@ public class Poll {
 	final ArrayList<Integer> mVotes = new ArrayList<Integer>();
 	private String mTitle;
 	private String mCreator;
+	private boolean mObscure;
 
 	/**
 	 * Constructs a <code>Poll</code> from a <code>JSONObject<code>
@@ -43,7 +44,8 @@ public class Poll {
 	public Poll(JSONObject poll) throws JSONException {
 		mTitle = poll.getString("title");
 		mCreator = poll.getString("title");
-
+		mObscure = poll.getBoolean("obscure");
+		
 		JSONArray options = poll.getJSONArray("options");
 		for (int i = 0; i < options.length(); i++) {
 			mOptions.add(options.getString(i));
@@ -51,7 +53,7 @@ public class Poll {
 
 		JSONArray votes = poll.getJSONArray("votes");
 		for (int i = 0; i < votes.length(); i++) {
-			mVotes.add(votes.getInt(i));
+			mVotes.add(votes.optInt(i, -1));
 		}
 	}
 
@@ -62,11 +64,13 @@ public class Poll {
 	 * @param options Array containing the options
 	 * @param votes Array containing the vote count
 	 * @param creator Poll creators nick
+	 * @param obscure Obscure votes
 	 */
 	public Poll(String title, final String[] options, final int[] votes,
-			String creator) {
+			String creator, boolean obscure) {
 		mTitle = title;
 		mCreator = creator;
+		mObscure = obscure;
 
 		for (String option : options) {
 			mOptions.add(option);
@@ -111,6 +115,15 @@ public class Poll {
 	 */
 	public String getCreator() {
 		return mCreator;
+	}
+	
+	/**
+	 * Get vote obscure
+	 * 
+	 * @return Obscure
+	 */
+	public boolean getObscure() {
+		return mObscure;
 	}
 
 	/**
