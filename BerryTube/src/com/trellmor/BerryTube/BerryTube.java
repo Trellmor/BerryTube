@@ -345,24 +345,11 @@ public class BerryTube extends Service {
 				return;
 
 			try {
-				MessageDigest md = MessageDigest.getInstance("MD5");
-				byte[] digest = md.digest(mPassword.getBytes());
-
-				StringBuffer sb = new StringBuffer();
-				for (int i = 0; i < digest.length; ++i) {
-					sb.append(Integer.toHexString((digest[i] & 0xFF) | 0x100)
-							.substring(1, 3));
-				}
-
-				String pass = sb.toString();
-
 				JSONObject login = new JSONObject();
 				login.put("nick", mUsername);
-				login.put("pass", pass);
+				login.put("pass", mPassword);
 
 				mSocket.emit("setNick", login);
-			} catch (NoSuchAlgorithmException e) {
-				Log.w(this.getClass().toString(), e.getMessage());
 			} catch (JSONException e) {
 				Log.w(this.getClass().toString(), e.getMessage());
 			}
@@ -415,6 +402,20 @@ public class BerryTube extends Service {
 			mNick = nick;		
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onSetNick(nick);
+			}
+		}
+	}
+	
+	class LoginErrorTask implements Runnable {
+		private String mError;
+		
+		public LoginErrorTask(String error) {
+			mError = error;
+		}
+		
+		public void run() {
+			for (BerryTubeCallback callback : mCallbacks) {
+				callback.onLoginError(mError);
 			}
 		}
 	}

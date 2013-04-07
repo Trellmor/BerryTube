@@ -45,8 +45,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -317,6 +315,11 @@ public class ChatActivity extends Activity {
 			@Override
 			public void onSetNick(String nick) {
 				setNick(nick);
+			}
+			
+			@Override
+			public void onLoginError(String nick) {
+				
 			}
 
 			@Override

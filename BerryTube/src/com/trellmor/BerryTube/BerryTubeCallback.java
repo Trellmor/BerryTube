@@ -39,6 +39,13 @@ public interface BerryTubeCallback {
 	 *            Nickname
 	 */
 	void onSetNick(String nick);
+	
+	/**
+	 * Login failed
+	 * 
+	 * @param error ErrorMessage
+	 */
+	void onLoginError(String error);
 
 	/**
 	 * A new chat message was received

@@ -104,6 +104,11 @@ class BerryTubeIOCallback implements IOCallback {
 			} else
 				Log.w(this.getClass().toString(),
 						"setNick message is not a String");
+		} else if (event.compareTo("loginError") == 0) {
+			if (args.length >= 1 && args[0] instanceof JSONObject) {
+				JSONObject error = (JSONObject) args[0];
+				berryTube.getHandler().post(berryTube.new LoginErrorTask(error.optString("message", "Login failed")));
+			}
 		} else if (event.compareTo("userJoin") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject user = (JSONObject) args[0];
