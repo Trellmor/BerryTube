@@ -449,9 +449,9 @@ public class ChatActivity extends Activity {
 	}
 
 	private void sendChatMsg() {
-		String textmsg = mEditChatMsg.getText().toString();
+		String textmsg = mEditChatMsg.getText().toString().trim();
 		if (mBinder.getService().isConnected() && !"".equals(mNick)
-				&& textmsg != "") {
+				&& textmsg.length() > 0) {
 			mBinder.getService().sendChat(textmsg, mFlair);
 			mEditChatMsg.setText("");
 		}
