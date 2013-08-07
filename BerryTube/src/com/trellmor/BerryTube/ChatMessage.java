@@ -124,7 +124,7 @@ public class ChatMessage {
 			mEmote = 0;
 
 		JSONObject metadata = message.getJSONObject("metadata");
-		mFlair = metadata.getInt("flair");
+		mFlair = metadata.optInt("flair");
 		mFlaunt = metadata.optBoolean("nameflaunt");
 		
 		this.mTimeStamp = System.currentTimeMillis();
