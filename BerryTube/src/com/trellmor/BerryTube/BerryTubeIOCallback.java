@@ -194,7 +194,7 @@ class BerryTubeIOCallback implements IOCallback {
 					JSONArray votes = poll.getJSONArray("votes");
 					int[] voteArray = new int[votes.length()];
 					for (int i = 0; i < votes.length(); i++) {
-						voteArray[i] = votes.getInt(i);
+						voteArray[i] = votes.optInt(i, -1);
 					}
 					berryTube.getHandler().post(
 							berryTube.new UpdatePollTask(voteArray));
