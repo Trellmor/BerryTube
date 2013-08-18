@@ -17,6 +17,9 @@
  */
 package com.trellmor.berrytubechat;
 
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -61,6 +64,10 @@ public class MainActivity extends Activity {
 	 * Key for login remember username and password setting
 	 */
 	public final static String KEY_REMEMBER = "com.trellmor.BerryTubeChat.login.rememberLogin";
+	/**
+	 * Key used to encrypt the password
+	 */
+	public final static String KEY_CRYPTO_KEY = "com.trellmor.BerryTubeChat.login.cryptokey";
 
 	public final static String KEY_SETTINGS = "com.trellmor.berrytubechat.settings";
 
@@ -86,8 +93,6 @@ public class MainActivity extends Activity {
 	public final static String KEY_SQUEE = "com.trellmor.berrytubechat.settings.squee";
 	public final static String KEY_TIMESTAMP = "com.trellmor.berrytubechat.settings.timestamp";
 	public final static String KEY_VIDEO = "com.trellmor.berrytubechat.settings.video";
-
-	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
 
 	@SuppressLint("NewApi")
 	@Override
@@ -115,21 +120,39 @@ public class MainActivity extends Activity {
 				Context.MODE_PRIVATE);
 		String user = settings.getString(KEY_USERNAME, "");
 		String password = settings.getString(KEY_PASSWORD, "");
+		String key = settings.getString(KEY_CRYPTO_KEY, "");
+
 		boolean remember = settings.getBoolean(KEY_REMEMBER, false);
-		try {
-			password = SimpleCrypto.decrypt(CRYPT_SECRET, password);
-		} catch (Exception e) {
-			Log.w(this.getClass().toString(), e.getMessage());
-			remember = false;
+
+		if (key == null || "".equals(key)) {
+			try {
+				key = SimpleCrypto.generateKey();
+				settings.edit().putString(KEY_CRYPTO_KEY, key).commit();
+			} catch (NoSuchAlgorithmException e) {
+				Log.w(this.getClass().toString(), e.getMessage());
+				// Remeber not available because of missing key
+				checkRemember.setVisibility(View.GONE);
+				remember = false;
+			}
 		}
 
-		if (remember) {
-			if (user != "")
-				editUser.setText(user);
-			if (password != "")
-				editPassword.setText(password);
-			checkRemember.setChecked(remember);
+		if (key != null && !"".equals(key)) {
+			try {
+				password = SimpleCrypto.decrypt(key, password);
+			} catch (GeneralSecurityException e) {
+				Log.w(this.getClass().toString(), e.getMessage());
+				remember = false;
+			}
+
+			if (remember) {
+				if (user != "")
+					editUser.setText(user);
+				if (password != "")
+					editPassword.setText(password);
+
+			}
 		}
+		checkRemember.setChecked(remember);
 	}
 
 	@Override
@@ -160,12 +183,17 @@ public class MainActivity extends Activity {
 
 		boolean remember = checkRemember.isChecked();
 		String password = editPassword.getText().toString();
-		try {
-			password = SimpleCrypto.encrypt(CRYPT_SECRET, password);
-		} catch (Exception e) {
-			// Failed to encrypt password
+		String key = settings.getString(KEY_CRYPTO_KEY, "");
+		if (key != null && !"".equals(key)) {
+			try {
+				password = SimpleCrypto.encrypt(key, password);
+			} catch (Exception e) {
+				// Failed to encrypt password
+				remember = false;
+				Log.w(this.getClass().toString(), e.getMessage());
+			}
+		} else {
 			remember = false;
-			Log.w(this.getClass().toString(), e.getMessage());
 		}
 
 		if (remember) {
