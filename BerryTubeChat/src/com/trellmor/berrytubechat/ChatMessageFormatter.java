@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.trellmor.berrymotes.EmotesFormatter;
 import com.trellmor.berrytube.ChatMessage;
 import com.trellmor.berrytube.ChatUser;
 
@@ -48,13 +49,16 @@ public class ChatMessageFormatter {
 	private FlairGetter mFlairGetter = null;
 	private String mNick = null;
 	private ChatMessageAdapter mAdapter;
+	private EmotesFormatter mEmotesFormatter;
 
 	public ChatMessageFormatter(ChatMessageAdapter adapter, Context context) {
 		mAdapter = adapter;
 		mContext = context;
-		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mInflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		mFlairGetter = new FlairGetter(mContext.getResources());
+		mFlairGetter = new FlairGetter(mContext);
+		mEmotesFormatter = new EmotesFormatter(mContext);
 	}
 
 	static class ViewHolder {
@@ -97,9 +101,11 @@ public class ChatMessageFormatter {
 			holder = (ViewHolder) view.getTag();
 		}
 
-		holder.textChatMessage.setText(message.getNick() + ": "
-				+ message.getMsg() + " "
-				+ mContext.getString(R.string.chat_drink));
+		String m = message.getNick() + ": "
+				+ formatBerryMotes(message.getMsg()) + " "
+				+ mContext.getString(R.string.chat_drink);
+
+		holder.textChatMessage.setText(Html.fromHtml(m, mFlairGetter, null));
 
 		if (message.getMulti() > 1) {
 			holder.textChatMultiple
@@ -127,7 +133,7 @@ public class ChatMessageFormatter {
 					android.R.style.TextAppearance_Small);
 			holder.textChatMessage.setGravity(Gravity.LEFT);
 		}
-		
+
 		return view;
 	}
 
@@ -136,7 +142,7 @@ public class ChatMessageFormatter {
 		ViewHolder holder = (ViewHolder) view.getTag();
 
 		holder.textChatMessage.setText(formatChatMsg(message));
-		
+
 		return view;
 	}
 
@@ -151,14 +157,14 @@ public class ChatMessageFormatter {
 			holder.textChatMessage.setText(Html
 					.fromHtml(createTimestamp(message.getTimestamp())
 							+ "<b><i>" + message.getNick() + " requests "
-							+ message.getMsg() + "</i></b>"));
+							+ formatBerryMotes(message.getMsg()) + "</i></b>"));
 			break;
 		case ChatMessage.EMOTE_ACT:
 			holder.textChatMessage.setTextColor(Color.GRAY);
 			holder.textChatMessage.setText(Html
 					.fromHtml(createTimestamp(message.getTimestamp()) + "<i>"
-							+ message.getNick() + " " + message.getMsg()
-							+ "</i>"));
+							+ message.getNick() + " "
+							+ formatBerryMotes(message.getMsg()) + "</i>"));
 			break;
 		case ChatMessage.EMOTE_POLL:
 			holder.textChatMessage.setTextColor(Color.parseColor("#008000"));
@@ -166,16 +172,15 @@ public class ChatMessageFormatter {
 			holder.textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
 			holder.textChatMessage.setText(Html.fromHtml("<b>"
 					+ message.getNick() + " created a new poll \""
-					+ message.getMsg() + "\"</b>"));
+					+ formatBerryMotes(message.getMsg()) + "\"</b>"));
 			break;
 		case ChatMessage.EMOTE_RCV:
 			holder.textChatMessage.setTextColor(Color.RED);
 			holder.textChatMessage.setTextSize(18);
-			holder.textChatMessage.setText(createTimestamp(message
-					.getTimestamp())
-					+ message.getNick()
-					+ ": "
-					+ message.getMsg());
+			holder.textChatMessage.setText(Html.fromHtml(
+					createTimestamp(message.getTimestamp()) + message.getNick()
+							+ ": " + formatBerryMotes(message.getMsg()),
+					mFlairGetter, null));
 			break;
 		case ChatMessage.EMOTE_SPOILER:
 			holder.textChatMessage.setText(formatChatMsg(message));
@@ -186,7 +191,7 @@ public class ChatMessageFormatter {
 			break;
 
 		}
-		
+
 		return view;
 	}
 
@@ -210,18 +215,21 @@ public class ChatMessageFormatter {
 
 		return result;
 	}
-	
+
 	private String flauntNick(ChatMessage message) {
 		if (message.isFlaunt()) {
-			switch(message.getType()) {
+			switch (message.getType()) {
 			case ChatUser.TYPE_ADMIN:
-				return "<font color=\"#008000\">" + message.getNick() + "</font>";
+				return "<font color=\"#008000\">" + message.getNick()
+						+ "</font>";
 			case ChatUser.TYPE_MOD:
-				return "<font color=\"#FF0000\">" + message.getNick() + "</font>";
+				return "<font color=\"#FF0000\">" + message.getNick()
+						+ "</font>";
 			default:
 				return message.getNick();
 			}
-		} else return message.getNick();
+		} else
+			return message.getNick();
 	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
@@ -234,7 +242,7 @@ public class ChatMessageFormatter {
 		sb.append(": ");
 
 		// flutter shit
-		String m = message.getMsg().replaceAll(
+		String m = formatBerryMotes(message.getMsg()).replaceAll(
 				"<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
@@ -281,14 +289,18 @@ public class ChatMessageFormatter {
 
 		return Html.fromHtml(sb.toString(), mFlairGetter, null);
 	}
-	
+
+	private String formatBerryMotes(String msg) {
+		return mEmotesFormatter.formatString(msg);
+	}
+
 	class SpoilerClickListener implements View.OnClickListener {
 		private ChatMessage mMsg;
-		
+
 		public SpoilerClickListener(ChatMessage message) {
 			mMsg = message;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
 			mMsg.toggleHidden();

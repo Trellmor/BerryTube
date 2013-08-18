@@ -3,6 +3,7 @@ package com.trellmor.berrytubechat;
 import java.util.HashMap;
 
 import com.trellmor.berrytubechat.R;
+import com.trellmor.berrymotes.EmoteGetter;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,13 +16,14 @@ import android.text.Html.ImageGetter;
  * @author Toastdeib
  * @see Android.Text.Html.ImageGetter
  */
-public class FlairGetter implements ImageGetter {
+public class FlairGetter extends EmoteGetter implements ImageGetter {
 
 	private Resources mResources;
 	private HashMap<String, Drawable> mDrawables;
 
-	public FlairGetter(Resources r) {
-		this.mResources = r;
+	public FlairGetter(Context context) {
+		super(context);
+		this.mResources = context.getResources();
 
 		mDrawables = new HashMap<String, Drawable>();
 	}
@@ -50,8 +52,11 @@ public class FlairGetter implements ImageGetter {
 				mDrawables.put(source, d);
 		}
 
-		if (d != null)
+		if (d != null) {
 			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+		} else {
+			d = super.getDrawable(source);
+		}
 
 		return d;
 	}

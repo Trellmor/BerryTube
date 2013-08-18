@@ -34,6 +34,8 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
+
+import com.trellmor.berrymotes.EmoteSettings;
 import com.trellmor.berrytubechat.R;
 
 /**
@@ -57,6 +59,8 @@ public class SettingsActivity extends PreferenceActivity implements
 		fakeHeader.setTitle(R.string.pref_header_notifications);
 		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_notification);
+		
+		EmoteSettings.addEmoteSettings(this);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActionBar().setDisplayHomeAsUpEnabled(true);

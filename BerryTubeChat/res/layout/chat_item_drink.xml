@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/chat_item_drink" >
 
-    <TextView
+    <com.trellmor.berrymotes.AnimationTextView
         android:id="@+id/text_chat_message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
