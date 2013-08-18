@@ -1,7 +1,10 @@
-package com.trellmor.BerryTubeChat;
+package com.trellmor.berrytubechat;
 
 import java.util.HashMap;
 
+import com.trellmor.berrytubechat.R;
+
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.Html.ImageGetter;

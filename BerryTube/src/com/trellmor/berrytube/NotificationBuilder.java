@@ -1,4 +1,4 @@
-package com.trellmor.BerryTube;
+package com.trellmor.berrytube;
 
 import android.app.Notification;
 import android.app.PendingIntent;

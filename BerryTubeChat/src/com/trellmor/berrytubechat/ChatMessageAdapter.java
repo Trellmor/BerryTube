@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.trellmor.BerryTubeChat;
+package com.trellmor.berrytubechat;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-import com.trellmor.BerryTube.ChatMessage;
+import com.trellmor.berrytube.ChatMessage;
 
 /**
  * Custom ChatMessage array adapter to create suitable views for the different

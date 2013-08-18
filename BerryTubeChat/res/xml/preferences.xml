@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <EditTextPreference 
-        android:key="com.trellmor.BerryTubeChat.settings.scrollback"
+        android:key="com.trellmor.berrytubechat.settings.scrollback"
         android:title="@string/pref_scrollback_title"
         android:summary="@string/pref_scrollback_summary"
         android:dialogTitle="Scrollback size"
@@ -10,18 +10,18 @@
         android:numeric="integer" />
     
     <CheckBoxPreference
-        android:key="com.trellmor.BerryTubeChat.settings.drinkcount"
+        android:key="com.trellmor.berrytubechat.settings.drinkcount"
         android:title="@string/pref_show_drinks_title"
         android:defaultValue="true" />
     
     <CheckBoxPreference
-        android:key="com.trellmor.BerryTubeChat.settings.popup_poll"
+        android:key="com.trellmor.berrytubechat.settings.popup_poll"
         android:title="@string/pref_show_popup_poll_title"
         android:summary="@string/pref_show_popup_poll_summary"
         android:defaultValue="false" />
 
     <ListPreference 
-        android:key="com.trellmor.BerryTubeChat.settings.flair"
+        android:key="com.trellmor.berrytubechat.settings.flair"
         android:title="@string/pref_flair_title"
         android:summary="@string/pref_flair_summary"
         android:entries="@array/pref_flair_options"
@@ -29,18 +29,18 @@
         android:defaultValue="0" />
     
     <CheckBoxPreference 
-        android:key="com.trellmor.BerryTubeChat.settings.squee"
+        android:key="com.trellmor.berrytubechat.settings.squee"
         android:title="@string/pref_squee_title"
         android:summary="@string/pref_squee_summary"
         android:defaultValue="false" />
     
     <CheckBoxPreference 
-        android:key="com.trellmor.BerryTubeChat.settings.timestamp"
+        android:key="com.trellmor.berrytubechat.settings.timestamp"
         android:title="@string/pref_timestamp_title"
         android:defaultValue="false" />
     
     <CheckBoxPreference
-        android:key="com.trellmor.BerryTubeChat.settings.video"
+        android:key="com.trellmor.berrytubechat.settings.video"
         android:title="@string/pref_video_title"
         android:summary="@string/pref_video_summary"
         android:defaultValue="false" />

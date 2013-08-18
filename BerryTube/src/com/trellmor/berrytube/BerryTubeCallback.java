@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.trellmor.BerryTube;
+package com.trellmor.berrytube;
 
 /**
  * This interface allows the service to inform the application about status and

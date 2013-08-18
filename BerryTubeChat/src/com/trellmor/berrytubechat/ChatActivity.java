@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.trellmor.BerryTubeChat;
+package com.trellmor.berrytubechat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -50,13 +50,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.trellmor.BerryTube.BerryTube;
-import com.trellmor.BerryTube.BerryTubeBinder;
-import com.trellmor.BerryTube.BerryTubeCallback;
-import com.trellmor.BerryTube.ChatMessage;
-import com.trellmor.BerryTube.ChatUser;
-import com.trellmor.BerryTube.NotificationBuilder;
-import com.trellmor.BerryTube.Poll;
+import com.trellmor.berrytube.BerryTube;
+import com.trellmor.berrytube.BerryTubeBinder;
+import com.trellmor.berrytube.BerryTubeCallback;
+import com.trellmor.berrytube.ChatMessage;
+import com.trellmor.berrytube.ChatUser;
+import com.trellmor.berrytube.NotificationBuilder;
+import com.trellmor.berrytube.Poll;
+import com.trellmor.berrytubechat.R;
 
 /**
  * BerryTubeChat chat window

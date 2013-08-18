@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.trellmor.BerryTubeChat;
+package com.trellmor.berrytubechat;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -32,7 +32,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.trellmor.BerryTube.BerryTube;
+import com.trellmor.berrytube.BerryTube;
+import com.trellmor.berrytubechat.R;
 
 /**
  * BerryTubeChat Main Activity
@@ -47,44 +48,44 @@ public class MainActivity extends Activity {
 	/**
 	 * Key for login settings
 	 */
-	public final static String KEY_LOGIN = "com.trellmor.BerryTubeChat.login";
+	public final static String KEY_LOGIN = "com.trellmor.berrytubechat.login";
 	/**
 	 * Key for login username settins
 	 */
-	public final static String KEY_USERNAME = "com.trellmor.BerryTubeChat.login.username";
+	public final static String KEY_USERNAME = "com.trellmor.berrytubechat.login.username";
 	/**
 	 * Key for login password settings
 	 */
-	public final static String KEY_PASSWORD = "com.trellmor.BerryTubeChat.login.password";
+	public final static String KEY_PASSWORD = "com.trellmor.berrytubechat.login.password";
 	/**
 	 * Key for login remember username and password setting
 	 */
 	public final static String KEY_REMEMBER = "com.trellmor.BerryTubeChat.login.rememberLogin";
 
-	public final static String KEY_SETTINGS = "com.trellmor.BerryTubeChat.settings";
+	public final static String KEY_SETTINGS = "com.trellmor.berrytubechat.settings";
 
 	/**
 	 * Key for scrollback buffer size setting
 	 */
-	public final static String KEY_SCROLLBACK = "com.trellmor.BerryTubeChat.settings.scrollback";
+	public final static String KEY_SCROLLBACK = "com.trellmor.berrytubechat.settings.scrollback";
 	/**
 	 * Key for show drink count setting
 	 */
-	public final static String KEY_DRINKCOUNT = "com.trellmor.BerryTubeChat.settings.drinkcount";
+	public final static String KEY_DRINKCOUNT = "com.trellmor.berrytubechat.settings.drinkcount";
 	/**
 	 * Key for show pop up on new poll setting
 	 */
-	public final static String KEY_POPUP_POLL = "com.trellmor.BerryTubeChat.settings.popup_poll";
+	public final static String KEY_POPUP_POLL = "com.trellmor.berrytubechat.settings.popup_poll";
 	/**
 	 * Key for user flair index setting
 	 */
-	public final static String KEY_FLAIR = "com.trellmor.BerryTubeChat.settings.flair";
+	public final static String KEY_FLAIR = "com.trellmor.berrytubechat.settings.flair";
 	/**
 	 * Key for play squee sound setting
 	 */
-	public final static String KEY_SQUEE = "com.trellmor.BerryTubeChat.settings.squee";
-	public final static String KEY_TIMESTAMP = "com.trellmor.BerryTubeChat.settings.timestamp";
-	public final static String KEY_VIDEO = "com.trellmor.BerryTubeChat.settings.video";
+	public final static String KEY_SQUEE = "com.trellmor.berrytubechat.settings.squee";
+	public final static String KEY_TIMESTAMP = "com.trellmor.berrytubechat.settings.timestamp";
+	public final static String KEY_VIDEO = "com.trellmor.berrytubechat.settings.video";
 
 	private final static String CRYPT_SECRET = "6xKqJFsrOoYAUhLInaPg";
 

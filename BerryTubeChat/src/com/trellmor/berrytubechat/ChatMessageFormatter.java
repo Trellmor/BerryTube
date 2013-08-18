@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.trellmor.BerryTubeChat;
+package com.trellmor.berrytubechat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,15 +32,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.trellmor.BerryTube.ChatMessage;
-import com.trellmor.BerryTube.ChatUser;
+import com.trellmor.berrytube.ChatMessage;
+import com.trellmor.berrytube.ChatUser;
+import com.trellmor.berrytube.ChatMessage;
+import com.trellmor.berrytube.ChatUser;
+import com.trellmor.berrytubechat.R;
 
 /**
  * This class is used to inflate and populate a <code>View</code> to display a
  * <code>ChatMessage</code>
  * 
  * @author Daniel Triendl
- * @see com.trellmor.BerryTube.ChatMessage
+ * @see com.trellmor.berrytube.ChatMessage
  */
 public class ChatMessageFormatter {
 	private Context mContext = null;
