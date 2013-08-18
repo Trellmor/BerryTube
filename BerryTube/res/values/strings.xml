@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">BerryTube</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connecting">Connecting</string>
+    <string name="connected">Connected</string>
+    <string name="new_messages">%d new messages</string>
 </resources>

@@ -17,6 +17,11 @@
  */
 package com.trellmor.berrytubechat;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
@@ -26,8 +31,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +45,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.trellmor.berrytube.BerryTube;
-import com.trellmor.berrytubechat.R;
 
 /**
  * BerryTubeChat Main Activity
@@ -44,6 +52,8 @@ import com.trellmor.berrytubechat.R;
  * @author Daniel Triendl
  */
 public class MainActivity extends Activity {
+	private static final String TAG = MainActivity.class.getName();
+
 	private EditText editUser;
 	private EditText editPassword;
 	private CheckBox checkRemember;
@@ -88,10 +98,24 @@ public class MainActivity extends Activity {
 	 */
 	public final static String KEY_FLAIR = "com.trellmor.berrytubechat.settings.flair";
 	/**
-	 * Key for play squee sound setting
+	 * Key for showing notification setting
 	 */
 	public final static String KEY_SQUEE = "com.trellmor.berrytubechat.settings.squee";
+	/**
+	 * Key for playing notification sound settings
+	 */
+	public final static String KEY_SQUEE_RINGTONE = "com.trellmor.berrytubechat.settings.squee.ringtone";
+	/**
+	 * Key for notification vibrate settings
+	 */
+	public final static String KEY_SQUEE_VIBRATE = "com.trellmor.berrytubechat.settings.squee.vibrate";
+	/**
+	 * Key for displaying timestamp settings
+	 */
 	public final static String KEY_TIMESTAMP = "com.trellmor.berrytubechat.settings.timestamp";
+	/**
+	 * Key for displaying current video settings
+	 */
 	public final static String KEY_VIDEO = "com.trellmor.berrytubechat.settings.video";
 
 	@SuppressLint("NewApi")
@@ -129,7 +153,7 @@ public class MainActivity extends Activity {
 				key = SimpleCrypto.generateKey();
 				settings.edit().putString(KEY_CRYPTO_KEY, key).commit();
 			} catch (NoSuchAlgorithmException e) {
-				Log.w(this.getClass().toString(), e.getMessage());
+				Log.w(TAG, e.getMessage());
 				// Remeber not available because of missing key
 				checkRemember.setVisibility(View.GONE);
 				remember = false;
@@ -140,7 +164,7 @@ public class MainActivity extends Activity {
 			try {
 				password = SimpleCrypto.decrypt(key, password);
 			} catch (GeneralSecurityException e) {
-				Log.w(this.getClass().toString(), e.getMessage());
+				Log.w(TAG, e.getMessage());
 				remember = false;
 			}
 
@@ -153,6 +177,8 @@ public class MainActivity extends Activity {
 			}
 		}
 		checkRemember.setChecked(remember);
+
+		checkNotificationSound();
 	}
 
 	@Override
@@ -190,7 +216,7 @@ public class MainActivity extends Activity {
 			} catch (Exception e) {
 				// Failed to encrypt password
 				remember = false;
-				Log.w(this.getClass().toString(), e.getMessage());
+				Log.w(TAG, e.getMessage());
 			}
 		} else {
 			remember = false;
@@ -220,5 +246,68 @@ public class MainActivity extends Activity {
 		chat.putExtra(KEY_PASSWORD, password);
 
 		startActivity(chat);
+	}
+
+	private boolean copyNotificationSoundFile(File squee) {
+		try {
+			InputStream is = getResources().openRawResource(R.raw.squee);
+			try {
+				FileOutputStream out = new FileOutputStream(squee);
+				try {
+					int size = 0;
+					byte[] buffer = new byte[1024];
+					while ((size = is.read(buffer, 0, 1024)) >= 0) {
+						out.write(buffer, 0, size);
+					}
+					out.flush();
+					return true;
+				} finally {
+					out.close();
+				}
+			} catch (FileNotFoundException e) {
+				Log.e(TAG, "Squee output file not found", e);
+			} finally {
+				is.close();
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Saving squee failed", e);
+		}
+		return false;
+
+	}
+
+	private void checkNotificationSound() {
+		if (Environment.MEDIA_MOUNTED.equals(Environment
+				.getExternalStorageState())) {
+			File squee = new File(
+					Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS),
+					"squee.wav");
+
+			if (!squee.exists()) {
+				if (!copyNotificationSoundFile(squee)) {
+					return;
+				}
+			}
+
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+			if ("".equals(settings.getString(KEY_SQUEE_RINGTONE, ""))) {
+				MediaScannerConnection.scanFile(this,
+						new String[] { squee.toString() }, null,
+						new MediaScannerConnection.OnScanCompletedListener() {
+
+							@Override
+							public void onScanCompleted(String path, Uri uri) {
+								Log.d(TAG, "Squee saved " + path);
+								updateNotificationSoundPreference(uri);
+							}
+						});
+			}
+		}
+	}
+	
+	private void updateNotificationSoundPreference(Uri uri) {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		settings.edit().putString(KEY_SQUEE_RINGTONE, uri.toString()).commit();
 	}
 }

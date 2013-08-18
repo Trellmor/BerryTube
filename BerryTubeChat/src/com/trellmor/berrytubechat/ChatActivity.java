@@ -25,16 +25,20 @@ import java.util.Comparator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
+import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -55,9 +59,7 @@ import com.trellmor.berrytube.BerryTubeBinder;
 import com.trellmor.berrytube.BerryTubeCallback;
 import com.trellmor.berrytube.ChatMessage;
 import com.trellmor.berrytube.ChatUser;
-import com.trellmor.berrytube.NotificationBuilder;
 import com.trellmor.berrytube.Poll;
-import com.trellmor.berrytubechat.R;
 
 /**
  * BerryTubeChat chat window
@@ -65,6 +67,8 @@ import com.trellmor.berrytubechat.R;
  * @author Daniel
  */
 public class ChatActivity extends Activity {
+	private static final String TAG = MainActivity.class.getName();
+
 	private static final String KEY_DRINKCOUT = "drinkCount";
 	private static final String KEY_MYDRINKCOUNT = "myDrinkCount";
 
@@ -74,7 +78,7 @@ public class ChatActivity extends Activity {
 	private EditText mEditChatMsg;
 	private TextView mTextDrinks;
 	private TextView mCurrentVideo;
-	private MediaPlayer mPlayer;
+	private NotificationCompat.Builder mNotification = null;
 
 	private BerryTubeBinder mBinder = null;
 	private boolean mServiceConnected = false;
@@ -97,7 +101,6 @@ public class ChatActivity extends Activity {
 	private String mPassword = "";
 	private String mNick = "";
 	private int mFlair = 0;
-	private boolean mSquee = false;
 	private boolean mShowVideo = false;
 	private boolean mFirstPrefLoad = true;
 	private int mScrollback = 100;
@@ -134,10 +137,10 @@ public class ChatActivity extends Activity {
 
 		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
 		registerForContextMenu(mTextDrinks);
-		
+
 		mCurrentVideo = (TextView) findViewById(R.id.text_video);
 		mCurrentVideo.setMovementMethod(LinkMovementMethod.getInstance());
-		
+
 		mTextNick = (TextView) findViewById(R.id.text_nick);
 		mTextNick.setText("Anonymous");
 
@@ -151,7 +154,7 @@ public class ChatActivity extends Activity {
 			mDrinkCount = savedInstanceState.getInt(KEY_DRINKCOUT);
 			mMyDrinkCount = savedInstanceState.getInt(KEY_MYDRINKCOUNT);
 		}
-		
+
 		startService(new Intent(this, BerryTube.class));
 		bindService(new Intent(this, BerryTube.class), mService,
 				BIND_ABOVE_CLIENT);
@@ -160,8 +163,6 @@ public class ChatActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		mPlayer = MediaPlayer.create(this, R.raw.squee);
 
 		loadPreferences();
 
@@ -175,10 +176,6 @@ public class ChatActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-
-		if (mPlayer != null) {
-			mPlayer.release();
-		}
 
 		// Kill the callback
 		if (mBinder != null) {
@@ -305,7 +302,7 @@ public class ChatActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		
+
 		outState.putInt(KEY_DRINKCOUT, mDrinkCount);
 		outState.putInt(KEY_MYDRINKCOUNT, mMyDrinkCount);
 	}
@@ -317,28 +314,15 @@ public class ChatActivity extends Activity {
 			public void onSetNick(String nick) {
 				setNick(nick);
 			}
-			
+
 			@Override
 			public void onLoginError(String nick) {
-				
+
 			}
 
 			@Override
 			public void onChatMessage(ChatMessage chatMsg) {
-				if (mSquee && mNick != null && mNick.length() > 0
-						&& chatMsg.isHighlightable()
-						&& !chatMsg.getNick().equals(mNick)
-						&& chatMsg.getMsg().contains(mNick)) {
-					try {
-						mPlayer.stop();
-						mPlayer.prepare();
-						mPlayer.start();
-					} catch (Exception e) {
-						// Just eat it; if the squee fails, whatever
-					}
-				}
 				mChatAdapter.notifyDataSetChanged();
-
 			}
 
 			@Override
@@ -363,7 +347,7 @@ public class ChatActivity extends Activity {
 			public void onClearPoll() {
 
 			}
-			
+
 			@Override
 			public void onVideoUpdate(String name, String id, String type) {
 				setTextVideoVisible(true);
@@ -425,16 +409,36 @@ public class ChatActivity extends Activity {
 			mFlair = 0;
 		}
 
-		mSquee = settings.getBoolean(MainActivity.KEY_SQUEE, false);
+		if (settings.getBoolean(MainActivity.KEY_SQUEE, false)) {
+			mNotification = new NotificationCompat.Builder(this);
+			mNotification.setSmallIcon(R.drawable.ic_stat_notify_berrytube);
+			mNotification.setLights(0xFF0000FF, 100, 2000);
+			mNotification.setAutoCancel(true);
+			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,
+					new Intent(this, ChatActivity.class),
+					PendingIntent.FLAG_UPDATE_CURRENT));
+			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE,
+					"");
+			if (!"".equals(squee)) {
+				mNotification.setSound(Uri.parse(squee),
+						AudioManager.STREAM_NOTIFICATION);
+			}
+			if (settings.getBoolean(MainActivity.KEY_SQUEE_VIBRATE, false)) {
+				mNotification.setVibrate(new long[] { 0, 100 });
+			}
+		} else {
+			mNotification = null;
+		}
+
 		boolean showVideo = settings.getBoolean(MainActivity.KEY_VIDEO, false);
 		if (showVideo != mShowVideo) {
 			// If the value has changed, act on it
 			if (showVideo) {
 				if (!mFirstPrefLoad) {
-					Toast.makeText(this, R.string.toast_video_enabled, Toast.LENGTH_LONG).show();
+					Toast.makeText(this, R.string.toast_video_enabled,
+							Toast.LENGTH_LONG).show();
 				}
-			}
-			else {
+			} else {
 				mBinder.getService().disableVideoMessages();
 				setTextVideoVisible(false);
 			}
@@ -512,21 +516,22 @@ public class ChatActivity extends Activity {
 		sb.append(" <a href=\"http://");
 		if ("yt".equals(type)) {
 			sb.append("youtu.be/");
-		} else if("vimeo".equals(type)) {
+		} else if ("vimeo".equals(type)) {
 			sb.append("vimeo.com/");
 		}
 		sb.append(id).append("\">").append(title).append("</a>");
 		mCurrentVideo.setText(Html.fromHtml(sb.toString()));
 	}
-	
+
 	private void setTextVideoVisible(boolean visible) {
-		if(!mShowVideo) {
+		if (!mShowVideo) {
 			return;
 		}
-		
+
 		int visibility = (visible) ? View.VISIBLE : View.GONE;
 
-		if (mCurrentVideo != null && mCurrentVideo.getVisibility() != visibility)
+		if (mCurrentVideo != null
+				&& mCurrentVideo.getVisibility() != visibility)
 			mCurrentVideo.setVisibility(visibility);
 	}
 
@@ -628,7 +633,7 @@ public class ChatActivity extends Activity {
 					option.append(poll.getVotes().get(i));
 				}
 				option.append("] ").append(poll.getOptions().get(i));
-				
+
 				options[i] = option.toString();
 			}
 			builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -654,6 +659,9 @@ public class ChatActivity extends Activity {
 
 		mBinder.getService().setChatMsgBufferSize(mScrollback);
 
+		mBinder.getService().setNotification(mNotification);
+		mNotification = null;
+
 		if (mChatAdapter == null) {
 			mChatAdapter = new ChatMessageAdapter(ChatActivity.this,
 					R.layout.chat_item, mBinder.getService().getChatMsgBuffer());
@@ -671,16 +679,21 @@ public class ChatActivity extends Activity {
 				// MainActivity, otherwise wait until BerryTube reconnect
 				// normally
 				if (mUsername != null && mPassword != null) {
-					NotificationBuilder nb = new NotificationBuilder(
-							R.drawable.ic_stat_notify_berrytube,
-							getString(R.string.title_activity_chat),
-							ChatActivity.class);
-					mBinder.getService().connect(mUsername, mPassword, nb);
+					NotificationCompat.Builder note = new NotificationCompat.Builder(
+							this);
+					note.setSmallIcon(R.drawable.ic_stat_notify_berrytube);
+					note.setLargeIcon(BitmapFactory.decodeResource(
+							getResources(), R.drawable.ic_launcher));
+					note.setContentTitle(getString(R.string.title_activity_chat));
+					note.setContentIntent(PendingIntent.getActivity(
+							this, 0, new Intent(this, ChatActivity.class),
+							PendingIntent.FLAG_UPDATE_CURRENT));
+					mBinder.getService().connect(mUsername, mPassword, note);
 				}
 			} catch (MalformedURLException e) {
-				Log.w(ChatActivity.class.toString(), e);
+				Log.w(TAG, e);
 			} catch (IllegalStateException e) {
-				// already connect, ignore
+				// already connected, ignore
 			}
 		}
 	}

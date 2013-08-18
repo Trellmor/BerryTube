@@ -34,9 +34,6 @@ import android.widget.TextView;
 
 import com.trellmor.berrytube.ChatMessage;
 import com.trellmor.berrytube.ChatUser;
-import com.trellmor.berrytube.ChatMessage;
-import com.trellmor.berrytube.ChatUser;
-import com.trellmor.berrytubechat.R;
 
 /**
  * This class is used to inflate and populate a <code>View</code> to display a

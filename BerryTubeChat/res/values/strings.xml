@@ -22,9 +22,11 @@
     <string name="pref_show_popup_poll_title">Poll pop-up</string>
     <string name="pref_show_popup_poll_summary">Show pop-up dialog on new polls</string>
 	<string name="pref_flair_title">Select flair</string>
-    <string name="pref_flair_summary">Your flair will be displayed next to all of your messages</string>
-    <string name="pref_squee_title">Play notify sound</string>
-    <string name="pref_squee_summary">Squee!</string>
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_squee_title">New message notifications</string>
+    <string name="pref_squee_vibrate_title">Vibrate</string>
+    <string name="pref_squee_ringtone_title">Ringtone</string>
+    <string name="pref_squee_ringtone_silent">Silent</string>
     <string name="pref_timestamp_title">Display timestamps</string>
     <string name="pref_video_title">Show current video</string>
     <string name="pref_video_summary">The currently playing video will display at the top of the screen</string>

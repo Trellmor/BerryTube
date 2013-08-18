@@ -23,17 +23,10 @@
     <ListPreference 
         android:key="com.trellmor.berrytubechat.settings.flair"
         android:title="@string/pref_flair_title"
-        android:summary="@string/pref_flair_summary"
         android:entries="@array/pref_flair_options"
         android:entryValues="@array/pref_flair_values"
         android:defaultValue="0" />
-    
-    <CheckBoxPreference 
-        android:key="com.trellmor.berrytubechat.settings.squee"
-        android:title="@string/pref_squee_title"
-        android:summary="@string/pref_squee_summary"
-        android:defaultValue="false" />
-    
+
     <CheckBoxPreference 
         android:key="com.trellmor.berrytubechat.settings.timestamp"
         android:title="@string/pref_timestamp_title"

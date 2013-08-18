@@ -28,12 +28,13 @@ import org.json.JSONObject;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
@@ -60,14 +61,22 @@ public class BerryTube extends Service {
 	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
 	private int mDrinkCount = 0;
 	private Handler mHandler = new Handler();
-	
-	public static final int KEY_ID_NOTIFICATION = 1000;
+	private NotificationManager mNotificationManager;
+	private NotificationCompat.Builder mServiceNotification = null;
+	private NotificationCompat.Builder mMessageNotification = null;
+	private ArrayList<String> mMessageNotificationText = new ArrayList<String>(
+			5);
+	private int mMessageNotificationCount = 0;
+
+	public static final int KEY_NOTIFICATION_SERVICE = 1000;
+	public static final int KEY_NOTIFICATION_MESSAGE = 2000;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		Log.i(this.getClass().toString(), "onCreate");
+
+		mNotificationManager = (NotificationManager) getApplicationContext()
+				.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
 	@Override
@@ -76,7 +85,7 @@ public class BerryTube extends Service {
 			mSocket.disconnect();
 
 		mSocket = null;
-		
+
 		super.onDestroy();
 	}
 
@@ -86,7 +95,7 @@ public class BerryTube extends Service {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flag, int startId) {		
+	public int onStartCommand(Intent intent, int flag, int startId) {
 		return START_NOT_STICKY;
 	}
 
@@ -101,9 +110,11 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String username, String password, NotificationBuilder notification)
+	public void connect(String username, String password,
+			NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
-		connect(new URL("http://96.127.152.99:8344"), username, password, notification);
+		connect(new URL("http://96.127.152.99:8344"), username, password,
+				notification);
 	}
 
 	/**
@@ -119,7 +130,8 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String url, String username, String password, NotificationBuilder notification)
+	public void connect(String url, String username, String password,
+			NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
 		connect(new URL(url), username, password, notification);
 	}
@@ -137,7 +149,8 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(URL url, String username, String password, NotificationBuilder notification)
+	public void connect(URL url, String username, String password,
+			NotificationCompat.Builder notification)
 			throws IllegalStateException {
 		if (mSocket != null && mSocket.isConnected())
 			throw new IllegalStateException("Already connected");
@@ -152,9 +165,11 @@ public class BerryTube extends Service {
 
 		mSocket = new SocketIO(mUrl);
 		mSocket.connect(new BerryTubeIOCallback(this));
-		
-		Notification note = notification.build(this);
-		startForeground(KEY_ID_NOTIFICATION, note);
+
+		mServiceNotification = notification;
+		notification.setContentText(getText(R.string.connecting));
+		notification.setTicker(getText(R.string.connecting));
+		startForeground(KEY_NOTIFICATION_SERVICE, notification.build());
 	}
 
 	/**
@@ -179,6 +194,10 @@ public class BerryTube extends Service {
 		if (!mCallbacks.contains(callback)) {
 			mCallbacks.add(callback);
 		}
+
+		// Clear old notifications
+		mMessageNotificationText.clear();
+		mMessageNotificationCount = 0;
 	}
 
 	/**
@@ -314,9 +333,24 @@ public class BerryTube extends Service {
 	public int getDrinkCount() {
 		return mDrinkCount;
 	}
-	
+
+	/**
+	 * Set a notification that should be displayed if the users name is
+	 * mentioned
+	 * 
+	 * ContentTitle, ContentText and Style will be set on demand
+	 * 
+	 * @param notification
+	 *            NotificationCompate.Builder object initialized with default
+	 *            values
+	 */
+	public void setNotification(NotificationCompat.Builder notification) {
+		mMessageNotification = notification;
+	}
+
 	public static boolean isServiceRunning(Context context) {
-		ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		ActivityManager manager = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
 		for (RunningServiceInfo service : manager
 				.getRunningServices(Integer.MAX_VALUE)) {
 			if (BerryTube.class.getName()
@@ -329,16 +363,16 @@ public class BerryTube extends Service {
 
 	Handler getHandler() {
 		return mHandler;
-	}	
-	
+	}
+
 	public void disableVideoMessages() {
-		if(mSocket != null) {
+		if (mSocket != null) {
 			mSocket.emit("chatOnly");
 		}
 	}
 
 	class ConnectTask implements Runnable {
-		public void run() {		
+		public void run() {
 			if (mSocket == null)
 				return;
 
@@ -351,15 +385,24 @@ public class BerryTube extends Service {
 			} catch (JSONException e) {
 				Log.w(this.getClass().toString(), e.getMessage());
 			}
+			mServiceNotification.setContentText(getText(R.string.connected));
+			mServiceNotification.setTicker(getText(R.string.connected));
+			mNotificationManager.notify(KEY_NOTIFICATION_SERVICE,
+					mServiceNotification.build());
 		}
 	}
 
 	class DisconnectTask implements Runnable {
 		@Override
-		public void run() {		
+		public void run() {
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onDisconnect();
 			}
+
+			mServiceNotification.setContentText(getText(R.string.disconnected));
+			mServiceNotification.setTicker(getText(R.string.disconnected));
+			mNotificationManager.notify(KEY_NOTIFICATION_SERVICE,
+					mServiceNotification.build());
 
 			BerryTube.this.stopSelf();
 		}
@@ -373,7 +416,7 @@ public class BerryTube extends Service {
 			this.mChatMsg = chatMsg;
 		}
 
-		public void run() {		
+		public void run() {
 			if (mChatMsgBufferSize != 0)
 				mChatMsgBuffer.add(mChatMsg);
 
@@ -385,6 +428,42 @@ public class BerryTube extends Service {
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onChatMessage(mChatMsg);
 			}
+
+			if (mMessageNotification != null && mNick != null
+					&& mNick.length() > 0 && mChatMsg.isHighlightable()
+					&& !mChatMsg.getNick().equals(mNick)
+					&& mChatMsg.getMsg().contains(mNick)) {
+
+				String msg = mChatMsg.toString();
+				mMessageNotificationCount++;
+
+				while (mMessageNotificationText.size() > 5) {
+					mMessageNotificationText.remove(0);
+				}
+
+				mMessageNotificationText.add(msg);
+
+				String title = msg;
+				if (mMessageNotificationCount > 1) {
+					title = String.format(getString(R.string.new_messages),
+							mMessageNotificationCount);
+					NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+					inboxStyle.setBigContentTitle(title);
+					for (String line : mMessageNotificationText) {
+						inboxStyle.addLine(line);
+					}
+					mMessageNotification.setStyle(inboxStyle);
+				} else {
+					mMessageNotification.setStyle(null);
+				}
+
+				mMessageNotification.setTicker(msg);
+				mMessageNotification.setContentTitle(title);
+				mMessageNotification.setContentText(msg);
+				mNotificationManager.notify(KEY_NOTIFICATION_MESSAGE,
+						mMessageNotification.build());
+			}
+
 		}
 
 	}
@@ -397,20 +476,20 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
-			mNick = nick;		
+			mNick = nick;
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onSetNick(nick);
 			}
 		}
 	}
-	
+
 	class LoginErrorTask implements Runnable {
 		private String mError;
-		
+
 		public LoginErrorTask(String error) {
 			mError = error;
 		}
-		
+
 		public void run() {
 			for (BerryTubeCallback callback : mCallbacks) {
 				callback.onLoginError(mError);
@@ -527,16 +606,16 @@ public class BerryTube extends Service {
 		private String mName;
 		private String mId;
 		private String mType;
-		
+
 		public NewVideoTask(String name, String id, String type) {
 			this.mName = name;
 			this.mId = id;
 			this.mType = type;
 		}
-		
+
 		public void run() {
 			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onVideoUpdate(mName,  mId, mType);
+				callback.onVideoUpdate(mName, mId, mType);
 			}
 		}
 	}
