@@ -81,18 +81,17 @@ public class ChatActivity extends Activity {
 	private NotificationCompat.Builder mNotification = null;
 
 	private BerryTubeBinder mBinder = null;
-	private boolean mServiceConnected = false;
 	private ServiceConnection mService = new ServiceConnection() {
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mServiceConnected = false;
-			mService = null;
+			mBinder = null;
+			mListChat.setAdapter(null);
+			mChatAdapter = null;
 		}
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			mServiceConnected = true;
 			initService((BerryTubeBinder) service);
 		}
 	};
@@ -179,7 +178,7 @@ public class ChatActivity extends Activity {
 
 		// Kill the callback
 		if (mBinder != null) {
-			mBinder.getService().unregisterCallback(mCallback);
+			mBinder.getService().setCallback(null);
 		}
 
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -187,10 +186,9 @@ public class ChatActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		if (mServiceConnected) {
+		if (mService != null) {
 			unbindService(mService);
 			mService = null;
-			mBinder = null;
 		}
 
 		mCallback = null;
@@ -226,6 +224,7 @@ public class ChatActivity extends Activity {
 			return true;
 		case R.id.menu_logout:
 			mLogout = true;
+			
 			stopService(new Intent(this, BerryTube.class));
 			// intent = new Intent(this, MainActivity.class);
 			// startActivity(intent);
@@ -655,7 +654,7 @@ public class ChatActivity extends Activity {
 		if (mCallback == null) {
 			createCallback();
 		}
-		mBinder.getService().registerCallback(mCallback);
+		mBinder.getService().setCallback(mCallback);
 
 		mBinder.getService().setChatMsgBufferSize(mScrollback);
 

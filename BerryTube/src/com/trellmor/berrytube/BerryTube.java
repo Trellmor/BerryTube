@@ -19,6 +19,7 @@ package com.trellmor.berrytube;
 
 import io.socket.SocketIO;
 
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import android.util.Log;
  */
 public class BerryTube extends Service {
 	private SocketIO mSocket = null;
-	private final ArrayList<BerryTubeCallback> mCallbacks = new ArrayList<BerryTubeCallback>();
+	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<BerryTubeCallback>(null);
 
 	private URL mUrl;
 	private String mUsername;
@@ -185,29 +186,17 @@ public class BerryTube extends Service {
 	}
 
 	/**
-	 * Register a callback handler if it's not yet registered
+	 * Set the callback handler
 	 * 
 	 * @param callback
 	 *            Callback implementation instance
 	 */
-	public void registerCallback(BerryTubeCallback callback) {
-		if (!mCallbacks.contains(callback)) {
-			mCallbacks.add(callback);
-		}
+	public void setCallback(BerryTubeCallback callback) {
+		mCallback = new WeakReference<BerryTubeCallback>(callback);
 
 		// Clear old notifications
 		mMessageNotificationText.clear();
 		mMessageNotificationCount = 0;
-	}
-
-	/**
-	 * Removes a callback handler
-	 * 
-	 * @param callback
-	 *            Callback implementation instance
-	 */
-	public void unregisterCallback(BerryTubeCallback callback) {
-		mCallbacks.remove(callback);
 	}
 
 	/**
@@ -395,8 +384,8 @@ public class BerryTube extends Service {
 	class DisconnectTask implements Runnable {
 		@Override
 		public void run() {
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onDisconnect();
+			if (mCallback.get() != null) {
+				mCallback.get().onDisconnect();
 			}
 
 			mServiceNotification.setContentText(getText(R.string.disconnected));
@@ -425,11 +414,11 @@ public class BerryTube extends Service {
 					mChatMsgBuffer.remove(0);
 			}
 
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onChatMessage(mChatMsg);
+			if (mCallback.get() != null) {
+				mCallback.get().onChatMessage(mChatMsg);
 			}
 
-			if (mCallbacks.size() == 0 && mMessageNotification != null) {
+			if (mCallback.get() == null && mMessageNotification != null) {
 				if (mNick != null && mNick.length() > 0
 						&& mChatMsg.isHighlightable()
 						&& !mChatMsg.getNick().equals(mNick)
@@ -478,8 +467,9 @@ public class BerryTube extends Service {
 
 		public void run() {
 			mNick = nick;
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onSetNick(nick);
+
+			if (mCallback.get() != null) {
+				mCallback.get().onSetNick(nick);
 			}
 		}
 	}
@@ -492,8 +482,8 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onLoginError(mError);
+			if (mCallback.get() != null) {
+				mCallback.get().onLoginError(mError);
 			}
 		}
 	}
@@ -537,8 +527,8 @@ public class BerryTube extends Service {
 
 		public void run() {
 			mDrinkCount = count;
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onDrinkCount(this.count);
+			if (mCallback.get() != null) {
+				mCallback.get().onDrinkCount(this.count);
 			}
 		}
 	}
@@ -548,8 +538,8 @@ public class BerryTube extends Service {
 			mPoll = null;
 			mUsers.clear();
 
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onKicked();
+			if (mCallback.get() != null) {
+				mCallback.get().onKicked();
 			}
 
 			if (mSocket.isConnected())
@@ -569,8 +559,8 @@ public class BerryTube extends Service {
 		public void run() {
 			BerryTube.this.mPoll = mPoll;
 
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onNewPoll(mPoll);
+			if (mCallback.get() != null) {
+				mCallback.get().onNewPoll(mPoll);
 			}
 		}
 	}
@@ -587,8 +577,8 @@ public class BerryTube extends Service {
 				mPoll.update(mVotes);
 			}
 
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onUpatePoll(mPoll);
+			if (mCallback.get() != null) {
+				mCallback.get().onUpatePoll(mPoll);
 			}
 		}
 	}
@@ -597,8 +587,8 @@ public class BerryTube extends Service {
 		public void run() {
 			mPoll = null;
 
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onClearPoll();
+			if (mCallback.get() != null) {
+				mCallback.get().onClearPoll();
 			}
 		}
 	}
@@ -615,8 +605,8 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
-			for (BerryTubeCallback callback : mCallbacks) {
-				callback.onVideoUpdate(mName, mId, mType);
+			if (mCallback.get() != null) {
+				mCallback.get().onVideoUpdate(mName, mId, mType);
 			}
 		}
 	}
