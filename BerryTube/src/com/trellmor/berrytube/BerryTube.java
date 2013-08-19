@@ -429,41 +429,42 @@ public class BerryTube extends Service {
 				callback.onChatMessage(mChatMsg);
 			}
 
-			if (mMessageNotification != null && mNick != null
-					&& mNick.length() > 0 && mChatMsg.isHighlightable()
-					&& !mChatMsg.getNick().equals(mNick)
-					&& mChatMsg.getMsg().contains(mNick)) {
+			if (mCallbacks.size() == 0 && mMessageNotification != null) {
+				if (mNick != null && mNick.length() > 0
+						&& mChatMsg.isHighlightable()
+						&& !mChatMsg.getNick().equals(mNick)
+						&& mChatMsg.getMsg().contains(mNick)) {
 
-				String msg = mChatMsg.toString();
-				mMessageNotificationCount++;
+					String msg = mChatMsg.toString();
+					mMessageNotificationCount++;
 
-				while (mMessageNotificationText.size() > 5) {
-					mMessageNotificationText.remove(0);
-				}
-
-				mMessageNotificationText.add(msg);
-
-				String title = msg;
-				if (mMessageNotificationCount > 1) {
-					title = String.format(getString(R.string.new_messages),
-							mMessageNotificationCount);
-					NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-					inboxStyle.setBigContentTitle(title);
-					for (String line : mMessageNotificationText) {
-						inboxStyle.addLine(line);
+					while (mMessageNotificationText.size() > 5) {
+						mMessageNotificationText.remove(0);
 					}
-					mMessageNotification.setStyle(inboxStyle);
-				} else {
-					mMessageNotification.setStyle(null);
+
+					mMessageNotificationText.add(msg);
+
+					String title = msg;
+					if (mMessageNotificationCount > 1) {
+						title = String.format(getString(R.string.new_messages),
+								mMessageNotificationCount);
+						NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+						inboxStyle.setBigContentTitle(title);
+						for (String line : mMessageNotificationText) {
+							inboxStyle.addLine(line);
+						}
+						mMessageNotification.setStyle(inboxStyle);
+					} else {
+						mMessageNotification.setStyle(null);
+					}
+
+					mMessageNotification.setTicker(msg);
+					mMessageNotification.setContentTitle(title);
+					mMessageNotification.setContentText(msg);
+					mNotificationManager.notify(KEY_NOTIFICATION_MESSAGE,
+							mMessageNotification.build());
 				}
-
-				mMessageNotification.setTicker(msg);
-				mMessageNotification.setContentTitle(title);
-				mMessageNotification.setContentText(msg);
-				mNotificationManager.notify(KEY_NOTIFICATION_MESSAGE,
-						mMessageNotification.build());
 			}
-
 		}
 
 	}
