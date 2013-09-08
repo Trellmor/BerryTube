@@ -226,8 +226,8 @@ public class ChatActivity extends Activity {
 			mLogout = true;
 			
 			stopService(new Intent(this, BerryTube.class));
-			// intent = new Intent(this, MainActivity.class);
-			// startActivity(intent);
+			intent = new Intent(this, MainActivity.class);
+			startActivity(intent);
 			finish();
 			return true;
 		case R.id.menu_poll:
@@ -410,7 +410,7 @@ public class ChatActivity extends Activity {
 
 		if (settings.getBoolean(MainActivity.KEY_SQUEE, false)) {
 			mNotification = new NotificationCompat.Builder(this);
-			mNotification.setSmallIcon(R.drawable.ic_stat_notify_berrytube);
+			mNotification.setSmallIcon(R.drawable.ic_stat_notify_chat);
 			mNotification.setLights(0xFF0000FF, 100, 2000);
 			mNotification.setAutoCancel(true);
 			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,

@@ -87,6 +87,8 @@ public class BerryTube extends Service {
 
 		mSocket = null;
 
+		stopForeground(true);
+		
 		super.onDestroy();
 	}
 
@@ -393,6 +395,8 @@ public class BerryTube extends Service {
 			mNotificationManager.notify(KEY_NOTIFICATION_SERVICE,
 					mServiceNotification.build());
 
+			stopForeground(true);
+			mNotificationManager.cancel(KEY_NOTIFICATION_SERVICE);
 			BerryTube.this.stopSelf();
 		}
 
