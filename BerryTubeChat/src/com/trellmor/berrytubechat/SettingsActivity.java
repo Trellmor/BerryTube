@@ -52,6 +52,11 @@ public class SettingsActivity extends PreferenceActivity implements
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+
 		addPreferencesFromResource(R.xml.preferences);
 		
 		// Add 'notifications' preferences, and a corresponding header.
@@ -62,13 +67,8 @@ public class SettingsActivity extends PreferenceActivity implements
 		
 		EmoteSettings.addEmoteSettings(this);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
-
 		prefScrollback = (EditTextPreference) findPreference(MainActivity.KEY_SCROLLBACK);
 		
-
 		bindPreferenceSummaryToValue(findPreference(MainActivity.KEY_SQUEE_RINGTONE));
 		bindPreferenceSummaryToValue(findPreference(MainActivity.KEY_FLAIR));
 	}

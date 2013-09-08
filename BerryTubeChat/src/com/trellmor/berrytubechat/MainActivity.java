@@ -123,11 +123,6 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (BerryTube.isServiceRunning(this)) {
-			Intent chat = new Intent(this, ChatActivity.class);
-			startActivity(chat);
-		}
-
 		setContentView(R.layout.activity_main);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			ActionBar ab = getActionBar();
