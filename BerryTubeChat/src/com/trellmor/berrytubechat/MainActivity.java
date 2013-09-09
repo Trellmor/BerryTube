@@ -1,6 +1,6 @@
 /*
  * BerryTubeChat android client
- * Copyright (C) 2012 Daniel Triendl <trellmor@trellmor.com>
+ * Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,8 +43,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-
-import com.trellmor.berrytube.BerryTube;
 
 /**
  * BerryTubeChat Main Activity
