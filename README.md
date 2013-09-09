@@ -3,7 +3,7 @@ BerryTube
 
 Download
 --------
-http://files.pew.cc/berrytube/BerryTubeChat_latest.apk
+https://play.google.com/store/apps/details?id=com.trellmor.berrytubechat
 
 Support
 -------
