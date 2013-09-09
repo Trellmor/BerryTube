@@ -188,6 +188,12 @@ public class MainActivity extends Activity {
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.menu_donate:
+			BerryTubeUtils.openDonatePage(this);
+			return true;
+		case R.id.menu_about:
+			BerryTubeUtils.openAboutDialog(this);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}

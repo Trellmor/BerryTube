@@ -230,6 +230,12 @@ public class ChatActivity extends Activity {
 			startActivity(intent);
 			finish();
 			return true;
+		case R.id.menu_donate:
+			BerryTubeUtils.openDonatePage(this);
+			return true;
+		case R.id.menu_about:
+			BerryTubeUtils.openAboutDialog(this);
+			return true;
 		case R.id.menu_poll:
 			showPoll();
 		default:
