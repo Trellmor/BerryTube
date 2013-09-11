@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import com.trellmor.berrytubechat.R;
 import com.trellmor.berrymotes.EmoteGetter;
+import com.trellmor.berrymotes.loader.ScalingEmoteLoader;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -39,7 +40,7 @@ public class FlairGetter extends EmoteGetter implements ImageGetter {
 	private HashMap<String, Drawable> mDrawables;
 
 	public FlairGetter(Context context) {
-		super(context);
+		super(context, new ScalingEmoteLoader(context));
 		this.mResources = context.getResources();
 
 		mDrawables = new HashMap<String, Drawable>();
