@@ -17,8 +17,13 @@
  */
 package com.trellmor.berrytube;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.util.Log;
 
 /**
  * This class encapsulates a chat message
@@ -26,6 +31,9 @@ import org.json.JSONObject;
  * @author Daniel Triendl
  */
 public class ChatMessage {
+	private static final String TAG = ChatMessage.class.getName();
+	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+	
 	/**
 	 * Message is not an emote
 	 */
@@ -127,7 +135,13 @@ public class ChatMessage {
 		mFlair = metadata.optInt("flair");
 		mFlaunt = metadata.optBoolean("nameflaunt");
 		
-		this.mTimeStamp = System.currentTimeMillis();
+		try {
+	        this.mTimeStamp = TIMESTAMP_FORMAT.parse(message.getString("timestamp")).getTime();
+		}
+		catch (ParseException pe) {
+	        Log.w(TAG, "Error parsing timestamp string");
+	        this.mTimeStamp = System.currentTimeMillis();
+		}
 		this.mHidden = (this.mEmote == EMOTE_SPOILER);
 	}
 
