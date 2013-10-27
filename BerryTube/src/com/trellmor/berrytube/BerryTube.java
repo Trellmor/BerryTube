@@ -49,6 +49,8 @@ import android.util.Log;
  * @see android.app.Service
  */
 public class BerryTube extends Service {
+	private static final String TAG = BerryTube.class.getName();
+	
 	private SocketIO mSocket = null;
 	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<BerryTubeCallback>(null);
 
@@ -230,7 +232,7 @@ public class BerryTube extends Service {
 
 			mSocket.emit("chat", msg);
 		} catch (JSONException e) {
-			Log.w(this.getClass().toString(), e);
+			Log.w(TAG, e);
 		}
 	}
 
@@ -247,7 +249,7 @@ public class BerryTube extends Service {
 
 			mSocket.emit("votePoll", msg);
 		} catch (JSONException e) {
-			Log.w(this.getClass().toString(), e);
+			Log.w(TAG.toString(), e);
 		}
 	}
 
@@ -374,7 +376,7 @@ public class BerryTube extends Service {
 
 				mSocket.emit("setNick", login);
 			} catch (JSONException e) {
-				Log.w(this.getClass().toString(), e.getMessage());
+				Log.w(TAG, e);
 			}
 			mServiceNotification.setContentText(getText(R.string.connected));
 			mServiceNotification.setTicker(getText(R.string.connected));

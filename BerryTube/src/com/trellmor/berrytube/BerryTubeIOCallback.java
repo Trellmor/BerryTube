@@ -17,6 +17,11 @@
  */
 package com.trellmor.berrytube;
 
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -26,11 +31,6 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import io.socket.IOAcknowledge;
-import io.socket.IOCallback;
-import io.socket.SocketIO;
-import io.socket.SocketIOException;
-
 /**
  * Internal class to handle callbacks from <code>SocketIO</code>
  * 
@@ -39,6 +39,8 @@ import io.socket.SocketIOException;
  * @see SocketIO
  */
 class BerryTubeIOCallback implements IOCallback {
+	private static final String TAG = BerryTubeIOCallback.class.getName();
+
 	private BerryTube berryTube;
 
 	public BerryTubeIOCallback(BerryTube berryTube) {
@@ -50,7 +52,7 @@ class BerryTubeIOCallback implements IOCallback {
 	 */
 	public void onDisconnect() {
 		berryTube.getHandler().post(berryTube.new DisconnectTask());
-		Log.i(this.getClass().toString(), "Disconnected");
+		Log.i(TAG, "Disconnected");
 	}
 
 	/**
@@ -92,22 +94,22 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new ChatMsgTask(new ChatMessage(jsonMsg
 									.getJSONObject("msg"))));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "chatMsg", e);
+					Log.e(TAG, "chatMsg", e);
 				}
 			} else
-				Log.w(this.getClass().toString(),
-						"chatMsg message is not a JSONObject");
+				Log.w(TAG, "chatMsg message is not a JSONObject");
 		} else if (event.compareTo("setNick") == 0) {
 			if (args.length >= 1 && args[0] instanceof String) {
 				berryTube.getHandler().post(
 						berryTube.new SetNickTask((String) args[0]));
 			} else
-				Log.w(this.getClass().toString(),
-						"setNick message is not a String");
+				Log.w(TAG, "setNick message is not a String");
 		} else if (event.compareTo("loginError") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject error = (JSONObject) args[0];
-				berryTube.getHandler().post(berryTube.new LoginErrorTask(error.optString("message", "Login failed")));
+				berryTube.getHandler().post(
+						berryTube.new LoginErrorTask(error.optString("message",
+								"Login failed")));
 			}
 		} else if (event.compareTo("userJoin") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
@@ -117,11 +119,10 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new UserJoinPartTask(new ChatUser(user),
 									BerryTube.UserJoinPartTask.ACTION_JOIN));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "userJoin", e);
+					Log.e(TAG, "userJoin", e);
 				}
 			} else
-				Log.w(this.getClass().toString(),
-						"userJoin message is not a JSONObject");
+				Log.w(TAG, "userJoin message is not a JSONObject");
 		} else if (event.compareTo("newChatList") == 0) {
 			berryTube.getHandler().post(berryTube.new UserResetTask());
 			if (args.length >= 1 && args[0] instanceof JSONArray) {
@@ -136,13 +137,12 @@ class BerryTubeIOCallback implements IOCallback {
 											new ChatUser(user),
 											BerryTube.UserJoinPartTask.ACTION_JOIN));
 						} catch (JSONException e) {
-							Log.e(this.getClass().toString(), "newChatList", e);
+							Log.e(TAG, "newChatList", e);
 						}
 					}
 				}
 			} else
-				Log.w(this.getClass().toString(),
-						"newChatList message is not a JSONArray");
+				Log.w(TAG, "newChatList message is not a JSONArray");
 		} else if (event.compareTo("userPart") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject user = (JSONObject) args[0];
@@ -151,11 +151,10 @@ class BerryTubeIOCallback implements IOCallback {
 							berryTube.new UserJoinPartTask(new ChatUser(user),
 									BerryTube.UserJoinPartTask.ACTION_PART));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "userPart", e);
+					Log.e(TAG, "userPart", e);
 				}
 			} else
-				Log.w(this.getClass().toString(),
-						"userPart message is not a JSONObject");
+				Log.w(TAG, "userPart message is not a JSONObject");
 		} else if (event.compareTo("drinkCount") == 0) {
 			if (args.length >= 1 && args[0] instanceof JSONObject) {
 				JSONObject drinks = (JSONObject) args[0];
@@ -176,7 +175,7 @@ class BerryTubeIOCallback implements IOCallback {
 							0, false, 1);
 					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "newPoll", e);
+					Log.e(TAG, "newPoll", e);
 				}
 
 				// Create new poll
@@ -184,7 +183,7 @@ class BerryTubeIOCallback implements IOCallback {
 					berryTube.getHandler().post(
 							berryTube.new NewPollTask(new Poll(poll)));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "newPoll", e);
+					Log.e(TAG, "newPoll", e);
 				}
 			}
 		} else if (event.compareTo("updatePoll") == 0) {
@@ -199,7 +198,7 @@ class BerryTubeIOCallback implements IOCallback {
 					berryTube.getHandler().post(
 							berryTube.new UpdatePollTask(voteArray));
 				} catch (JSONException e) {
-					Log.e(this.getClass().toString(), "updatePoll", e);
+					Log.e(TAG, "updatePoll", e);
 				}
 			}
 		} else if (event.compareTo("clearPoll") == 0) {
@@ -217,9 +216,9 @@ class BerryTubeIOCallback implements IOCallback {
 					berryTube.getHandler().post(
 							berryTube.new NewVideoTask(name, id, type));
 				} catch (JSONException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.w(TAG, e);
 				} catch (UnsupportedEncodingException e) {
-					Log.w(this.getClass().toString(), e);
+					Log.w(TAG, e);
 				}
 			}
 		}
@@ -229,6 +228,6 @@ class BerryTubeIOCallback implements IOCallback {
 	 * @see io.socket.IOCallback#onError(io.socket.SocketIOException)
 	 */
 	public void onError(SocketIOException socketIOException) {
-		Log.wtf(this.getClass().toString(), socketIOException);
+		Log.wtf(TAG, socketIOException);
 	}
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import android.R.anim;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,7 +68,7 @@ import com.trellmor.berrytube.Poll;
  * @author Daniel
  */
 public class ChatActivity extends Activity {
-	private static final String TAG = MainActivity.class.getName();
+	private static final String TAG = ChatActivity.class.getName();
 
 	private static final String KEY_DRINKCOUT = "drinkCount";
 	private static final String KEY_MYDRINKCOUNT = "myDrinkCount";
@@ -321,8 +322,12 @@ public class ChatActivity extends Activity {
 			}
 
 			@Override
-			public void onLoginError(String nick) {
-
+			public void onLoginError(String error) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+				builder.setTitle(R.string.login_error);
+				builder.setMessage(error);
+				builder.setPositiveButton(android.R.string.ok, null);
+				builder.show();
 			}
 
 			@Override
@@ -385,8 +390,7 @@ public class ChatActivity extends Activity {
 							}
 						});
 
-				AlertDialog dialog = builder.create();
-				dialog.show();
+				builder.show();
 			}
 		};
 	}
