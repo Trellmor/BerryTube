@@ -198,8 +198,36 @@ public class ChatMessageFormatter {
 	private String highlightNick(String msg) {
 		if (mNick == null)
 			return msg;
-		return msg.replace(mNick, "<font color=\"#ff0000\">" + mNick
-				+ "</font>");
+
+		if (msg.contains(mNick)) {
+			// Simple html parsing
+			StringBuilder result = new StringBuilder();
+			StringBuilder text = new StringBuilder();
+			boolean inHtml = false;
+			for (int i = 0; i < msg.length(); i++) {
+				char c = msg.charAt(i);
+				if (c == '<') {
+					result.append(text.toString().replace(mNick,
+							"<font color=\"#ff0000\">" + mNick + "</font>"));
+					text.delete(0, text.length());
+					inHtml = true;
+				}
+
+				if (inHtml) {
+					result.append(c);
+					if (c == '>') {
+						inHtml = false;
+					}
+				} else {
+					text.append(c);
+				}
+			}
+			msg = result.append(
+					text.toString().replace(mNick,
+							"<font color=\"#ff0000\">" + mNick + "</font>"))
+					.toString();
+		}
+		return msg;
 	}
 
 	private String createTimestamp(long timeStamp) {
