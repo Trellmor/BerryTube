@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.R.anim;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -225,10 +224,8 @@ public class ChatActivity extends Activity {
 			return true;
 		case R.id.menu_logout:
 			mLogout = true;
-			
+
 			stopService(new Intent(this, BerryTube.class));
-			intent = new Intent(this, MainActivity.class);
-			startActivity(intent);
 			finish();
 			return true;
 		case R.id.menu_donate:
@@ -323,7 +320,8 @@ public class ChatActivity extends Activity {
 
 			@Override
 			public void onLoginError(String error) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						ChatActivity.this);
 				builder.setTitle(R.string.login_error);
 				builder.setMessage(error);
 				builder.setPositiveButton(android.R.string.ok, null);
@@ -423,9 +421,13 @@ public class ChatActivity extends Activity {
 			mNotification.setSmallIcon(R.drawable.ic_stat_notify_chat);
 			mNotification.setLights(0xFF0000FF, 100, 2000);
 			mNotification.setAutoCancel(true);
+
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.setAction(Intent.ACTION_MAIN);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
 			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,
-					new Intent(this, ChatActivity.class),
-					PendingIntent.FLAG_UPDATE_CURRENT));
+					intent, PendingIntent.FLAG_UPDATE_CURRENT));
 			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE,
 					"");
 			if (!"".equals(squee)) {
@@ -694,9 +696,13 @@ public class ChatActivity extends Activity {
 					note.setLargeIcon(BitmapFactory.decodeResource(
 							getResources(), R.drawable.ic_launcher));
 					note.setContentTitle(getString(R.string.title_activity_chat));
-					note.setContentIntent(PendingIntent.getActivity(
-							this, 0, new Intent(this, ChatActivity.class),
-							PendingIntent.FLAG_UPDATE_CURRENT));
+
+					Intent intent = new Intent(this, MainActivity.class);
+					intent.setAction(Intent.ACTION_MAIN);
+					intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+					note.setContentIntent(PendingIntent.getActivity(this, 0,
+							intent, PendingIntent.FLAG_UPDATE_CURRENT));
 					mBinder.getService().connect(mUsername, mPassword, note);
 				}
 			} catch (MalformedURLException e) {
