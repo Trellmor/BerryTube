@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -132,7 +133,6 @@ public class ChatActivity extends Activity {
 			}
 		};
 		mEditChatMsg.setOnEditorActionListener(chatMsgListener);
-		registerForContextMenu(mEditChatMsg);
 
 		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
 		registerForContextMenu(mTextDrinks);
@@ -236,6 +236,9 @@ public class ChatActivity extends Activity {
 			return true;
 		case R.id.menu_poll:
 			showPoll();
+		case R.id.menu_autocomplete_nick:
+			autocompleteNick();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -246,9 +249,6 @@ public class ChatActivity extends Activity {
 			ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		switch (v.getId()) {
-		case R.id.edit_chat_msg:
-			getMenuInflater().inflate(R.menu.context_edit_chat_msg, menu);
-			break;
 		case R.id.text_drinks:
 			getMenuInflater().inflate(R.menu.context_text_drinks, menu);
 			break;
@@ -258,40 +258,6 @@ public class ChatActivity extends Activity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_autocomplete_nick:
-			int selStart = Math.min(mEditChatMsg.getSelectionStart(),
-					mEditChatMsg.getSelectionEnd());
-			int selEnd = Math.max(mEditChatMsg.getSelectionStart(),
-					mEditChatMsg.getSelectionEnd());
-			String msg = mEditChatMsg.getText().toString();
-
-			// no text selected, select word
-			if (selStart == selEnd) {
-				if (msg.length() > 0) {
-
-					selStart--;
-					for (int i = selStart; i >= 0; i--) {
-						if (msg.charAt(i) == ' ')
-							break;
-						selStart--;
-					}
-					selStart++;
-
-					for (int i = selEnd; i < msg.length(); i++) {
-						if (msg.charAt(i) == ' ')
-							break;
-						selEnd++;
-					}
-					mEditChatMsg.setSelection(selStart, selEnd);
-				}
-			}
-
-			if (msg.length() > 0) {
-				selectUser(msg.substring(selStart, selEnd));
-			} else {
-				selectUser(null);
-			}
-			return true;
 		case R.id.menu_reset_my_drinks:
 			mMyDrinkCount = 0;
 			updateDrinkCount();
@@ -710,6 +676,41 @@ public class ChatActivity extends Activity {
 			} catch (IllegalStateException e) {
 				// already connected, ignore
 			}
+		}
+	}
+
+	private void autocompleteNick() {
+		int selStart = Math.min(mEditChatMsg.getSelectionStart(),
+				mEditChatMsg.getSelectionEnd());
+		int selEnd = Math.max(mEditChatMsg.getSelectionStart(),
+				mEditChatMsg.getSelectionEnd());
+		String msg = mEditChatMsg.getText().toString();
+
+		// no text selected, select word
+		if (selStart == selEnd) {
+			if (msg.length() > 0) {
+
+				selStart--;
+				for (int i = selStart; i >= 0; i--) {
+					if (msg.charAt(i) == ' ')
+						break;
+					selStart--;
+				}
+				selStart++;
+
+				for (int i = selEnd; i < msg.length(); i++) {
+					if (msg.charAt(i) == ' ')
+						break;
+					selEnd++;
+				}
+				mEditChatMsg.setSelection(selStart, selEnd);
+			}
+		}
+
+		if (msg.length() > 0) {
+			selectUser(msg.substring(selStart, selEnd));
+		} else {
+			selectUser(null);
 		}
 	}
 }
