@@ -19,6 +19,7 @@ package com.trellmor.berrytube;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,8 +33,9 @@ import android.util.Log;
  */
 public class ChatMessage {
 	private static final String TAG = ChatMessage.class.getName();
-	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-	
+	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(
+			"EEE, d MMM yyyy HH:mm:ss z", Locale.US);
+
 	/**
 	 * Message is not an emote
 	 */
@@ -80,15 +82,23 @@ public class ChatMessage {
 	/**
 	 * Constructs a <code>ChatMessage</code>
 	 * 
-	 * @param nick Sender name
-	 * @param msg Text content
-	 * @param emote Emote type
-	 * @param flair Sender flair
-	 * @param type User level
-	 * @param flaunt User is flaunting
-	 * @param multi Multiplier for <code>EMOTE_DRINK</code> notifications
+	 * @param nick
+	 *            Sender name
+	 * @param msg
+	 *            Text content
+	 * @param emote
+	 *            Emote type
+	 * @param flair
+	 *            Sender flair
+	 * @param type
+	 *            User level
+	 * @param flaunt
+	 *            User is flaunting
+	 * @param multi
+	 *            Multiplier for <code>EMOTE_DRINK</code> notifications
 	 */
-	public ChatMessage(String nick, String msg, int emote, int flair, int type, boolean flaunt, int multi) {
+	public ChatMessage(String nick, String msg, int emote, int flair, int type,
+			boolean flaunt, int multi) {
 		this.mNick = nick;
 		this.mMsg = msg;
 		this.mEmote = emote;
@@ -102,7 +112,8 @@ public class ChatMessage {
 	/**
 	 * Constructs a <code>ChatMessage</code> from an <code>JSONObject</code>
 	 * 
-	 * @param message <code>JSONObject<code> containing all the required fields to form a chat message
+	 * @param message
+	 *            <code>JSONObject<code> containing all the required fields to form a chat message
 	 * @throws JSONException
 	 */
 	public ChatMessage(JSONObject message) throws JSONException {
@@ -134,13 +145,13 @@ public class ChatMessage {
 		JSONObject metadata = message.getJSONObject("metadata");
 		mFlair = metadata.optInt("flair");
 		mFlaunt = metadata.optBoolean("nameflaunt");
-		
+
 		try {
-	        this.mTimeStamp = TIMESTAMP_FORMAT.parse(message.getString("timestamp")).getTime();
-		}
-		catch (ParseException pe) {
-	        Log.w(TAG, "Error parsing timestamp string");
-	        this.mTimeStamp = System.currentTimeMillis();
+			this.mTimeStamp = TIMESTAMP_FORMAT.parse(
+					message.getString("timestamp")).getTime();
+		} catch (ParseException pe) {
+			Log.w(TAG, "Error parsing timestamp string");
+			this.mTimeStamp = System.currentTimeMillis();
 		}
 		this.mHidden = (this.mEmote == EMOTE_SPOILER);
 	}
@@ -180,9 +191,10 @@ public class ChatMessage {
 	public boolean isEmote() {
 		return mEmote != EMOTE_FALSE;
 	}
-	
+
 	/**
-	 * Check if a notification should be displayed if the users nick is mentioned in the message
+	 * Check if a notification should be displayed if the users nick is
+	 * mentioned in the message
 	 * 
 	 * @return
 	 */
@@ -213,7 +225,7 @@ public class ChatMessage {
 	public int getMulti() {
 		return mMulti;
 	}
-	
+
 	/**
 	 * Get the timestamp for this message
 	 * 
@@ -222,7 +234,7 @@ public class ChatMessage {
 	public long getTimestamp() {
 		return mTimeStamp;
 	}
-	
+
 	/**
 	 * Get the user level
 	 * 
@@ -232,7 +244,7 @@ public class ChatMessage {
 	public int getType() {
 		return mType;
 	}
-	
+
 	/**
 	 * User is flaunting and nick should be colored according to type
 	 * 
@@ -241,21 +253,22 @@ public class ChatMessage {
 	public boolean isFlaunt() {
 		return mFlaunt;
 	}
-	
+
 	/**
 	 * Get whether or not this message is hidden. This is only applicable if the
 	 * message's emote type is <code>EMOTE_SPOILER</code>.
 	 * 
-	 * @return <b>true</b> if this message is a <code>EMOTE_SPOILER</code> and if its
-	 * hidden flag is true; <b>false</b> otherwise
+	 * @return <b>true</b> if this message is a <code>EMOTE_SPOILER</code> and
+	 *         if its hidden flag is true; <b>false</b> otherwise
 	 */
 	public boolean isHidden() {
 		return mHidden && (mEmote == EMOTE_SPOILER);
 	}
-	
+
 	/**
-	 * Flips the flag indicating whether this message should be hidden. This is only
-	 * applicable if the message's emote type is <code>EMOTE_SPOILER</code>.
+	 * Flips the flag indicating whether this message should be hidden. This is
+	 * only applicable if the message's emote type is <code>EMOTE_SPOILER</code>
+	 * .
 	 */
 	public void toggleHidden() {
 		mHidden = !mHidden;
@@ -271,14 +284,16 @@ public class ChatMessage {
 		if (this.getClass() == obj.getClass()) {
 			ChatMessage msg = (ChatMessage) obj;
 
-			return this.mNick.toLowerCase().equals(msg.getNick().toLowerCase())
+			return this.mNick.toLowerCase(Locale.ENGLISH).equals(
+					msg.getNick().toLowerCase(Locale.ENGLISH))
 					&& this.mMsg.equals(msg.getMsg());
 		}
 		return false;
 	}
 
 	/**
-	 * Converts the chat message to a String containing the sender name and the text
+	 * Converts the chat message to a String containing the sender name and the
+	 * text
 	 */
 	@Override
 	public String toString() {

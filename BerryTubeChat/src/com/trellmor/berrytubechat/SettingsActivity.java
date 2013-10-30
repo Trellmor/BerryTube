@@ -56,7 +56,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
-
+		
 		addPreferencesFromResource(R.xml.preferences);
 		
 		// Add 'notifications' preferences, and a corresponding header.

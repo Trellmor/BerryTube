@@ -535,15 +535,14 @@ public class ChatActivity extends Activity {
 				} else {
 					return +1;
 				}
-
 			}
 		});
 
 		final ArrayList<String> userNicks = new ArrayList<String>();
 		for (ChatUser chatUser : userList) {
 			if (filter != null) {
-				if (chatUser.getNick().toLowerCase()
-						.startsWith(filter.toLowerCase())) {
+				if (chatUser.getNick().toLowerCase(Locale.ENGLISH)
+						.startsWith(filter.toLowerCase(Locale.ENGLISH))) {
 					userNicks.add(chatUser.getNick());
 				}
 			} else {

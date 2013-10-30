@@ -39,20 +39,6 @@
     <string name="check_remember">Remember</string>
     <string name="edit_chat_msg">Message</string>
     <string name="select_user">Select user</string>
-    <string name="pref_scrollback_title">Scrollback size</string>
-    <string name="pref_scrollback_summary">Up to %d lines</string>
-    <string name="pref_show_drinks_title">Show drink count</string>
-    <string name="pref_show_popup_poll_title">Poll pop-up</string>
-    <string name="pref_show_popup_poll_summary">Show pop-up dialog on new polls</string>
-	<string name="pref_flair_title">Select flair</string>
-    <string name="pref_header_notifications">Notifications</string>
-    <string name="pref_squee_title">New message notifications</string>
-    <string name="pref_squee_vibrate_title">Vibrate</string>
-    <string name="pref_squee_ringtone_title">Ringtone</string>
-    <string name="pref_squee_ringtone_silent">Silent</string>
-    <string name="pref_timestamp_title">Display timestamps</string>
-    <string name="pref_video_title">Show current video</string>
-    <string name="pref_video_summary">The currently playing video will display at the top of the screen</string>
     <string name="drink">BP</string>
     <string name="chat_drink">drink!</string>
     <string name="drink_count_single">drink</string>
@@ -78,6 +64,16 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program. If not, see &lt;http://www.gnu.org/licenses&gt;."</string>
     
+    
+    <!-- General preferences -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_scrollback_title">Scrollback size</string>
+    <string name="pref_scrollback_summary">Up to %d lines</string>
+    <string name="pref_show_drinks_title">Show drink count</string>
+    <string name="pref_show_popup_poll_title">Poll pop-up</string>
+    <string name="pref_show_popup_poll_summary">Show pop-up dialog on new polls</string>
+	<string name="pref_flair_title">Select flair</string>
+    
     <string-array name="pref_flair_options">
         <item>None</item>
         <item>Wine</item>
@@ -98,4 +94,15 @@ You should have received a copy of the GNU General Public License along with thi
         <item>6</item>
     </string-array>
 
+    <string name="pref_timestamp_title">Display timestamps</string>
+    <string name="pref_video_title">Show current video</string>
+    <string name="pref_video_summary">The currently playing video will display at the top of the screen</string>
+    
+	<!-- Notification preferences -->
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_squee_title">New message notifications</string>
+    <string name="pref_squee_vibrate_title">Vibrate</string>
+    <string name="pref_squee_ringtone_title">Ringtone</string>
+    <string name="pref_squee_ringtone_silent">Silent</string>
+    
 </resources>

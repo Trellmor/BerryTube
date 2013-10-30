@@ -17,6 +17,8 @@
  */
 package com.trellmor.berrytube;
 
+import java.util.Locale;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -116,7 +118,8 @@ public class ChatUser implements Cloneable {
 			ChatUser objUser = (ChatUser) obj;
 
 			// only compare nick
-			return nick.toLowerCase().equals(objUser.getNick().toLowerCase());
+			return nick.toLowerCase(Locale.ENGLISH).equals(
+					objUser.getNick().toLowerCase(Locale.ENGLISH));
 		} else
 			return false;
 	}
