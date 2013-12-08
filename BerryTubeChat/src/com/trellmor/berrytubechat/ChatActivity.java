@@ -236,6 +236,7 @@ public class ChatActivity extends Activity {
 			return true;
 		case R.id.menu_poll:
 			showPoll();
+			return true;
 		case R.id.menu_autocomplete_nick:
 			autocompleteNick();
 			return true;
