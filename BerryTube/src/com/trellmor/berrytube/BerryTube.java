@@ -118,7 +118,7 @@ public class BerryTube extends Service {
 	public void connect(String username, String password,
 			NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
-		connect(new URL("http://96.127.152.99:8344"), username, password,
+		connect(new URL("http://socketio.berrytube.multihoofdrinking.com:8344"), username, password,
 				notification);
 	}
 
