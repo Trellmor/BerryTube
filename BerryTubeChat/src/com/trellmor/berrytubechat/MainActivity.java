@@ -249,6 +249,7 @@ public class MainActivity extends Activity {
 
 	private boolean copyNotificationSoundFile(File squee) {
 		try {
+			squee.getParentFile().mkdirs();
 			InputStream is = getResources().openRawResource(R.raw.squee);
 			try {
 				FileOutputStream out = new FileOutputStream(squee);
