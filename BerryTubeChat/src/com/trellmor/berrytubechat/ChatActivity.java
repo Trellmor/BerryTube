@@ -127,6 +127,10 @@ public class ChatActivity extends Activity {
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
+					sendChatMsg();					
+				} else if (actionId == EditorInfo.IME_NULL && 
+						event.getAction() == KeyEvent.ACTION_UP &&
+						event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 					sendChatMsg();
 				}
 				return true;
