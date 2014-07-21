@@ -61,11 +61,6 @@ public class ChatMessageFormatter {
 		mEmotesFormatter = new EmotesFormatter(mContext);
 	}
 
-	static class ViewHolder {
-		public TextView textChatMessage;
-		public TextView textChatMultiple;
-	}
-
 	public View format(View view, ChatMessage message) {
 
 		switch (message.getEmote()) {
@@ -87,109 +82,108 @@ public class ChatMessageFormatter {
 	}
 
 	private View formatDrinks(View view, ChatMessage message) {
-		ViewHolder holder;
-
-		if (view == null || view.getId() != R.id.chat_item_drink) {
+		if (view == null || view.getId() != R.id.chat_item_drink
+				|| containsBerryMotes(message.getMsg())) {
 			view = mInflater.inflate(R.layout.chat_item_drink, null);
-			holder = new ViewHolder();
-			holder.textChatMessage = (TextView) view
-					.findViewById(R.id.text_chat_message);
-			holder.textChatMultiple = (TextView) view
-					.findViewById(R.id.text_chat_drink_multiple);
-			view.setTag(holder);
-		} else {
-			holder = (ViewHolder) view.getTag();
+			view.setTag(R.id.text_chat_message,
+					view.findViewById(R.id.text_chat_message));
+			view.setTag(R.id.text_chat_drink_multiple,
+					view.findViewById(R.id.text_chat_drink_multiple));
 		}
+
+		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
+		TextView textMulti = (TextView) view
+				.getTag(R.id.text_chat_drink_multiple);
 
 		String m = message.getNick() + ": "
 				+ formatBerryMotes(message.getMsg()) + " "
 				+ mContext.getString(R.string.chat_drink);
 
-		holder.textChatMessage.setText(Html.fromHtml(m, mFlairGetter, null));
+		textMessage.setText(Html.fromHtml(m, mFlairGetter, null));
 
 		if (message.getMulti() > 1) {
-			holder.textChatMultiple
-					.setText(Integer.toString(message.getMulti()) + "x");
-			holder.textChatMultiple.setVisibility(View.VISIBLE);
+			textMulti.setText(Integer.toString(message.getMulti()) + "x");
+			textMulti.setVisibility(View.VISIBLE);
 		} else {
-			holder.textChatMultiple.setVisibility(View.GONE);
+			textMulti.setVisibility(View.GONE);
 		}
 
 		return view;
 	}
 
-	private View inflateDefault(View view) {
-		ViewHolder holder;
-		if (view == null || view.getId() != R.id.text_chat_message) {
+	private View inflateDefault(View view, String message) {
+		if (view == null || view.getId() != R.id.text_chat_message || containsBerryMotes(message)) {
 			view = mInflater.inflate(R.layout.chat_item, null);
-			holder = new ViewHolder();
-			holder.textChatMessage = (TextView) view
-					.findViewById(R.id.text_chat_message);
-			view.setTag(holder);
+			view.setTag(R.id.text_chat_message,
+					view.findViewById(R.id.text_chat_message));
 		} else {
-			view.setOnClickListener(null);
-			holder = (ViewHolder) view.getTag();
-			holder.textChatMessage.setTextAppearance(mContext,
+			TextView textMessage = (TextView) view
+					.getTag(R.id.text_chat_message);
+			textMessage.setTextAppearance(mContext,
 					android.R.style.TextAppearance_Small);
-			holder.textChatMessage.setGravity(Gravity.LEFT);
+			textMessage.setGravity(Gravity.LEFT);
 		}
 
 		return view;
 	}
 
 	private View formatDefault(View view, ChatMessage message) {
-		view = inflateDefault(view);
-		ViewHolder holder = (ViewHolder) view.getTag();
+		view = inflateDefault(view, message.getMsg());
+		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
 
-		holder.textChatMessage.setText(formatChatMsg(message));
+		textMessage.setText(formatChatMsg(message));
 
 		return view;
 	}
 
 	private View formatEmote(View view, ChatMessage message) {
 
-		view = inflateDefault(view);
-		ViewHolder holder = (ViewHolder) view.getTag();
+		view = inflateDefault(view, message.getMsg());
+		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
 
 		switch (message.getEmote()) {
 		case ChatMessage.EMOTE_REQUEST:
-			holder.textChatMessage.setTextColor(Color.BLUE);
-			holder.textChatMessage.setText(Html
-					.fromHtml(createTimestamp(message.getTimestamp())
-							+ "<b><i>" + message.getNick() + " requests "
-							+ formatBerryMotes(message.getMsg()) + "</i></b>"));
+			textMessage.setTextColor(Color.BLUE);
+			textMessage.setText(Html.fromHtml(createTimestamp(message
+					.getTimestamp())
+					+ "<b><i>"
+					+ message.getNick()
+					+ " requests "
+					+ formatBerryMotes(message.getMsg())
+					+ "</i></b>"));
 			break;
 		case ChatMessage.EMOTE_ACT:
-			holder.textChatMessage.setTextColor(Color.GRAY);
-			holder.textChatMessage.setText(Html
-					.fromHtml(createTimestamp(message.getTimestamp()) + "<i>"
-							+ message.getNick() + " "
-							+ formatBerryMotes(message.getMsg()) + "</i>"));
+			textMessage.setTextColor(Color.GRAY);
+			textMessage.setText(Html.fromHtml(createTimestamp(message
+					.getTimestamp())
+					+ "<i>"
+					+ message.getNick()
+					+ " "
+					+ formatBerryMotes(message.getMsg()) + "</i>"));
 			break;
 		case ChatMessage.EMOTE_POLL:
-			holder.textChatMessage.setTextColor(Color.parseColor("#008000"));
-			holder.textChatMessage.setTextSize(18);
-			holder.textChatMessage.setGravity(Gravity.CENTER_HORIZONTAL);
-			holder.textChatMessage.setText(Html.fromHtml("<b>"
-					+ message.getNick() + " created a new poll \""
+			textMessage.setTextColor(Color.parseColor("#008000"));
+			textMessage.setTextSize(18);
+			textMessage.setGravity(Gravity.CENTER_HORIZONTAL);
+			textMessage.setText(Html.fromHtml("<b>" + message.getNick()
+					+ " created a new poll \""
 					+ formatBerryMotes(message.getMsg()) + "\"</b>"));
 			break;
 		case ChatMessage.EMOTE_RCV:
-			holder.textChatMessage.setTextColor(Color.RED);
-			holder.textChatMessage.setTextSize(18);
-			holder.textChatMessage.setText(Html.fromHtml(
+			textMessage.setTextColor(Color.RED);
+			textMessage.setTextSize(18);
+			textMessage.setText(Html.fromHtml(
 					createTimestamp(message.getTimestamp()) + message.getNick()
 							+ ": " + formatBerryMotes(message.getMsg()),
 					mFlairGetter, null));
 			break;
 		case ChatMessage.EMOTE_SPOILER:
-			holder.textChatMessage.setText(formatChatMsg(message));
+			textMessage.setText(formatChatMsg(message));
 			view.setOnClickListener(new SpoilerClickListener(message));
 			break;
 		default:
-			holder.textChatMessage.setText(formatChatMsg(message));
+			textMessage.setText(formatChatMsg(message));
 			break;
-
 		}
 
 		return view;
@@ -320,6 +314,10 @@ public class ChatMessageFormatter {
 
 	private String formatBerryMotes(String msg) {
 		return mEmotesFormatter.formatString(msg);
+	}
+
+	private boolean containsBerryMotes(String msg) {
+		return mEmotesFormatter.containsEmotes(msg);
 	}
 
 	class SpoilerClickListener implements View.OnClickListener {
