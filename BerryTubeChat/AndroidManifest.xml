@@ -34,7 +34,8 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:allowBackup="true">
+        android:theme="@style/AppTheme"
+        android:allowBackup="true">
         <activity
             android:name="com.trellmor.berrytubechat.MainActivity"
             android:label="@string/title_activity_main">
@@ -46,7 +47,7 @@
         </activity>
         <activity
             android:name="com.trellmor.berrytubechat.ChatActivity"
-            android:label="@string/title_activity_chat" >
+            android:label="@string/title_activity_chat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.trellmor.BerryTubeChat.MainActivity" />

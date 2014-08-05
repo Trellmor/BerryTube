@@ -127,10 +127,10 @@ public class ChatActivity extends Activity {
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
-					sendChatMsg();					
-				} else if (actionId == EditorInfo.IME_NULL && 
-						event.getAction() == KeyEvent.ACTION_UP &&
-						event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+					sendChatMsg();
+				} else if (actionId == EditorInfo.IME_NULL
+						&& event.getAction() == KeyEvent.ACTION_UP
+						&& event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 					sendChatMsg();
 				}
 				return true;
@@ -393,9 +393,13 @@ public class ChatActivity extends Activity {
 			mNotification.setLights(0xFF0000FF, 100, 2000);
 			mNotification.setAutoCancel(true);
 
-			Intent intent = new Intent(this, MainActivity.class);
+			Intent intent = new Intent(this, ChatActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
+					| Intent.FLAG_ACTIVITY_CLEAR_TOP
+					| Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+					| Intent.FLAG_ACTIVITY_NO_HISTORY);
 
 			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT));
@@ -672,9 +676,13 @@ public class ChatActivity extends Activity {
 							getResources(), R.drawable.ic_launcher));
 					note.setContentTitle(getString(R.string.title_activity_chat));
 
-					Intent intent = new Intent(this, MainActivity.class);
+					Intent intent = new Intent(this, ChatActivity.class);
 					intent.setAction(Intent.ACTION_MAIN);
 					intent.addCategory(Intent.CATEGORY_LAUNCHER);
+					intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
+							| Intent.FLAG_ACTIVITY_CLEAR_TOP
+							| Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+							| Intent.FLAG_ACTIVITY_NO_HISTORY);
 
 					note.setContentIntent(PendingIntent.getActivity(this, 0,
 							intent, PendingIntent.FLAG_UPDATE_CURRENT));
