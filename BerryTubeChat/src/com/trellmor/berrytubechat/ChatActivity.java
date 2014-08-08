@@ -97,8 +97,8 @@ public class ChatActivity extends Activity {
 		}
 	};
 
-	private String mUsername = "";
-	private String mPassword = "";
+	private String mUsername = null;
+	private String mPassword = null;
 	private String mNick = "";
 	private int mFlair = 0;
 	private boolean mShowVideo = false;
@@ -156,6 +156,10 @@ public class ChatActivity extends Activity {
 		if (savedInstanceState != null) {
 			mDrinkCount = savedInstanceState.getInt(KEY_DRINKCOUT);
 			mMyDrinkCount = savedInstanceState.getInt(KEY_MYDRINKCOUNT);
+			if (mUsername == null)
+				mUsername = savedInstanceState.getString(MainActivity.KEY_USERNAME);
+			if (mPassword == null)
+				mPassword = savedInstanceState.getString(MainActivity.KEY_PASSWORD);
 		}
 
 		startService(new Intent(this, BerryTube.class));
@@ -279,6 +283,8 @@ public class ChatActivity extends Activity {
 
 		outState.putInt(KEY_DRINKCOUT, mDrinkCount);
 		outState.putInt(KEY_MYDRINKCOUNT, mMyDrinkCount);
+		outState.putString(MainActivity.KEY_USERNAME, mUsername);
+		outState.putString(MainActivity.KEY_PASSWORD, mPassword);
 	}
 
 	private void createCallback() {
@@ -394,6 +400,8 @@ public class ChatActivity extends Activity {
 			mNotification.setAutoCancel(true);
 
 			Intent intent = new Intent(this, ChatActivity.class);
+			intent.putExtra(MainActivity.KEY_USERNAME, mUsername);
+			intent.putExtra(MainActivity.KEY_PASSWORD, mPassword);
 			intent.setAction(Intent.ACTION_MAIN);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
 			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -679,6 +687,8 @@ public class ChatActivity extends Activity {
 					Intent intent = new Intent(this, ChatActivity.class);
 					intent.setAction(Intent.ACTION_MAIN);
 					intent.addCategory(Intent.CATEGORY_LAUNCHER);
+					intent.putExtra(MainActivity.KEY_USERNAME, mUsername);
+					intent.putExtra(MainActivity.KEY_PASSWORD, mPassword);
 					intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
 							| Intent.FLAG_ACTIVITY_CLEAR_TOP
 							| Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
