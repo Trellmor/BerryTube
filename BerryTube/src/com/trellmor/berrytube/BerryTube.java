@@ -399,6 +399,7 @@ public class BerryTube extends Service {
 
 			stopForeground(true);
 			mNotificationManager.cancel(KEY_NOTIFICATION_SERVICE);
+			mNotificationManager.cancel(KEY_NOTIFICATION_MESSAGE);
 			BerryTube.this.stopSelf();
 		}
 
