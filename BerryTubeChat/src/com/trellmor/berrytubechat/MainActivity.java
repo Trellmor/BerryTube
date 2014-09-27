@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
 	 */
 	public final static String KEY_LOGIN = "com.trellmor.berrytubechat.login";
 	/**
-	 * Key for login username settins
+	 * Key for login username settings
 	 */
 	public final static String KEY_USERNAME = "com.trellmor.berrytubechat.login.username";
 	/**
