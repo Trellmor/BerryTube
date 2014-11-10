@@ -547,7 +547,7 @@ public class ChatActivity extends Activity {
 			@Override
 			public int compare(ChatUser lhs, ChatUser rhs) {
 				if (lhs.getType() == rhs.getType()) {
-					return lhs.getNick().compareTo(rhs.getNick());
+					return lhs.getNick().compareToIgnoreCase(rhs.getNick());
 				} else if (lhs.getType() > rhs.getType()) {
 					return -1;
 				} else {
