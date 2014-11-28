@@ -50,6 +50,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -148,6 +150,19 @@ public class ChatActivity extends Activity {
 		mTextNick.setText("Anonymous");
 
 		mListChat = (ListView) findViewById(R.id.list_chat);
+		mListChat.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+
+				ChatMessage msg = (ChatMessage) parent.getItemAtPosition(position);
+				if (msg != null) {
+					replaceNick(msg.getNick());
+				}
+				return false;
+			}
+		});
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -592,18 +607,24 @@ public class ChatActivity extends Activity {
 	}
 
 	private void replaceNick(String nick) {
-		int selStart = mEditChatMsg.getSelectionStart();
-		int selEnd = mEditChatMsg.getSelectionEnd();
-		/*
-		 * mEditChatMsg.getText().replace( Math.min(selStart, selEnd),
-		 * Math.max(selStart, selEnd), nick, 0, nick.length());
-		 */
+		if (nick == null || "".equals(nick)) return;
+		
+		int selStart = Math.min(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
+		int selEnd = Math.max(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
 		String msg = mEditChatMsg.getText().toString();
-		msg = msg.substring(0, Math.min(selStart, selEnd)) + nick
-				+ msg.substring(Math.max(selStart, selEnd));
-		mEditChatMsg.setText(msg); // SetText to refresh suggestions from some
-									// keyboards
-		mEditChatMsg.setSelection(Math.min(selStart, selEnd) + nick.length());
+		String insert = nick;
+		
+		if ("".equals(msg)) {
+			insert += ":";
+		}
+		
+		if (selEnd == msg.length() || (selEnd < msg.length() + 1 && msg.charAt(selEnd) != ' ')) {
+			insert += " ";
+		}
+		
+		msg = msg.substring(0, Math.min(selStart, selEnd)) + insert + msg.substring(Math.max(selStart, selEnd));
+		mEditChatMsg.setText(msg); // SetText to refresh suggestions from some keyboards
+		mEditChatMsg.setSelection(Math.min(selStart, selEnd) + insert.length());
 	}
 
 	private void showPoll() {
