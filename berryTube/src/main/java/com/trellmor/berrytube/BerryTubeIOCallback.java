@@ -41,7 +41,7 @@ import android.util.Log;
 class BerryTubeIOCallback implements IOCallback {
 	private static final String TAG = BerryTubeIOCallback.class.getName();
 
-	private BerryTube berryTube;
+	private final BerryTube berryTube;
 
 	public BerryTubeIOCallback(BerryTube berryTube) {
 		this.berryTube = berryTube;
@@ -215,9 +215,7 @@ class BerryTubeIOCallback implements IOCallback {
 					String type = video.getString("videotype");
 					berryTube.getHandler().post(
 							berryTube.new NewVideoTask(name, id, type));
-				} catch (JSONException e) {
-					Log.w(TAG, e);
-				} catch (UnsupportedEncodingException e) {
+				} catch (JSONException | UnsupportedEncodingException e) {
 					Log.w(TAG, e);
 				}
 			}

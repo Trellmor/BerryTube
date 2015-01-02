@@ -18,6 +18,7 @@
 package com.trellmor.berrytube;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,8 +30,8 @@ import org.json.JSONObject;
  * @author Daniel Triendl
  */
 public class Poll {
-	final ArrayList<String> mOptions = new ArrayList<String>();
-	final ArrayList<Integer> mVotes = new ArrayList<Integer>();
+	private final ArrayList<String> mOptions = new ArrayList<>();
+	private final ArrayList<Integer> mVotes = new ArrayList<>();
 	private String mTitle;
 	private String mCreator;
 	private boolean mObscure;
@@ -72,9 +73,7 @@ public class Poll {
 		mCreator = creator;
 		mObscure = obscure;
 
-		for (String option : options) {
-			mOptions.add(option);
-		}
+		mOptions.addAll(Arrays.asList(options));
 
 		for (int i : votes) {
 			mVotes.add(i);
@@ -102,7 +101,7 @@ public class Poll {
 	/**
 	 * Get the poll title
 	 * 
-	 * @return
+	 * @return Poll title
 	 */
 	public String getTitle() {
 		return mTitle;

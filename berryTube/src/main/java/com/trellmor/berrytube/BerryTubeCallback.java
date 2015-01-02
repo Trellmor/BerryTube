@@ -66,7 +66,7 @@ public interface BerryTubeCallback {
 	/**
 	 * A new poll was started
 	 * 
-	 * @param poll
+	 * @param poll Poll object
 	 */
 	void onNewPoll(Poll poll);
 
@@ -75,7 +75,7 @@ public interface BerryTubeCallback {
 	 * 
 	 * This happens when any users casts a vote
 	 * 
-	 * @param poll
+	 * @param poll Poll object
 	 */
 	void onUpatePoll(Poll poll);
 

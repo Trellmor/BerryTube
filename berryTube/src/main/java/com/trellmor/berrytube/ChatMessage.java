@@ -186,7 +186,7 @@ public class ChatMessage {
 	/**
 	 * Check if the message is an emote
 	 * 
-	 * @return
+	 * @return true if the message is an emote
 	 */
 	public boolean isEmote() {
 		return mEmote != EMOTE_FALSE;
@@ -196,7 +196,7 @@ public class ChatMessage {
 	 * Check if a notification should be displayed if the users nick is
 	 * mentioned in the message
 	 * 
-	 * @return
+	 * @return true if the message can be highlighted
 	 */
 	public boolean isHighlightable() {
 		switch (mEmote) {
@@ -239,7 +239,7 @@ public class ChatMessage {
 	 * Get the user level
 	 * 
 	 * @return user lever
-	 * @see com.Trellmor.BerryTube.ChatUser
+	 * @see com.trellmor.berrytube.ChatUser
 	 */
 	public int getType() {
 		return mType;

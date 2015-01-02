@@ -33,10 +33,9 @@ import com.trellmor.berrytube.ChatMessage;
  * @author Daniel Triendl
  * @see android.widget.ArrayAdapter
  */
-public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
+class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
-	private List<ChatMessage> mChatMsgList;
-	private String mNick = null;
+	private final List<ChatMessage> mChatMsgList;
 	private ChatMessageFormatter mFormatter = null;
 
 	public ChatMessageAdapter(Context context, int textViewResourceId,
@@ -56,8 +55,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 	}
 
 	public void setNick(String nick) {
-		mNick = nick;
-		mFormatter.setNick(mNick);
+		mFormatter.setNick(nick);
 	}
 
 }

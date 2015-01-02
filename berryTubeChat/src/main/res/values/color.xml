@@ -19,5 +19,8 @@
 -->
 
 <resources>
-    <color name="background_chat">#ffffffff</color>
+	<color name="background_chat">#ffe8e8e8</color>
+	<color name="purple">#ff9a53a4</color>
+	<color name="darkpurple">#ff9a5bac</color>
+	<color name="strawberry">#ffff185a</color>
 </resources>

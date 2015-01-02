@@ -49,7 +49,7 @@ public class ChatUser implements Cloneable {
 	 */
 	public final static int TYPE_ADMIN = 2;
 
-	private String nick;
+	private final String nick;
 	private int type;
 
 	/**
@@ -130,7 +130,8 @@ public class ChatUser implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public ChatUser clone() {
+	public ChatUser clone() throws CloneNotSupportedException {
+		super.clone();
 		return new ChatUser(this.nick, this.type);
 	}
 

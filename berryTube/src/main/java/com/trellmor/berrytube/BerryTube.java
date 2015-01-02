@@ -52,27 +52,25 @@ public class BerryTube extends Service {
 	private static final String TAG = BerryTube.class.getName();
 	
 	private SocketIO mSocket = null;
-	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<BerryTubeCallback>(null);
+	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<>(null);
 
-	private URL mUrl;
 	private String mUsername;
 	private String mPassword;
 	private String mNick = null;
 	private Poll mPoll = null;
-	private ArrayList<ChatMessage> mChatMsgBuffer = new ArrayList<ChatMessage>();
+	private final ArrayList<ChatMessage> mChatMsgBuffer = new ArrayList<>();
 	private int mChatMsgBufferSize = 100;
-	private final ArrayList<ChatUser> mUsers = new ArrayList<ChatUser>();
+	private final ArrayList<ChatUser> mUsers = new ArrayList<>();
 	private int mDrinkCount = 0;
-	private Handler mHandler = new Handler();
+	private final Handler mHandler = new Handler();
 	private NotificationManager mNotificationManager;
 	private NotificationCompat.Builder mServiceNotification = null;
 	private NotificationCompat.Builder mMessageNotification = null;
-	private ArrayList<String> mMessageNotificationText = new ArrayList<String>(
-			5);
+	private final ArrayList<String> mMessageNotificationText = new ArrayList<>(5);
 	private int mMessageNotificationCount = 0;
 
-	public static final int KEY_NOTIFICATION_SERVICE = 1000;
-	public static final int KEY_NOTIFICATION_MESSAGE = 2000;
+	private static final int KEY_NOTIFICATION_SERVICE = 1000;
+	private static final int KEY_NOTIFICATION_MESSAGE = 2000;
 
 	@Override
 	public void onCreate() {
@@ -115,8 +113,7 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String username, String password,
-			NotificationCompat.Builder notification)
+	public void connect(String username, String password, NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
 		connect(new URL("http://socketio.berrytube.multihoofdrinking.com:8344"), username, password,
 				notification);
@@ -135,8 +132,7 @@ public class BerryTube extends Service {
 	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(String url, String username, String password,
-			NotificationCompat.Builder notification)
+	public void connect(String url, String username, String password, NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
 		connect(new URL(url), username, password, notification);
 	}
@@ -151,16 +147,13 @@ public class BerryTube extends Service {
 	 * @param password
 	 *            Password to set, may be null if the user doesn't have an
 	 *            account
-	 * @throws MalformedURLException
 	 * @throws IllegalStateException
 	 */
-	public void connect(URL url, String username, String password,
-			NotificationCompat.Builder notification)
+	public void connect(URL url, String username, String password, NotificationCompat.Builder notification)
 			throws IllegalStateException {
 		if (mSocket != null && mSocket.isConnected())
 			throw new IllegalStateException("Already connected");
 
-		mUrl = url;
 		if (username == null)
 			throw new NullPointerException("username == null");
 
@@ -168,7 +161,7 @@ public class BerryTube extends Service {
 
 		mPassword = password;
 
-		mSocket = new SocketIO(mUrl);
+		mSocket = new SocketIO(url);
 		mSocket.connect(new BerryTubeIOCallback(this));
 
 		mServiceNotification = notification;
@@ -183,10 +176,7 @@ public class BerryTube extends Service {
 	 * @return Connection status
 	 */
 	public boolean isConnected() {
-		if (mSocket == null)
-			return false;
-		else
-			return mSocket.isConnected();
+		return mSocket != null && mSocket.isConnected();
 	}
 
 	/**
@@ -196,7 +186,7 @@ public class BerryTube extends Service {
 	 *            Callback implementation instance
 	 */
 	public void setCallback(BerryTubeCallback callback) {
-		mCallback = new WeakReference<BerryTubeCallback>(callback);
+		mCallback = new WeakReference<>(callback);
 
 		// Clear old notifications
 		mMessageNotificationText.clear();
@@ -249,7 +239,7 @@ public class BerryTube extends Service {
 
 			mSocket.emit("votePoll", msg);
 		} catch (JSONException e) {
-			Log.w(TAG.toString(), e);
+			Log.w(TAG, e);
 		}
 	}
 
@@ -269,7 +259,7 @@ public class BerryTube extends Service {
 	 * <code>setChatMsgBufferSize(int)</code>
 	 * 
 	 * @return ArrayList containing chat messages
-	 * @see com.Trellmor.BerryTube.BerryTube.setChatMsgBufferSize(int)
+	 * @see com.trellmor.berrytube.BerryTube setChatMsgBufferSize(int)
 	 */
 	public ArrayList<ChatMessage> getChatMsgBuffer() {
 		return mChatMsgBuffer;
@@ -289,7 +279,7 @@ public class BerryTube extends Service {
 	 * 
 	 * Use 0 to disable the ChatMsgBuffer Use -1 to set it to unlimited
 	 * 
-	 * @param chatMsgBufferSize
+	 * @param chatMsgBufferSize	Size of the chat message buffer
 	 */
 	public void setChatMsgBufferSize(int chatMsgBufferSize) {
 		mChatMsgBufferSize = chatMsgBufferSize;
@@ -406,7 +396,7 @@ public class BerryTube extends Service {
 	}
 
 	class ChatMsgTask implements Runnable {
-		private ChatMessage mChatMsg;
+		private final ChatMessage mChatMsg;
 
 		public ChatMsgTask(ChatMessage chatMsg) {
 			this.mChatMsg = chatMsg;
@@ -466,7 +456,7 @@ public class BerryTube extends Service {
 	}
 
 	class SetNickTask implements Runnable {
-		private String nick;
+		private final String nick;
 
 		public SetNickTask(String nick) {
 			this.nick = nick;
@@ -482,7 +472,7 @@ public class BerryTube extends Service {
 	}
 
 	class LoginErrorTask implements Runnable {
-		private String mError;
+		private final String mError;
 
 		public LoginErrorTask(String error) {
 			mError = error;
@@ -499,8 +489,8 @@ public class BerryTube extends Service {
 		public final static int ACTION_JOIN = 0;
 		public final static int ACTION_PART = 1;
 
-		private ChatUser user;
-		private int action;
+		private final ChatUser user;
+		private final int action;
 
 		public UserJoinPartTask(ChatUser user, int action) {
 			this.user = user;
@@ -526,7 +516,7 @@ public class BerryTube extends Service {
 	}
 
 	class DrinkCountTask implements Runnable {
-		private int count;
+		private final int count;
 
 		public DrinkCountTask(int count) {
 			this.count = count;
@@ -557,7 +547,7 @@ public class BerryTube extends Service {
 	}
 
 	class NewPollTask implements Runnable {
-		private Poll mPoll;
+		private final Poll mPoll;
 
 		public NewPollTask(Poll poll) {
 			this.mPoll = poll;
@@ -573,7 +563,7 @@ public class BerryTube extends Service {
 	}
 
 	class UpdatePollTask implements Runnable {
-		private int[] mVotes;
+		private final int[] mVotes;
 
 		public UpdatePollTask(int[] votes) {
 			mVotes = votes;
@@ -601,9 +591,9 @@ public class BerryTube extends Service {
 	}
 
 	class NewVideoTask implements Runnable {
-		private String mName;
-		private String mId;
-		private String mType;
+		private final String mName;
+		private final String mId;
+		private final String mType;
 
 		public NewVideoTask(String name, String id, String type) {
 			this.mName = name;

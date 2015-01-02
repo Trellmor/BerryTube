@@ -1,6 +1,6 @@
 /*
  * BerryTubeChat android client
- * Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
+ * Copyright (C) 2012-2015 Daniel Triendl <trellmor@trellmor.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -35,11 +34,12 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -69,7 +69,7 @@ import com.trellmor.berrytube.Poll;
  * 
  * @author Daniel
  */
-public class ChatActivity extends Activity {
+public class ChatActivity extends ActionBarActivity {
 	private static final String TAG = ChatActivity.class.getName();
 
 	private static final String KEY_DRINKCOUT = "drinkCount";
@@ -119,9 +119,9 @@ public class ChatActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_chat);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(false);
-		}
+
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		mEditChatMsg = (EditText) findViewById(R.id.edit_chat_msg);
 		TextView.OnEditorActionListener chatMsgListener = new TextView.OnEditorActionListener() {
@@ -235,7 +235,7 @@ public class ChatActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = null;
+		Intent intent;
 
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
@@ -553,9 +553,13 @@ public class ChatActivity extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.select_user);
 
-		ArrayList<ChatUser> userList = new ArrayList<ChatUser>();
+		ArrayList<ChatUser> userList = new ArrayList<>();
 		for (ChatUser chatUser : mBinder.getService().getUsers()) {
-			userList.add(chatUser.clone());
+			try {
+				userList.add(chatUser.clone());
+			} catch (CloneNotSupportedException e) {
+				Log.w(TAG, e);
+			}
 		}
 		Collections.sort(userList, new Comparator<ChatUser>() {
 
@@ -571,7 +575,7 @@ public class ChatActivity extends Activity {
 			}
 		});
 
-		final ArrayList<String> userNicks = new ArrayList<String>();
+		final ArrayList<String> userNicks = new ArrayList<>();
 		for (ChatUser chatUser : userList) {
 			if (filter != null) {
 				if (chatUser.getNick().toLowerCase(Locale.ENGLISH)
@@ -597,7 +601,7 @@ public class ChatActivity extends Activity {
 
 			AlertDialog alert = builder.create();
 			alert.show();
-		} else if (userNicks.size() == 1 && filter != null) {
+		} else if (userNicks.size() == 1) {
 			replaceNick(userNicks.get(0));
 		} else {
 			Toast toast = Toast.makeText(this, R.string.toast_no_users,

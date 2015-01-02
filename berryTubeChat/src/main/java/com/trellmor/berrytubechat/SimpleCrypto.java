@@ -71,8 +71,7 @@ public class SimpleCrypto {
 		SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
 		Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-		byte[] encrypted = cipher.doFinal(clear);
-		return encrypted;
+		return cipher.doFinal(clear);
 	}
 
 	private static byte[] decrypt(byte[] raw, byte[] encrypted)
@@ -80,8 +79,7 @@ public class SimpleCrypto {
 		SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
 		Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-		byte[] decrypted = cipher.doFinal(encrypted);
-		return decrypted;
+		return cipher.doFinal(encrypted);
 	}
 
 	public static String toHex(String txt) {

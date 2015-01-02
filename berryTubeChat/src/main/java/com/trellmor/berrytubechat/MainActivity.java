@@ -1,6 +1,6 @@
 /*
  * BerryTubeChat android client
- * Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
+ * Copyright (C) 2012-2015 Daniel Triendl <trellmor@trellmor.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,17 +26,16 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +48,7 @@ import android.widget.EditText;
  * 
  * @author Daniel Triendl
  */
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 	private static final String TAG = MainActivity.class.getName();
 
 	private EditText editUser;
@@ -122,12 +121,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ActionBar ab = getActionBar();
-			ab.setDisplayHomeAsUpEnabled(false);
-			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-			ab.show();
-		}
+
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		editUser = (EditText) findViewById(R.id.edit_user);
 		editPassword = (EditText) findViewById(R.id.edit_password);
@@ -162,11 +158,8 @@ public class MainActivity extends Activity {
 			}
 
 			if (remember) {
-				if (user != "")
-					editUser.setText(user);
-				if (password != "")
-					editPassword.setText(password);
-
+				editUser.setText(user);
+				editPassword.setText(password);
 			}
 		}
 		checkRemember.setChecked(remember);
@@ -182,7 +175,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = null;
+		Intent intent;
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
 			intent = new Intent(this, SettingsActivity.class);
@@ -228,7 +221,7 @@ public class MainActivity extends Activity {
 		} else {
 			editor.clear();
 		}
-		editor.commit();
+		editor.apply();
 	}
 
 	public void login(View view) {
@@ -254,7 +247,7 @@ public class MainActivity extends Activity {
 			try {
 				FileOutputStream out = new FileOutputStream(squee);
 				try {
-					int size = 0;
+					int size;
 					byte[] buffer = new byte[1024];
 					while ((size = is.read(buffer, 0, 1024)) >= 0) {
 						out.write(buffer, 0, size);

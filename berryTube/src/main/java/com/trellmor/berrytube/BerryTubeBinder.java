@@ -26,12 +26,12 @@ import android.os.Binder;
  * communicate with the <code>BerryTube</code> service class.
  * 
  * @author Daniel Triendl
- * @see andorid.os.Binder
+ * @see android.os.Binder
  * @see android.os.IBinder
- * @see android.app.Serice
+ * @see android.app.Service
  */
 public class BerryTubeBinder extends Binder {
-	private WeakReference<BerryTube> service;
+	private final WeakReference<BerryTube> service;
 
 	/**
 	 * Constructs a Binder instance for the <code>BerryTube</code> service
@@ -41,7 +41,7 @@ public class BerryTubeBinder extends Binder {
 	 * @see BerryTube
 	 */
 	public BerryTubeBinder(BerryTube service) {
-		this.service = new WeakReference<BerryTube>(service);
+		this.service = new WeakReference<>(service);
 	}
 
 	/**

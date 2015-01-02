@@ -43,13 +43,13 @@ import com.trellmor.berrytube.ChatUser;
  * @author Daniel Triendl
  * @see com.trellmor.berrytube.ChatMessage
  */
-public class ChatMessageFormatter {
+class ChatMessageFormatter {
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
 	private FlairGetter mFlairGetter = null;
 	private String mNick = null;
-	private ChatMessageAdapter mAdapter;
-	private EmotesFormatter mEmotesFormatter;
+	private final ChatMessageAdapter mAdapter;
+	private final EmotesFormatter mEmotesFormatter;
 
 	public ChatMessageFormatter(ChatMessageAdapter adapter, Context context) {
 		mAdapter = adapter;
@@ -321,7 +321,7 @@ public class ChatMessageFormatter {
 	}
 
 	class SpoilerClickListener implements View.OnClickListener {
-		private ChatMessage mMsg;
+		private final ChatMessage mMsg;
 
 		public SpoilerClickListener(ChatMessage message) {
 			mMsg = message;

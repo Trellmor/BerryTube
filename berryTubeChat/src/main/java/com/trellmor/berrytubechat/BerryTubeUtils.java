@@ -24,7 +24,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 
-public class BerryTubeUtils {
+class BerryTubeUtils {
 	private BerryTubeUtils() {
 	}
 	
@@ -34,8 +34,8 @@ public class BerryTubeUtils {
 	}
 	
 	public static void openAboutDialog(Context context) {
-		LayoutInflater infalter = LayoutInflater.from(context);
-		View view = infalter.inflate(R.layout.dialog_about, null);
+		LayoutInflater inflater = LayoutInflater.from(context);
+		View view = inflater.inflate(R.layout.dialog_about, null);
 		
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 		alertDialog.setTitle(R.string.title_dialog_about);

@@ -2,7 +2,7 @@
 
 <!--
 	BerryTubeChat android client
-	Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
+	Copyright (C) 2012-2015 Daniel Triendl <trellmor@trellmor.com>
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,8 +18,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_chat">
@@ -27,12 +28,12 @@
 	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent">
-	    
+
 	    <ListView
 	        android:id="@+id/list_chat"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
-	        android:layout_above="@+id/bar_input"
+			android:layout_above="@+id/bar_input"
 	        android:stackFromBottom="true"
 	        android:transcriptMode="normal" />
 	
@@ -49,7 +50,8 @@
 	            android:layout_height="0dp"
 	            android:layout_alignBottom="@+id/edit_chat_msg"
 	            android:layout_alignTop="@+id/edit_chat_msg"
-	            android:layout_marginRight="5dp"
+				android:layout_marginLeft="3dp"
+				android:layout_marginRight="3dp"
 	            android:gravity="center_vertical" />
 	
 	        <EditText
@@ -71,6 +73,15 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical">
+
+		<android.support.v7.widget.Toolbar
+			android:id="@+id/toolbar"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:minHeight="?attr/actionBarSize"
+			android:background="?attr/colorPrimary"
+			app:theme="@style/Theme.BerryTubeChat.Toolbar"
+			app:popupTheme="@style/Theme.BerryTubeChat" />
 	    
 	    <TextView
 	        android:id="@+id/text_video"

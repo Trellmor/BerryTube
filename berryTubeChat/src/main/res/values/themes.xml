@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!--
+		BerryTubeChat android client
+		Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
+
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation, either version 3 of the License, or
+		(at your option) any later version.
+
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+
+		You should have received a copy of the GNU General Public License
+		along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	-->
+
+	<style name="Theme.BerryTubeChat" parent="Theme.AppCompat.Light.NoActionBar">
+		<item name="colorPrimary">@color/purple</item>
+		<item name="colorPrimaryDark">@color/darkpurple</item>
+		<item name="colorAccent">@color/strawberry</item>
+	</style>
+
+	<style name="Theme.BerryTubeChat.Toolbar" parent="Theme.BerryTubeChat">
+		<!-- android:textColorPrimary is the  color of the title text
+			   in the Toolbar, in the Theme.AppCompat theme:  -->
+		<item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
+
+		<!-- android:textColorPrimaryInverse is the  color of the title
+			   text in the Toolbar, in the Theme.AppCompat.Light theme:  -->
+		<!-- <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_light</item> -->
+
+		<!-- android:actionMenuTextColor is the color of the text of
+				action (menu) items in the Toolbar, at least in the
+				Theme.AppCompat theme.
+				For some reason, they already get the textColorPrimary
+				when running on API 21, but not on older versions of
+				Android, so this is only necessary to support older
+				Android versions.-->
+		<item name="actionMenuTextColor">@color/abc_primary_text_material_dark</item>
+		<!-- android:textColorSecondary is the color of the menu
+			   overflow icon (three vertical dots) -->
+		<item name="android:textColorSecondary">@color/abc_secondary_text_material_dark</item>
+	</style>
+
+</resources>
