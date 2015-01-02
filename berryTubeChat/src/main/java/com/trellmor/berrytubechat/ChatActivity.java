@@ -26,11 +26,14 @@ import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -53,10 +56,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.trellmor.berrymotes.EmoteUtils;
 import com.trellmor.berrytube.BerryTube;
 import com.trellmor.berrytube.BerryTubeBinder;
 import com.trellmor.berrytube.BerryTubeCallback;
@@ -74,6 +79,11 @@ public class ChatActivity extends ActionBarActivity {
 
 	private static final String KEY_DRINKCOUT = "drinkCount";
 	private static final String KEY_MYDRINKCOUNT = "myDrinkCount";
+
+	private static final String ACTION_GET_CODE = "com.trellmor.berrymotes.gallery.intent.action.GET_CODE";
+	private static final String EXTRA_CODE = "com.trellmor.berrymotes.gallery.intent.extra.CODE";
+
+	private static final int REQUEST_CODE = 1;
 
 	private ChatMessageAdapter mChatAdapter = null;
 	private ListView mListChat;
@@ -163,6 +173,11 @@ public class ChatActivity extends ActionBarActivity {
 				return false;
 			}
 		});
+
+		if (!EmoteUtils.isBerryMotesInstalled(this)) {
+			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
+			imageEmote.setVisibility(View.GONE);
+		}
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -300,6 +315,22 @@ public class ChatActivity extends ActionBarActivity {
 		outState.putInt(KEY_MYDRINKCOUNT, mMyDrinkCount);
 		outState.putString(MainActivity.KEY_USERNAME, mUsername);
 		outState.putString(MainActivity.KEY_PASSWORD, mPassword);
+	}
+
+	@Override
+	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+		if (resultCode != RESULT_OK) {
+			return;
+		}
+
+		switch (requestCode) {
+			case REQUEST_CODE:
+				String code = data.getStringExtra(EXTRA_CODE);
+				int start = Math.max(mEditChatMsg.getSelectionStart(), 0);
+				int end = Math.max(mEditChatMsg.getSelectionEnd(), 0);
+				mEditChatMsg.getText().replace(Math.min(start, end), Math.max(start, end), code, 0, code.length());
+				break;
+		}
 	}
 
 	private void createCallback() {
@@ -763,6 +794,18 @@ public class ChatActivity extends ActionBarActivity {
 			selectUser(msg.substring(selStart, selEnd));
 		} else {
 			selectUser(null);
+		}
+	}
+
+	public void emoteClick(View view) {
+		try {
+			Intent intent = new Intent();
+			intent.setAction(ACTION_GET_CODE);
+			startActivityForResult(intent, REQUEST_CODE);
+		} catch (ActivityNotFoundException e) {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("market://details?id=com.trellmor.berrymotes.gallery"));
+			startActivity(intent);
 		}
 	}
 }
