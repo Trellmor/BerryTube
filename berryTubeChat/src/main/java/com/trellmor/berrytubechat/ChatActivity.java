@@ -647,9 +647,10 @@ public class ChatActivity extends ActionBarActivity {
 		int selStart = Math.min(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
 		int selEnd = Math.max(mEditChatMsg.getSelectionStart(), mEditChatMsg.getSelectionEnd());
 		String msg = mEditChatMsg.getText().toString();
+
 		String insert = nick;
 		
-		if ("".equals(msg)) {
+		if (selStart == 0 && (selEnd >= msg.length() || msg.charAt(selEnd) != ':')) {
 			insert += ":";
 		}
 		
@@ -657,9 +658,9 @@ public class ChatActivity extends ActionBarActivity {
 			insert += " ";
 		}
 		
-		msg = msg.substring(0, Math.min(selStart, selEnd)) + insert + msg.substring(Math.max(selStart, selEnd));
+		msg = msg.substring(0, selStart) + insert + msg.substring(selEnd);
 		mEditChatMsg.setText(msg); // SetText to refresh suggestions from some keyboards
-		mEditChatMsg.setSelection(Math.min(selStart, selEnd) + insert.length());
+		mEditChatMsg.setSelection(selStart+ insert.length());
 	}
 
 	private void showPoll() {
