@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -58,8 +59,6 @@ public class BerryTube extends Service {
 	private String mPassword;
 	private String mNick = null;
 	private Poll mPoll = null;
-	private final ArrayList<ChatMessage> mChatMsgBuffer = new ArrayList<>();
-	private int mChatMsgBufferSize = 100;
 	private final ArrayList<ChatUser> mUsers = new ArrayList<>();
 	private int mDrinkCount = 0;
 	private final Handler mHandler = new Handler();
@@ -253,41 +252,25 @@ public class BerryTube extends Service {
 	}
 
 	/**
-	 * Get the chat message list
-	 * 
-	 * To configure the size of this list use
-	 * <code>setChatMsgBufferSize(int)</code>
-	 * 
-	 * @return ArrayList containing chat messages
-	 * @see com.trellmor.berrytube.BerryTube setChatMsgBufferSize(int)
-	 */
-	public ArrayList<ChatMessage> getChatMsgBuffer() {
-		return mChatMsgBuffer;
-	}
-
-	/**
-	 * Get the configured chat message buffer size
-	 * 
-	 * @return chat message buffer max size
-	 */
-	public int getChatMsgBufferSize() {
-		return mChatMsgBufferSize;
-	}
-
-	/**
 	 * Set how many ChatMessages are kept in the ChatMsgBuffer
-	 * 
+	 *
 	 * Use 0 to disable the ChatMsgBuffer Use -1 to set it to unlimited
-	 * 
+	 *
 	 * @param chatMsgBufferSize	Size of the chat message buffer
 	 */
 	public void setChatMsgBufferSize(int chatMsgBufferSize) {
-		mChatMsgBufferSize = chatMsgBufferSize;
-
-		if (mChatMsgBufferSize == 0)
-			mChatMsgBuffer.clear();
-		while (mChatMsgBuffer.size() > mChatMsgBufferSize)
-			mChatMsgBuffer.remove(0);
+		//Remove stuff from DB
+		getApplicationContext().getContentResolver().delete(ChatMessageProvider.CONTENT_URI_MESSAGES,
+				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 0 AND " +
+				ChatMessageProvider.MessageColumns._ID + " <= (" +
+				"	SELECT " + ChatMessageProvider.MessageColumns._ID +
+				"	FROM (" +
+				"		SELECT " + ChatMessageProvider.MessageColumns._ID +
+				"		FROM " + ChatMessageProvider.MessageColumns.TABLE_MESSAGES +
+				"		ORDER BY " + ChatMessageProvider.MessageColumns._ID + " DESC " +
+				"		LIMIT 1 OFFSET " + chatMsgBufferSize +
+				"	) foo" +
+				")", null);
 	}
 
 	/**
@@ -403,24 +386,26 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
-			if (mChatMsgBufferSize != 0)
-				mChatMsgBuffer.add(mChatMsg);
+			final boolean isNotification = mNick != null && mNick.length() > 0 &&
+					mChatMsg.isHighlightable() &&
+					!mChatMsg.getNick().equals(mNick) &&
+					mChatMsg.getMsg().contains(mNick);
 
-			if (mChatMsgBufferSize > 0) {
-				while (mChatMsgBuffer.size() > mChatMsgBufferSize)
-					mChatMsgBuffer.remove(0);
-			}
-
-			if (mCallback.get() != null) {
-				mCallback.get().onChatMessage(mChatMsg);
-			}
+			ContentValues values = new ContentValues();
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_NICK, mChatMsg.getNick());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_MESSAGE, mChatMsg.getMsg());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_EMOTE, mChatMsg.getEmote());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_FLAIR, mChatMsg.getFlair());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_MULTI, mChatMsg.getMulti());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_TIMESTAMP, mChatMsg.getTimestamp());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_FLAUNT, mChatMsg.isFlaunt());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_TYPE, mChatMsg.getType());
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION, isNotification);
+			values.put(ChatMessageProvider.MessageColumns.COLUMN_HIDDEN, mChatMsg.isHidden());
+			getApplicationContext().getContentResolver().insert(ChatMessageProvider.CONTENT_URI_MESSAGES, values);
 
 			if (mCallback.get() == null && mMessageNotification != null) {
-				if (mNick != null && mNick.length() > 0
-						&& mChatMsg.isHighlightable()
-						&& !mChatMsg.getNick().equals(mNick)
-						&& mChatMsg.getMsg().contains(mNick)) {
-
+				if (isNotification) {
 					String msg = mChatMsg.toString();
 					mMessageNotificationCount++;
 

@@ -170,9 +170,7 @@ class BerryTubeIOCallback implements IOCallback {
 
 				// Send chat message for new poll
 				try {
-					msg = new ChatMessage(poll.getString("creator"),
-							poll.getString("title"), ChatMessage.EMOTE_POLL, 0,
-							0, false, 1);
+					msg = new ChatMessage(poll.getString("creator"), poll.getString("title"), ChatMessage.EMOTE_POLL);
 					berryTube.getHandler().post(berryTube.new ChatMsgTask(msg));
 				} catch (JSONException e) {
 					Log.e(TAG, "newPoll", e);

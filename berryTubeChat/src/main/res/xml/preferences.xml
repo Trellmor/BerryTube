@@ -28,7 +28,7 @@
 		android:title="@string/pref_scrollback_title"
 		android:summary="@string/pref_scrollback_summary"
 		android:dialogTitle="Scrollback size"
-		android:defaultValue="100"
+		android:defaultValue="1000"
 		android:numeric="integer" />
 
 	<CheckBoxPreference

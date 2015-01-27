@@ -73,11 +73,11 @@ public class SettingsFragment extends PreferenceFragment
 				try {
 					scrollback = Integer.parseInt(mPrefScrollback.getText());
 				} catch (NumberFormatException e) {
-					scrollback = 100;
+					scrollback = 1000;
 				}
 
 				if (scrollback <= 0)
-					scrollback = 100;
+					scrollback = 1000;
 
 				String scrollbackSummary = getString(R.string.pref_scrollback_summary);
 				mPrefScrollback.setSummary(String.format(scrollbackSummary, scrollback));

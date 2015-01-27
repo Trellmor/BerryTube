@@ -28,12 +28,12 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -66,6 +66,7 @@ import com.trellmor.berrytube.BerryTube;
 import com.trellmor.berrytube.BerryTubeBinder;
 import com.trellmor.berrytube.BerryTubeCallback;
 import com.trellmor.berrytube.ChatMessage;
+import com.trellmor.berrytube.ChatMessageProvider;
 import com.trellmor.berrytube.ChatUser;
 import com.trellmor.berrytube.Poll;
 
@@ -85,6 +86,8 @@ public class ChatActivity extends ActionBarActivity {
 
 	private static final int REQUEST_CODE = 1;
 
+	private static final int LOADER_CHAT = 1000;
+
 	private ChatMessageAdapter mChatAdapter = null;
 	private ListView mListChat;
 	private TextView mTextNick;
@@ -100,7 +103,6 @@ public class ChatActivity extends ActionBarActivity {
 		public void onServiceDisconnected(ComponentName name) {
 			mBinder = null;
 			mListChat.setAdapter(null);
-			mChatAdapter = null;
 		}
 
 		@Override
@@ -115,7 +117,7 @@ public class ChatActivity extends ActionBarActivity {
 	private int mFlair = 0;
 	private boolean mShowVideo = false;
 	private boolean mFirstPrefLoad = true;
-	private int mScrollback = 100;
+	private int mScrollback = 1000;
 	private int mDrinkCount = 0;
 	private int mMyDrinkCount = 0;
 	private boolean mShowDrinkCount = true;
@@ -160,17 +162,36 @@ public class ChatActivity extends ActionBarActivity {
 		mTextNick.setText("Anonymous");
 
 		mListChat = (ListView) findViewById(R.id.list_chat);
+		mChatAdapter = new ChatMessageAdapter(this);
+		getLoaderManager().initLoader(LOADER_CHAT, null, new ChatMessageLoaderCallbacks(this, mChatAdapter));
+		mListChat.setAdapter(mChatAdapter);
+
 		mListChat.setOnItemLongClickListener(new OnItemLongClickListener() {
-
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-
-				ChatMessage msg = (ChatMessage) parent.getItemAtPosition(position);
-				if (msg != null) {
-					replaceNick(msg.getNick());
-				}
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+				ChatMessage msg = mChatAdapter.getMessage(cursor);
+				replaceNick(msg.getNick());
 				return false;
+			}
+		});
+
+		mListChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+				ChatMessage msg = mChatAdapter.getMessage(cursor);
+				if (msg.isHidden()) {
+					final ContentValues values = new ContentValues();
+					values.put(ChatMessageProvider.MessageColumns.COLUMN_HIDDEN, false);
+
+					getContentResolver().update(
+							ChatMessageProvider.CONTENT_URI_MESSAGES.buildUpon().
+									appendPath(String.valueOf(msg.getID())).build(),
+							values,
+							null,
+							null);
+				}
 			}
 		});
 
@@ -352,11 +373,6 @@ public class ChatActivity extends ActionBarActivity {
 			}
 
 			@Override
-			public void onChatMessage(ChatMessage chatMsg) {
-				mChatAdapter.notifyDataSetChanged();
-			}
-
-			@Override
 			public void onDrinkCount(int count) {
 				mDrinkCount = count;
 				updateDrinkCount();
@@ -417,24 +433,21 @@ public class ChatActivity extends ActionBarActivity {
 	}
 
 	private void loadPreferences() {
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		try {
-			mScrollback = Integer.parseInt(settings.getString(
-					MainActivity.KEY_SCROLLBACK, "100"));
+			mScrollback = Integer.parseInt(settings.getString(MainActivity.KEY_SCROLLBACK, "1000"));
 		} catch (NumberFormatException e) {
-			mScrollback = 100;
+			mScrollback = 1000;
 		}
 
 		if (mScrollback <= 0)
-			mScrollback = 100;
+			mScrollback = 1000;
 
 		if (mBinder != null)
 			mBinder.getService().setChatMsgBufferSize(mScrollback);
 
 		try {
-			mFlair = Integer.parseInt(settings.getString(
-					MainActivity.KEY_FLAIR, "0"));
+			mFlair = Integer.parseInt(settings.getString(MainActivity.KEY_FLAIR, "0"));
 		} catch (NumberFormatException e) {
 			mFlair = 0;
 		}
@@ -717,13 +730,6 @@ public class ChatActivity extends ActionBarActivity {
 		mBinder.getService().setNotification(mNotification);
 		mNotification = null;
 
-		if (mChatAdapter == null) {
-			mChatAdapter = new ChatMessageAdapter(ChatActivity.this,
-					R.layout.chat_item, mBinder.getService().getChatMsgBuffer());
-			mListChat.setAdapter(mChatAdapter);
-		}
-
-		mChatAdapter.notifyDataSetChanged();
 		setNick(mBinder.getService().getNick());
 		mDrinkCount = mBinder.getService().getDrinkCount();
 		updateDrinkCount();

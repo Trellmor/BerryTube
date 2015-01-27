@@ -48,14 +48,6 @@ public interface BerryTubeCallback {
 	void onLoginError(String error);
 
 	/**
-	 * A new chat message was received
-	 * 
-	 * @param chatMsg
-	 *            The chat message
-	 */
-	void onChatMessage(ChatMessage chatMsg);
-
-	/**
 	 * The drink count for the current video has been changed
 	 * 
 	 * @param count

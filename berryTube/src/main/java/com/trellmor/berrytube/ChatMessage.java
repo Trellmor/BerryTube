@@ -69,6 +69,7 @@ public class ChatMessage {
 	 */
 	public final static int EMOTE_DRINK = 7;
 
+	private long mID = -1;
 	private String mNick;
 	private String mMsg;
 	private int mEmote = EMOTE_FALSE;
@@ -81,32 +82,41 @@ public class ChatMessage {
 
 	/**
 	 * Constructs a <code>ChatMessage</code>
-	 * 
-	 * @param nick
-	 *            Sender name
-	 * @param msg
-	 *            Text content
-	 * @param emote
-	 *            Emote type
-	 * @param flair
-	 *            Sender flair
-	 * @param type
-	 *            User level
-	 * @param flaunt
-	 *            User is flaunting
-	 * @param multi
-	 *            Multiplier for <code>EMOTE_DRINK</code> notifications
+	 *
+	 * @param nick 		Sender name
+	 * @param msg 		Text content
+	 * @param emote 	Emote type
 	 */
-	public ChatMessage(String nick, String msg, int emote, int flair, int type,
-			boolean flaunt, int multi) {
+	public ChatMessage(String nick, String msg, int emote) {
+		this(-1, nick, msg, emote, 0, 0, System.currentTimeMillis(), false, ChatUser.TYPE_USER, emote != EMOTE_SPOILER);
+	}
+
+	/**
+	 * Constructs a <code>ChatMessage</code>
+	 *
+	 * @param id		Message ID
+	 * @param nick 		Sender name
+	 * @param msg 		Text content
+	 * @param emote 	Emote type
+	 * @param flair 	Sender flair
+	 * @param multi		Multiplier for <code>EMOTE_DRINK</code> notifications
+	 * @param timeStamp	Message timestamp
+	 * @param type		User level
+	 * @param flaunt	User is flaunting
+	 * @param hidden	Spoiler message is hidden
+	 */
+	public ChatMessage(long id, String nick, String msg, int emote, int flair, int multi, long timeStamp,
+					   boolean flaunt, int type, boolean hidden) {
+		this.mID = id;
 		this.mNick = nick;
 		this.mMsg = msg;
 		this.mEmote = emote;
 		this.mFlair = flair;
-		this.mTimeStamp = System.currentTimeMillis();
-		this.mHidden = (emote == EMOTE_SPOILER);
-		this.mType = type;
+		this.mMulti = multi;
+		this.mTimeStamp = timeStamp;
 		this.mFlaunt = flaunt;
+		this.mType = type;
+		this.mHidden = hidden;
 	}
 
 	/**
@@ -147,13 +157,21 @@ public class ChatMessage {
 		mFlaunt = metadata.optBoolean("nameflaunt");
 
 		try {
-			this.mTimeStamp = TIMESTAMP_FORMAT.parse(
-					message.getString("timestamp")).getTime();
+			this.mTimeStamp = TIMESTAMP_FORMAT.parse(message.getString("timestamp")).getTime();
 		} catch (ParseException pe) {
 			Log.w(TAG, "Error parsing timestamp string");
 			this.mTimeStamp = System.currentTimeMillis();
 		}
-		this.mHidden = (this.mEmote == EMOTE_SPOILER);
+		this.mHidden = this.mEmote == EMOTE_SPOILER;
+	}
+
+	/**
+	 * Get the messages database row ID
+	 *
+	 * @return ID or -1 if not loaded from database
+	 */
+	public long getID() {
+		return mID;
 	}
 
 	/**
@@ -263,15 +281,6 @@ public class ChatMessage {
 	 */
 	public boolean isHidden() {
 		return mHidden && (mEmote == EMOTE_SPOILER);
-	}
-
-	/**
-	 * Flips the flag indicating whether this message should be hidden. This is
-	 * only applicable if the message's emote type is <code>EMOTE_SPOILER</code>
-	 * .
-	 */
-	public void toggleHidden() {
-		mHidden = !mHidden;
 	}
 
 	/**

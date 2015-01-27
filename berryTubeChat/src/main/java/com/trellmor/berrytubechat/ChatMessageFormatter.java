@@ -30,6 +30,7 @@ import android.text.Spanned;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.TextView;
 
 import com.trellmor.berrymotes.EmotesFormatter;
@@ -51,6 +52,9 @@ class ChatMessageFormatter {
 	private final ChatMessageAdapter mAdapter;
 	private final EmotesFormatter mEmotesFormatter;
 
+	public static final int TYPE_DEFAULT = 0;
+	public static final int TYPE_DRINK = 1;
+
 	public ChatMessageFormatter(ChatMessageAdapter adapter, Context context) {
 		mAdapter = adapter;
 		mContext = context;
@@ -61,19 +65,35 @@ class ChatMessageFormatter {
 		mEmotesFormatter = new EmotesFormatter(mContext);
 	}
 
-	public View format(View view, ChatMessage message) {
+	public View inflate(ChatMessage message) {
+		switch (message.getEmote()) {
+			case ChatMessage.EMOTE_DRINK:
+				return inflateDrink();
+			default:
+				return inflateDefault();
+		}
+	}
+
+	public void format(View view, ChatMessage message) {
+		switch (message.getEmote()) {
+			case ChatMessage.EMOTE_DRINK:
+				formatDrinks(view, message);
+				break;
+			default:
+				formatDefault(view, message);
+				break;
+		}
+	}
+
+	public int getViewType(ChatMessage message) {
+		if (containsBerryMotes(message.getMsg()))
+			return Adapter.IGNORE_ITEM_VIEW_TYPE;
 
 		switch (message.getEmote()) {
-		case ChatMessage.EMOTE_DRINK:
-			return formatDrinks(view, message);
-		case ChatMessage.EMOTE_ACT:
-		case ChatMessage.EMOTE_REQUEST:
-		case ChatMessage.EMOTE_POLL:
-		case ChatMessage.EMOTE_RCV:
-		case ChatMessage.EMOTE_SPOILER:
-			return formatEmote(view, message);
-		default:
-			return formatDefault(view, message);
+			case ChatMessage.EMOTE_DRINK:
+				return TYPE_DRINK;
+			default:
+				return TYPE_DEFAULT;
 		}
 	}
 
@@ -81,23 +101,33 @@ class ChatMessageFormatter {
 		mNick = nick;
 	}
 
+	private View inflateDefault() {
+		View view = mInflater.inflate(R.layout.chat_item, null);
+		view.setTag(R.id.text_chat_message, view.findViewById(R.id.text_chat_message));
+		return view;
+	}
+
+	private View inflateDrink() {
+		View view = mInflater.inflate(R.layout.chat_item_drink, null);
+		view.setTag(R.id.text_chat_message,	view.findViewById(R.id.text_chat_message));
+		view.setTag(R.id.text_chat_drink_multiple, view.findViewById(R.id.text_chat_drink_multiple));
+		return view;
+	}
+
 	private View formatDrinks(View view, ChatMessage message) {
-		if (view == null || view.getId() != R.id.chat_item_drink
-				|| containsBerryMotes(message.getMsg())) {
-			view = mInflater.inflate(R.layout.chat_item_drink, null);
-			view.setTag(R.id.text_chat_message,
-					view.findViewById(R.id.text_chat_message));
-			view.setTag(R.id.text_chat_drink_multiple,
-					view.findViewById(R.id.text_chat_drink_multiple));
+		if (view == null || view.getId() != R.id.chat_item_drink) {
+			throw new IllegalArgumentException("view has to be chat_item_drink");
 		}
 
 		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
 		TextView textMulti = (TextView) view
 				.getTag(R.id.text_chat_drink_multiple);
 
-		String m = message.getNick() + ": "
-				+ formatBerryMotes(message.getMsg()) + " "
-				+ mContext.getString(R.string.chat_drink);
+		String m = message.getNick() +
+				": " +
+				formatBerryMotes(message.getMsg()) +
+				" " +
+				mContext.getString(R.string.chat_drink);
 
 		textMessage.setText(Html.fromHtml(m, mFlairGetter, null));
 
@@ -111,82 +141,55 @@ class ChatMessageFormatter {
 		return view;
 	}
 
-	private View inflateDefault(View view, String message) {
-		if (view == null || view.getId() != R.id.text_chat_message || containsBerryMotes(message)) {
-			view = mInflater.inflate(R.layout.chat_item, null);
-			view.setTag(R.id.text_chat_message,
-					view.findViewById(R.id.text_chat_message));
-		} else {
-			TextView textMessage = (TextView) view
-					.getTag(R.id.text_chat_message);
-			textMessage.setTextAppearance(mContext,
-					android.R.style.TextAppearance_Small);
-			textMessage.setGravity(Gravity.LEFT);
+	private void formatDefault(View view, ChatMessage message) {
+		if (view == null || view.getId() != R.id.text_chat_message) {
+			throw new IllegalArgumentException("view has to be chat_item");
 		}
 
-		return view;
-	}
-
-	private View formatDefault(View view, ChatMessage message) {
-		view = inflateDefault(view, message.getMsg());
 		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
-
-		textMessage.setText(formatChatMsg(message));
-
-		return view;
-	}
-
-	private View formatEmote(View view, ChatMessage message) {
-
-		view = inflateDefault(view, message.getMsg());
-		TextView textMessage = (TextView) view.getTag(R.id.text_chat_message);
+		textMessage.setTextAppearance(mContext,	android.R.style.TextAppearance_Small);
+		textMessage.setGravity(Gravity.LEFT);
 
 		switch (message.getEmote()) {
-		case ChatMessage.EMOTE_REQUEST:
-			textMessage.setTextColor(Color.BLUE);
-			textMessage.setText(Html.fromHtml(createTimestamp(message
-					.getTimestamp())
-					+ "<b><i>"
-					+ message.getNick()
-					+ " requests "
-					+ formatBerryMotes(message.getMsg())
-					+ "</i></b>"));
-			break;
-		case ChatMessage.EMOTE_ACT:
-			textMessage.setTextColor(Color.GRAY);
-			textMessage.setText(Html.fromHtml(createTimestamp(message
-					.getTimestamp())
-					+ "<i>"
-					+ message.getNick()
-					+ " "
-					+ formatBerryMotes(message.getMsg()) + "</i>"));
-			break;
-		case ChatMessage.EMOTE_POLL:
-			textMessage.setTextColor(Color.parseColor("#008000"));
-			textMessage.setTextSize(18);
-			textMessage.setGravity(Gravity.CENTER_HORIZONTAL);
-			textMessage.setText(Html.fromHtml("<b>" + message.getNick()
-					+ " created a new poll \""
-					+ formatBerryMotes(message.getMsg()) + "\"</b>"));
-			break;
-		case ChatMessage.EMOTE_RCV:
-			textMessage.setTextColor(Color.RED);
-			textMessage.setTextSize(18);
-			textMessage.setText(Html.fromHtml(
-					createTimestamp(message.getTimestamp()) + message.getNick()
-							+ ": " + formatBerryMotes(message.getMsg()),
-					mFlairGetter, null));
-			break;
-		case ChatMessage.EMOTE_SPOILER:
-			textMessage.setText(formatChatMsg(message));
-			view.setOnClickListener(new SpoilerClickListener(message));
-			break;
-		default:
-			textMessage.setText(formatChatMsg(message));
-			break;
+			case ChatMessage.EMOTE_REQUEST:
+				textMessage.setTextColor(Color.BLUE);
+				textMessage.setText(Html.fromHtml(createTimestamp(message
+						.getTimestamp())
+						+ "<b><i>"
+						+ message.getNick()
+						+ " requests "
+						+ formatBerryMotes(message.getMsg())
+						+ "</i></b>"));
+				break;
+			case ChatMessage.EMOTE_ACT:
+				textMessage.setTextColor(Color.GRAY);
+				textMessage.setText(Html.fromHtml(createTimestamp(message
+						.getTimestamp())
+						+ "<i>"
+						+ message.getNick()
+						+ " "
+						+ formatBerryMotes(message.getMsg()) + "</i>"));
+				break;
+			case ChatMessage.EMOTE_POLL:
+				textMessage.setTextColor(Color.parseColor("#008000"));
+				textMessage.setTextSize(18);
+				textMessage.setGravity(Gravity.CENTER_HORIZONTAL);
+				textMessage.setText(Html.fromHtml("<b>" + message.getNick()
+						+ " created a new poll \""
+						+ formatBerryMotes(message.getMsg()) + "\"</b>"));
+				break;
+			case ChatMessage.EMOTE_RCV:
+				textMessage.setTextColor(Color.RED);
+				textMessage.setTextSize(18);
+				textMessage.setText(Html.fromHtml(
+						createTimestamp(message.getTimestamp()) + message.getNick()
+								+ ": " + formatBerryMotes(message.getMsg()),
+						mFlairGetter, null));
+				break;
+			default:
+				textMessage.setText(formatChatMsg(message));
+				break;
 		}
-
-		return view;
 	}
 
 	private String highlightNick(String msg) {
@@ -228,10 +231,8 @@ class ChatMessageFormatter {
 		String result = "";
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
-		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false)
-				&& timeStamp > 0) {
-			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ",
-					Locale.ENGLISH);
+		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false)	&& timeStamp > 0) {
+			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
 			result = sdf.format(new Date(timeStamp));
 		}
 
@@ -241,14 +242,12 @@ class ChatMessageFormatter {
 	private String flauntNick(ChatMessage message) {
 		if (message.isFlaunt()) {
 			switch (message.getType()) {
-			case ChatUser.TYPE_ADMIN:
-				return "<font color=\"#008000\">" + message.getNick()
-						+ "</font>";
-			case ChatUser.TYPE_MOD:
-				return "<font color=\"#FF0000\">" + message.getNick()
-						+ "</font>";
-			default:
-				return message.getNick();
+				case ChatUser.TYPE_ADMIN:
+					return "<font color=\"#008000\">" + message.getNick() + "</font>";
+				case ChatUser.TYPE_MOD:
+					return "<font color=\"#FF0000\">" + message.getNick() + "</font>";
+				default:
+					return message.getNick();
 			}
 		} else
 			return message.getNick();
@@ -268,20 +267,13 @@ class ChatMessageFormatter {
 				"<span class=\"flutter\">(.*)</span>",
 				"<font color=\"#FF5499\">$1</font>");
 
-		StringBuilder fontModifiers = new StringBuilder(); // For the
-															// full-string
-															// modifiers (as
-															// distinct from
-															// yay)
+		StringBuilder fontModifiers = new StringBuilder(); // For the full-string modifiers (as distinct from yay)
 
 		// Spoiler coloring (since background highlighting is hard)
 		if (message.isHidden()) {
-			int color = mContext.getResources().getColor(
-					R.color.background_chat);
+			int color = mContext.getResources().getColor(R.color.background_chat);
 
-			fontModifiers.append(" color=\"#")
-					.append(Integer.toHexString(color).substring(2))
-					.append("\"");
+			fontModifiers.append(" color=\"#").append(Integer.toHexString(color).substring(2)).append("\"");
 		}
 		// implying
 		else if (m.startsWith("&gt;")) {
@@ -318,19 +310,5 @@ class ChatMessageFormatter {
 
 	private boolean containsBerryMotes(String msg) {
 		return mEmotesFormatter.containsEmotes(msg);
-	}
-
-	class SpoilerClickListener implements View.OnClickListener {
-		private final ChatMessage mMsg;
-
-		public SpoilerClickListener(ChatMessage message) {
-			mMsg = message;
-		}
-
-		@Override
-		public void onClick(View v) {
-			mMsg.toggleHidden();
-			mAdapter.notifyDataSetChanged();
-		}
 	}
 }
