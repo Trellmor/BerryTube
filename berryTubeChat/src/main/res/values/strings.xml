@@ -29,6 +29,7 @@
     <string name="menu_donate">Donate</string>
     <string name="menu_autocomplete_nick">Autocomplete nick</string>
     <string name="menu_reset_my_drinks">Reset</string>
+    <string name="menu_notifications">Notifications</string>
     <string name="title_activity_main">BerryTube</string>
     <string name="title_activity_chat">BerryTube Chat</string>
     <string name="title_activity_settings">Settings</string>

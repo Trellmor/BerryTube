@@ -267,6 +267,21 @@ public class BerryTube extends Service {
 				"	FROM (" +
 				"		SELECT " + ChatMessageProvider.MessageColumns._ID +
 				"		FROM " + ChatMessageProvider.MessageColumns.TABLE_MESSAGES +
+				"		WHERE " + ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 0 " +
+				"		ORDER BY " + ChatMessageProvider.MessageColumns._ID + " DESC " +
+				"		LIMIT 1 OFFSET " + chatMsgBufferSize +
+				"	) foo" +
+				")", null);
+
+
+		getApplicationContext().getContentResolver().delete(ChatMessageProvider.CONTENT_URI_MESSAGES,
+				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 1 AND " +
+				ChatMessageProvider.MessageColumns._ID + " <= (" +
+				"	SELECT " + ChatMessageProvider.MessageColumns._ID +
+				"	FROM (" +
+				"		SELECT " + ChatMessageProvider.MessageColumns._ID +
+				"		FROM " + ChatMessageProvider.MessageColumns.TABLE_MESSAGES +
+				"		WHERE " + ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 1 " +
 				"		ORDER BY " + ChatMessageProvider.MessageColumns._ID + " DESC " +
 				"		LIMIT 1 OFFSET " + chatMsgBufferSize +
 				"	) foo" +

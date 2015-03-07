@@ -17,12 +17,6 @@
  */
 package com.trellmor.berrytubechat;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -41,6 +35,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -70,6 +65,12 @@ import com.trellmor.berrytube.ChatMessageProvider;
 import com.trellmor.berrytube.ChatUser;
 import com.trellmor.berrytube.Poll;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
+
 /**
  * BerryTubeChat chat window
  * 
@@ -87,6 +88,7 @@ public class ChatActivity extends ActionBarActivity {
 	private static final int REQUEST_CODE = 1;
 
 	private static final int LOADER_CHAT = 1000;
+	private static final int LOADER_NOTIFICATIONS = 2000;
 
 	private ChatMessageAdapter mChatAdapter = null;
 	private ListView mListChat;
@@ -94,6 +96,10 @@ public class ChatActivity extends ActionBarActivity {
 	private EditText mEditChatMsg;
 	private TextView mTextDrinks;
 	private TextView mCurrentVideo;
+	private DrawerLayout mDrawerLayout;
+	private ListView mListNotifications;
+	private MenuItem mMenuPoll;
+	private View mDrawerNotifications;
 	private NotificationCompat.Builder mNotification = null;
 
 	private BerryTubeBinder mBinder = null;
@@ -165,35 +171,17 @@ public class ChatActivity extends ActionBarActivity {
 		mChatAdapter = new ChatMessageAdapter(this);
 		getLoaderManager().initLoader(LOADER_CHAT, null, new ChatMessageLoaderCallbacks(this, mChatAdapter));
 		mListChat.setAdapter(mChatAdapter);
+		mListChat.setOnItemLongClickListener(mChatListItemLongClickListener);
+		mListChat.setOnItemClickListener(mChatListItemClickListener);
 
-		mListChat.setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-				ChatMessage msg = mChatAdapter.getMessage(cursor);
-				replaceNick(msg.getNick());
-				return false;
-			}
-		});
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerLayout.setDrawerListener(mDrawerListener);
 
-		mListChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-				ChatMessage msg = mChatAdapter.getMessage(cursor);
-				if (msg.isHidden()) {
-					final ContentValues values = new ContentValues();
-					values.put(ChatMessageProvider.MessageColumns.COLUMN_HIDDEN, false);
+		mDrawerNotifications = findViewById(R.id.drawer_notifications);
 
-					getContentResolver().update(
-							ChatMessageProvider.CONTENT_URI_MESSAGES.buildUpon().
-									appendPath(String.valueOf(msg.getID())).build(),
-							values,
-							null,
-							null);
-				}
-			}
-		});
+		mListNotifications = (ListView) findViewById(R.id.list_notifications);
+		mListNotifications.setOnItemLongClickListener(mChatListItemLongClickListener);
+		mListNotifications.setOnItemClickListener(mChatListItemClickListener);
 
 		if (!EmoteUtils.isBerryMotesInstalled(this)) {
 			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
@@ -258,6 +246,8 @@ public class ChatActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_chat, menu);
+		mMenuPoll = menu.findItem(R.id.menu_poll);
+		mMenuPoll.setVisible(false);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -298,6 +288,13 @@ public class ChatActivity extends ActionBarActivity {
 			return true;
 		case R.id.menu_autocomplete_nick:
 			autocompleteNick();
+			return true;
+		case R.id.menu_notifications:
+			if (mDrawerLayout.isDrawerOpen(mDrawerNotifications)) {
+				mDrawerLayout.closeDrawer(mDrawerNotifications);
+			} else {
+				mDrawerLayout.openDrawer(mDrawerNotifications);
+			}
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -382,6 +379,8 @@ public class ChatActivity extends ActionBarActivity {
 			public void onNewPoll(Poll poll) {
 				if (mPopupPoll)
 					showPoll();
+
+				mMenuPoll.setVisible(true);
 			}
 
 			@Override
@@ -392,7 +391,7 @@ public class ChatActivity extends ActionBarActivity {
 
 			@Override
 			public void onClearPoll() {
-
+				mMenuPoll.setVisible(false);
 			}
 
 			@Override
@@ -541,13 +540,8 @@ public class ChatActivity extends ActionBarActivity {
 
 			setTextDrinksVisible(true);
 
-			mTextDrinks
-					.setText(Integer.toString(mMyDrinkCount)
-							+ "/"
-							+ Integer.toString(mDrinkCount)
-							+ " "
-							+ ((mDrinkCount == 1) ? getString(R.string.drink_count_single)
-									: getString(R.string.drink_count_plural)));
+			mTextDrinks.setText(Integer.toString(mMyDrinkCount) + "/" +
+					Integer.toString(mDrinkCount) + " " + ((mDrinkCount == 1) ? getString(R.string.drink_count_single) : getString(R.string.drink_count_plural)));
 		} else {
 			setTextDrinksVisible(false);
 			mMyDrinkCount = 0;
@@ -815,4 +809,63 @@ public class ChatActivity extends ActionBarActivity {
 			startActivity(intent);
 		}
 	}
+
+	private OnItemLongClickListener mChatListItemLongClickListener =  new OnItemLongClickListener() {
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+			ChatMessage msg = ((ChatMessageAdapter)parent.getAdapter()).getMessage(cursor);
+			replaceNick(msg.getNick());
+			if (mDrawerLayout.isDrawerOpen(mDrawerNotifications)) {
+				mDrawerLayout.closeDrawer(mDrawerNotifications);
+			}
+			return false;
+		}
+	};
+
+	private AdapterView.OnItemClickListener mChatListItemClickListener = new AdapterView.OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+			ChatMessage msg = ((ChatMessageAdapter)parent.getAdapter()).getMessage(cursor);
+			if (msg.isHidden()) {
+				final ContentValues values = new ContentValues();
+				values.put(ChatMessageProvider.MessageColumns.COLUMN_HIDDEN, false);
+
+				getContentResolver().update(
+						ChatMessageProvider.CONTENT_URI_MESSAGES.buildUpon().
+								appendPath(String.valueOf(msg.getID())).build(),
+						values,
+						null,
+						null);
+			}
+		}
+	};
+
+	private DrawerLayout.DrawerListener mDrawerListener = new DrawerLayout.DrawerListener() {
+		@Override
+		public void onDrawerSlide(View drawerView, float slideOffset) {
+
+		}
+
+		@Override
+		public void onDrawerOpened(View drawerView) {
+			ChatMessageAdapter chatAdapter = new ChatMessageAdapter(ChatActivity.this);
+			Bundle args = new Bundle();
+			args.putBoolean(ChatMessageLoaderCallbacks.KEY_NOTIFICATIONS, true);
+			getLoaderManager().initLoader(LOADER_NOTIFICATIONS, args, new ChatMessageLoaderCallbacks(ChatActivity.this, chatAdapter));
+			mListNotifications.setAdapter(chatAdapter);
+		}
+
+		@Override
+		public void onDrawerClosed(View drawerView) {
+			getLoaderManager().destroyLoader(LOADER_NOTIFICATIONS);
+			mListNotifications.setAdapter(null);
+		}
+
+		@Override
+		public void onDrawerStateChanged(int newState) {
+
+		}
+	};
 }

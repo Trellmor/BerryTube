@@ -31,6 +31,8 @@ public class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks
 	private final CursorAdapter mAdapter;
 	private final Context mContext;
 
+	public static final String KEY_NOTIFICATIONS = "Notifications";
+
 	private static final String[] PROJECTION = new String[] {
 			ChatMessageProvider.MessageColumns._ID,
 			ChatMessageProvider.MessageColumns.COLUMN_NICK,
@@ -51,13 +53,23 @@ public class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String selection = null;
+		String[] selectionArgs = null;
+		String sortOrder = " ASC";
+
+		if (args != null && args.getBoolean(KEY_NOTIFICATIONS, false)) {
+			selection = ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = ?";
+			selectionArgs = new String[] { String.valueOf(1) };
+			sortOrder = " DESC";
+		}
+
 		return new CursorLoader(
 				mContext,
 				ChatMessageProvider.CONTENT_URI_MESSAGES,
 				PROJECTION,
-				null,
-				null,
-				ChatMessageProvider.MessageColumns._ID + " ASC");
+				selection,
+				selectionArgs,
+				ChatMessageProvider.MessageColumns._ID + sortOrder);
 	}
 
 	@Override

@@ -21,46 +21,54 @@
 <menu
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
-    
+
+	<item
+		android:id="@+id/menu_notifications"
+		android:title="@string/menu_notifications"
+		android:orderInCategory="100"
+		app:showAsAction="ifRoom"
+		android:icon="@drawable/ic_menu_notification" />
+
     <item
-        android:id="@+id/menu_autocomplete_nick"
-        android:title="@string/menu_autocomplete_nick"
-        android:orderInCategory="100" />
-    
-    <item
-        android:id="@+id/menu_poll"
-        android:title="@string/menu_poll"
-        android:orderInCategory="200"
-		app:showAsAction="never" />
-    
+		android:id="@+id/menu_poll"
+		android:title="@string/menu_poll"
+		android:orderInCategory="200"
+		app:showAsAction="ifRoom"
+		android:icon="@drawable/ic_menu_poll" />
+
+	<item
+		android:id="@+id/menu_autocomplete_nick"
+		android:title="@string/menu_autocomplete_nick"
+		android:orderInCategory="100" />
+
     <item 
-        android:id="@+id/menu_users"
-        android:title="@string/menu_users"
-        android:orderInCategory="300"
+		android:id="@+id/menu_users"
+		android:title="@string/menu_users"
+		android:orderInCategory="400"
 		app:showAsAction="never" />
-    
-    <item 
-        android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="400"
+
+	<item
+		android:id="@+id/menu_settings"
+		android:title="@string/menu_settings"
+		android:orderInCategory="500"
 		app:showAsAction="never" />
-    
-    <item
-        android:id="@+id/menu_about"
-        android:title="@string/menu_about"
-        android:orderInCategory="500"
+
+	<item
+		android:id="@+id/menu_about"
+		android:title="@string/menu_about"
+		android:orderInCategory="600"
 		app:showAsAction="never" />
-    
-    <item
-        android:id="@+id/menu_donate"
-        android:title="@string/menu_donate"
-        android:orderInCategory="600"
+
+	<item
+		android:id="@+id/menu_donate"
+		android:title="@string/menu_donate"
+		android:orderInCategory="700"
 		app:showAsAction="never" />
-    
-    <item
-        android:id="@+id/menu_logout"
-        android:title="@string/menu_logout"
-        android:orderInCategory="700"
+
+	<item
+		android:id="@+id/menu_logout"
+		android:title="@string/menu_logout"
+		android:orderInCategory="800"
 		app:showAsAction="never" />
-    
+
 </menu>
