@@ -18,6 +18,7 @@
 package com.trellmor.berrytubechat;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -249,8 +250,14 @@ class ChatMessageFormatter {
 				default:
 					return message.getNick();
 			}
-		} else
-			return message.getNick();
+		} else {
+			Calendar c = Calendar.getInstance();
+			if (c.get(Calendar.MONTH) == Calendar.APRIL && c.get(Calendar.DAY_OF_MONTH) == 1) {
+				return "<font color=\"#1D3271\">Princess " + "</font>" + message.getNick();
+			} else {
+				return message.getNick();
+			}
+		}
 	}
 
 	private Spanned formatChatMsg(ChatMessage message) {
