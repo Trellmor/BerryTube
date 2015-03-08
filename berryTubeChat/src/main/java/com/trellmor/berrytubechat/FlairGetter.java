@@ -52,22 +52,22 @@ public class FlairGetter extends EmoteGetter implements ImageGetter {
 		} else {
 			switch (source) {
 				case "1":
-					d = mResources.getDrawable(R.drawable.wine);
+					d = mResources.getDrawable(R.drawable.ic_flair_1);
 					break;
 				case "2":
-					d = mResources.getDrawable(R.drawable.cocktail);
+					d = mResources.getDrawable(R.drawable.ic_flair_2);
 					break;
 				case "3":
-					d = mResources.getDrawable(R.drawable.cider);
+					d = mResources.getDrawable(R.drawable.ic_flair_3);
 					break;
 				case "4":
-					d = mResources.getDrawable(R.drawable.liquor1);
+					d = mResources.getDrawable(R.drawable.ic_flair_4);
 					break;
 				case "5":
-					d = mResources.getDrawable(R.drawable.liquor2);
+					d = mResources.getDrawable(R.drawable.ic_flair_5);
 					break;
 				case "6":
-					d = mResources.getDrawable(R.drawable.beer);
+					d = mResources.getDrawable(R.drawable.ic_flair_6);
 					break;
 			}
 
