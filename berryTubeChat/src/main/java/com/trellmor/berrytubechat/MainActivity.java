@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -178,6 +179,11 @@ public class MainActivity extends ActionBarActivity {
 		mCheckRemember.setChecked(remember);
 
 		checkNotificationSound();
+
+		Calendar c = Calendar.getInstance();
+		if (c.get(Calendar.MONTH) == Calendar.APRIL && c.get(Calendar.DAY_OF_MONTH) == 1) {
+			mImageLuna.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
