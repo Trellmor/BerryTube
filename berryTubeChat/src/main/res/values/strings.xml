@@ -51,6 +51,7 @@
     <string name="message_nopoll">There is no open poll.</string>
     <string name="toast_video_enabled">Video titles will begin displaying after you reconnect.</string>
     <string name="toast_no_users">No users found.</string>
+    <string name="toast_dance">Continue tapping to dance.</string>
     <string name="login_error">Login error</string>
     
     <string name="text_about">"BerryTubeChat android client

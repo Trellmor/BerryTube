@@ -33,6 +33,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -42,6 +43,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * BerryTubeChat Main Activity
@@ -51,9 +54,18 @@ import android.widget.EditText;
 public class MainActivity extends ActionBarActivity {
 	private static final String TAG = MainActivity.class.getName();
 
-	private EditText editUser;
-	private EditText editPassword;
-	private CheckBox checkRemember;
+	private EditText mEditUser;
+	private EditText mEditPassword;
+	private CheckBox mCheckRemember;
+	private ImageView mImageLuna;
+	Handler mTimerHandler = new Handler();
+	Runnable mTimerRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mClickCount = 0;
+		}
+	};
+	private int mClickCount = 0;
 
 	/**
 	 * Key for login settings
@@ -125,9 +137,10 @@ public class MainActivity extends ActionBarActivity {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		editUser = (EditText) findViewById(R.id.edit_user);
-		editPassword = (EditText) findViewById(R.id.edit_password);
-		checkRemember = (CheckBox) findViewById(R.id.check_remember);
+		mEditUser = (EditText) findViewById(R.id.edit_user);
+		mEditPassword = (EditText) findViewById(R.id.edit_password);
+		mCheckRemember = (CheckBox) findViewById(R.id.check_remember);
+		mImageLuna = (ImageView) findViewById(R.id.image_luna);
 
 		SharedPreferences settings = getSharedPreferences(KEY_LOGIN,
 				Context.MODE_PRIVATE);
@@ -144,7 +157,7 @@ public class MainActivity extends ActionBarActivity {
 			} catch (NoSuchAlgorithmException e) {
 				Log.w(TAG, e.getMessage());
 				// Remeber not available because of missing key
-				checkRemember.setVisibility(View.GONE);
+				mCheckRemember.setVisibility(View.GONE);
 				remember = false;
 			}
 		}
@@ -158,11 +171,11 @@ public class MainActivity extends ActionBarActivity {
 			}
 
 			if (remember) {
-				editUser.setText(user);
-				editPassword.setText(password);
+				mEditUser.setText(user);
+				mEditPassword.setText(password);
 			}
 		}
-		checkRemember.setChecked(remember);
+		mCheckRemember.setChecked(remember);
 
 		checkNotificationSound();
 	}
@@ -199,8 +212,8 @@ public class MainActivity extends ActionBarActivity {
 				Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 
-		boolean remember = checkRemember.isChecked();
-		String password = editPassword.getText().toString();
+		boolean remember = mCheckRemember.isChecked();
+		String password = mEditPassword.getText().toString();
 		String key = settings.getString(KEY_CRYPTO_KEY, "");
 		if (key != null && !"".equals(key)) {
 			try {
@@ -215,7 +228,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		if (remember) {
-			editor.putString(KEY_USERNAME, editUser.getText().toString());
+			editor.putString(KEY_USERNAME, mEditUser.getText().toString());
 			editor.putString(KEY_PASSWORD, password);
 			editor.putBoolean(KEY_REMEMBER, remember);
 		} else {
@@ -225,11 +238,11 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void login(View view) {
-		String username = editUser.getText().toString();
-		String password = editPassword.getText().toString();
+		String username = mEditUser.getText().toString();
+		String password = mEditPassword.getText().toString();
 
 		if ("".equals(username)) {
-			editUser.requestFocus();
+			mEditUser.requestFocus();
 			return;
 		}
 
@@ -238,6 +251,21 @@ public class MainActivity extends ActionBarActivity {
 		chat.putExtra(KEY_PASSWORD, password);
 
 		startActivity(chat);
+	}
+
+	public void luna(View view) {
+		if (mImageLuna.getVisibility() != View.VISIBLE) {
+			mTimerHandler.removeCallbacks(mTimerRunnable);
+			mClickCount++;
+
+			if (mClickCount == 1) {
+				Toast.makeText(this, R.string.toast_dance, Toast.LENGTH_SHORT).show();
+			} else if (mClickCount == 7) {
+				mImageLuna.setVisibility(View.VISIBLE);
+			}
+
+			mTimerHandler.postDelayed(mTimerRunnable, 500);
+		}
 	}
 
 	private boolean copyNotificationSoundFile(File squee) {

@@ -1,6 +1,6 @@
 <!--
 	BerryTubeChat android client
-	Copyright (C) 2012-2013 Daniel Triendl <trellmor@trellmor.com>
+	Copyright (C) 2012-2015 Daniel Triendl <trellmor@trellmor.com>
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,10 +16,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+	android:orientation="vertical" >
 
 	<android.support.v7.widget.Toolbar
 		android:id="@+id/toolbar"
@@ -49,21 +51,39 @@
         android:hint="@string/edit_password"
         android:singleLine="true" />
 
-    <Button
-        android:id="@+id/button_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/edit_password"
-        android:text="@string/button_login"
-        android:onClick="login" />
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+		<Button
+			android:id="@+id/button_login"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:text="@string/button_login"
+			android:onClick="login" />
 
-    <CheckBox
-        android:id="@+id/check_remember"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/edit_password"
-        android:text="@string/check_remember" />
+		<CheckBox
+			android:id="@+id/check_remember"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:text="@string/check_remember" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="200dp"
+		android:layout_marginTop="20dp"
+		android:onClick="luna">
+
+		<ImageView
+			android:id="@+id/image_luna"
+			android:layout_width="200dp"
+			android:layout_height="200dp"
+			android:layout_centerInParent="true"
+			android:src="@drawable/luna_dancing"
+			android:visibility="invisible" />
+	</RelativeLayout>
     
-</RelativeLayout>
+</LinearLayout>
