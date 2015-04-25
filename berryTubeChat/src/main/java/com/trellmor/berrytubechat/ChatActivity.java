@@ -248,7 +248,11 @@ public class ChatActivity extends ActionBarActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_chat, menu);
 		mMenuPoll = menu.findItem(R.id.menu_poll);
-		mMenuPoll.setVisible(false);
+		if (mBinder != null && mBinder.getService().getPoll() != null) {
+			mMenuPoll.setVisible(true);
+		} else {
+			mMenuPoll.setVisible(false);
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -725,6 +729,9 @@ public class ChatActivity extends ActionBarActivity {
 		setNick(mBinder.getService().getNick());
 		mDrinkCount = mBinder.getService().getDrinkCount();
 		updateDrinkCount();
+		if (mBinder.getService().getPoll() != null && mMenuPoll != null) {
+			mMenuPoll.setVisible(true);
+		}
 
 		if (!mBinder.getService().isConnected()) {
 			try {
