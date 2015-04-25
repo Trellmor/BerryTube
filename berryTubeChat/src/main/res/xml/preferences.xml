@@ -60,4 +60,9 @@
 		android:summary="@string/pref_video_summary"
 		android:defaultValue="false" />
 
+	<EditTextPreference
+		android:key="com.trellmor.berrytubechat.settings.server"
+		android:title="@string/prev_server_title"
+		android:defaultValue="" />
+
 </PreferenceScreen>

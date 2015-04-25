@@ -128,6 +128,7 @@ public class ChatActivity extends ActionBarActivity {
 	private int mMyDrinkCount = 0;
 	private boolean mShowDrinkCount = true;
 	private boolean mPopupPoll = false;
+	private String mServer = "";
 	private BerryTubeCallback mCallback = null;
 	private boolean mLogout = false;
 
@@ -502,6 +503,8 @@ public class ChatActivity extends ActionBarActivity {
 		mPopupPoll = settings.getBoolean(MainActivity.KEY_POPUP_POLL, false);
 		updateDrinkCount();
 
+		mServer = settings.getString(MainActivity.KEY_SERVER, "");
+
 		mFirstPrefLoad = false;
 	}
 
@@ -753,10 +756,15 @@ public class ChatActivity extends ActionBarActivity {
 
 					note.setContentIntent(PendingIntent.getActivity(this, 0,
 							intent, PendingIntent.FLAG_UPDATE_CURRENT));
-					mBinder.getService().connect(mUsername, mPassword, note);
+					if ("".equals(mServer)) {
+						mBinder.getService().connect(mUsername, mPassword, note);
+					} else {
+						mBinder.getService().connect(mServer, mUsername, mPassword, note);
+					}
 				}
 			} catch (MalformedURLException e) {
 				Log.w(TAG, e);
+				Toast.makeText(this, R.string.server_address_error, Toast.LENGTH_LONG).show();
 			} catch (IllegalStateException e) {
 				// already connected, ignore
 			}

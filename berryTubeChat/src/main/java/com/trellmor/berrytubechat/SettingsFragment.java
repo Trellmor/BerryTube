@@ -36,6 +36,7 @@ public class SettingsFragment extends PreferenceFragment
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private EditTextPreference mPrefScrollback;
+	private EditTextPreference mPrefServer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class SettingsFragment extends PreferenceFragment
 		EmoteSettings.addEmoteSettings(this);
 
 		mPrefScrollback = (EditTextPreference) findPreference(MainActivity.KEY_SCROLLBACK);
+		mPrefServer = (EditTextPreference) findPreference(MainActivity.KEY_SERVER);
 
 		bindPreferenceSummaryToValue(findPreference(MainActivity.KEY_FLAIR));
 		bindPreferenceSummaryToValue(findPreference(MainActivity.KEY_SQUEE_RINGTONE));
@@ -63,6 +65,7 @@ public class SettingsFragment extends PreferenceFragment
 
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 		onSharedPreferenceChanged(null, MainActivity.KEY_SCROLLBACK);
+		onSharedPreferenceChanged(null, MainActivity.KEY_SERVER);
 	}
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -81,6 +84,12 @@ public class SettingsFragment extends PreferenceFragment
 
 				String scrollbackSummary = getString(R.string.pref_scrollback_summary);
 				mPrefScrollback.setSummary(String.format(scrollbackSummary, scrollback));
+			}
+		} else if (key.equals(MainActivity.KEY_SERVER)) {
+			if (mPrefServer.getText().equals("")) {
+				mPrefServer.setSummary(R.string.prev_server_summary_default);
+			} else {
+				mPrefServer.setSummary(mPrefServer.getText());
 			}
 		}
 	}

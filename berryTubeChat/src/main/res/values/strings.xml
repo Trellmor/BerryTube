@@ -53,6 +53,7 @@
     <string name="toast_no_users">No users found.</string>
     <string name="toast_dance">Continue tapping to dance.</string>
     <string name="login_error">Login error</string>
+    <string name="server_address_error">Invalid server address</string>
     
     <string name="text_about">"BerryTubeChat android client
 Copyright &#169; 2012-2013 Daniel Triendl &lt;trellmor@trellmor.com&gt;
@@ -99,7 +100,9 @@ You should have received a copy of the GNU General Public License along with thi
     <string name="pref_timestamp_title">Display timestamps</string>
     <string name="pref_video_title">Show current video</string>
     <string name="pref_video_summary">The currently playing video will display at the top of the screen</string>
-    
+    <string name="prev_server_title">Server address</string>
+    <string name="prev_server_summary_default">Using default address</string>
+
 	<!-- Notification preferences -->
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_squee_title">New message notifications</string>

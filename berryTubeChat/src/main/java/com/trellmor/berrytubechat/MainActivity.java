@@ -127,6 +127,11 @@ public class MainActivity extends ActionBarActivity {
 	 */
 	public final static String KEY_VIDEO = "com.trellmor.berrytubechat.settings.video";
 
+	/**
+	 * Key for the server address
+	 */
+	public final static String KEY_SERVER = "com.trellmor.berrytubechat.settings.server";
+
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
