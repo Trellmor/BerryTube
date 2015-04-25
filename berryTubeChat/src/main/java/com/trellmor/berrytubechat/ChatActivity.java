@@ -330,6 +330,14 @@ public class ChatActivity extends ActionBarActivity {
 
 	}
 
+	public void dismissNotifications(View view) {
+		mDrawerLayout.closeDrawer(mDrawerNotifications);
+		ContentValues values = new ContentValues();
+		values.put(ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION, false);
+		getContentResolver().update(ChatMessageProvider.CONTENT_URI_MESSAGES, values,
+				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 1", null);
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);

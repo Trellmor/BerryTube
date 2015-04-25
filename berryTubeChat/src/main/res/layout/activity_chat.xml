@@ -139,7 +139,40 @@
 			android:layout_width="304dp"
 			android:layout_height="match_parent"
 			android:layout_gravity="right|end"
+			android:orientation="vertical"
 			android:background="@color/background_chat">
+
+			<RelativeLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="42dp"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentLeft="true"
+					android:text="@string/text_notifications"
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:gravity="center_vertical"
+					android:padding="5dp" />
+
+				<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="42dp"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentRight="true"
+					android:gravity="center_vertical"
+					android:src="@drawable/ic_notification_dismiss"
+					android:clickable="true"
+					android:onClick="dismissNotifications"
+					android:padding="5dp" />
+
+			</RelativeLayout>
+
+			<View
+				android:background="#000"
+				android:layout_width="match_parent"
+				android:layout_height="1dp" />
 
 			<ListView
 				android:id="@+id/list_notifications"
