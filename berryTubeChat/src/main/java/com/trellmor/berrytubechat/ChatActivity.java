@@ -362,12 +362,7 @@ public class ChatActivity extends ActionBarActivity {
 
 			@Override
 			public void onLoginError(String error) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						ChatActivity.this);
-				builder.setTitle(R.string.login_error);
-				builder.setMessage(error);
-				builder.setPositiveButton(android.R.string.ok, null);
-				builder.show();
+				Toast.makeText(ChatActivity.this, getText(R.string.login_error) + error, Toast.LENGTH_LONG).show();;
 			}
 
 			@Override

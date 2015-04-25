@@ -52,7 +52,7 @@
     <string name="toast_video_enabled">Video titles will begin displaying after you reconnect.</string>
     <string name="toast_no_users">No users found.</string>
     <string name="toast_dance">Continue tapping to dance.</string>
-    <string name="login_error">Login error</string>
+    <string name="login_error">Login error: </string>
     <string name="server_address_error">Invalid server address</string>
     
     <string name="text_about">"BerryTubeChat android client
