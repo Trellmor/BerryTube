@@ -176,13 +176,17 @@ public class ChatActivity extends ActionBarActivity {
 		mListChat.setOnItemClickListener(mChatListItemClickListener);
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerLayout.setDrawerListener(mDrawerListener);
-
 		mDrawerNotifications = findViewById(R.id.drawer_notifications);
 
 		mListNotifications = (ListView) findViewById(R.id.list_notifications);
 		mListNotifications.setOnItemLongClickListener(mChatListItemLongClickListener);
 		mListNotifications.setOnItemClickListener(mChatListItemClickListener);
+
+		ChatMessageAdapter chatAdapter = new ChatMessageAdapter(ChatActivity.this);
+		Bundle args = new Bundle();
+		args.putBoolean(ChatMessageLoaderCallbacks.KEY_NOTIFICATIONS, true);
+		getLoaderManager().initLoader(LOADER_NOTIFICATIONS, args, new ChatMessageLoaderCallbacks(ChatActivity.this, chatAdapter));
+		mListNotifications.setAdapter(chatAdapter);
 
 		if (!EmoteUtils.isBerryMotesInstalled(this)) {
 			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
@@ -857,33 +861,6 @@ public class ChatActivity extends ActionBarActivity {
 						null,
 						null);
 			}
-		}
-	};
-
-	private DrawerLayout.DrawerListener mDrawerListener = new DrawerLayout.DrawerListener() {
-		@Override
-		public void onDrawerSlide(View drawerView, float slideOffset) {
-
-		}
-
-		@Override
-		public void onDrawerOpened(View drawerView) {
-			ChatMessageAdapter chatAdapter = new ChatMessageAdapter(ChatActivity.this);
-			Bundle args = new Bundle();
-			args.putBoolean(ChatMessageLoaderCallbacks.KEY_NOTIFICATIONS, true);
-			getLoaderManager().initLoader(LOADER_NOTIFICATIONS, args, new ChatMessageLoaderCallbacks(ChatActivity.this, chatAdapter));
-			mListNotifications.setAdapter(chatAdapter);
-		}
-
-		@Override
-		public void onDrawerClosed(View drawerView) {
-			getLoaderManager().destroyLoader(LOADER_NOTIFICATIONS);
-			mListNotifications.setAdapter(null);
-		}
-
-		@Override
-		public void onDrawerStateChanged(int newState) {
-
 		}
 	};
 }
