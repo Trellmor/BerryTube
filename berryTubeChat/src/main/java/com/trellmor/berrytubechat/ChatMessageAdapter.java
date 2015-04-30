@@ -50,7 +50,7 @@ class ChatMessageAdapter extends CursorAdapter {
 	public ChatMessageAdapter(Context context) {
 		super(context, null, 0);
 
-		mFormatter = new ChatMessageFormatter(this, context);
+		mFormatter = new ChatMessageFormatter(context);
 	}
 
 	@Override

@@ -41,9 +41,9 @@ public class ChatUser implements Cloneable {
 	 */
 	public final static int TYPE_USER = 0;
 	/**
-	 * Moderator
+	 * Assistant
 	 */
-	public final static int TYPE_MOD = 1;
+	public final static int TYPE_ASSISTANT = 1;
 	/**
 	 * Administrator
 	 */

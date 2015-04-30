@@ -162,7 +162,7 @@ public class ChatMessage {
 			Log.w(TAG, "Error parsing timestamp string");
 			this.mTimeStamp = System.currentTimeMillis();
 		}
-		this.mHidden = this.mEmote == EMOTE_SPOILER;
+		this.mHidden = this.mEmote == EMOTE_SPOILER || containsInlineSpoiler();
 	}
 
 	/**
@@ -274,13 +274,18 @@ public class ChatMessage {
 
 	/**
 	 * Get whether or not this message is hidden. This is only applicable if the
-	 * message's emote type is <code>EMOTE_SPOILER</code>.
+	 * message's emote type is <code>EMOTE_SPOILER</code> or if the message
+	 * contains inline spoiler tags.
 	 * 
 	 * @return <b>true</b> if this message is a <code>EMOTE_SPOILER</code> and
 	 *         if its hidden flag is true; <b>false</b> otherwise
 	 */
 	public boolean isHidden() {
-		return mHidden && (mEmote == EMOTE_SPOILER);
+		return mHidden;
+	}
+
+	public boolean containsInlineSpoiler() {
+		return mMsg.contains("<span class=\"spoiler\">");
 	}
 
 	/**

@@ -23,4 +23,10 @@
 	<color name="purple">#ff9a53a4</color>
 	<color name="darkpurple">#ff9a5bac</color>
 	<color name="strawberry">#ffff185a</color>
+	<color name="flaunt_admin">#ff008000</color>
+	<color name="flaunt_assistant">#ff4b0082</color>
+	<color name="flutter">#ffff5499</color>
+	<color name="implying">#ff789922</color>
+	<color name="highlight">#ffff0000</color>
+	<color name="poll">#ff008000</color>
 </resources>
