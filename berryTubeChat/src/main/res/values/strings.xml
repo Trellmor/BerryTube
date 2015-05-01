@@ -55,6 +55,7 @@
     <string name="login_error">Login error: </string>
     <string name="server_address_error">Invalid server address</string>
     <string name="text_notifications">Notifications</string>
+    <string name="request">requests</string>
     
     <string name="text_about">"BerryTubeChat android client
 Copyright &#169; 2012-2013 Daniel Triendl &lt;trellmor@trellmor.com&gt;

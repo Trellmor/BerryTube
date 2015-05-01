@@ -256,7 +256,11 @@ class ChatMessageFormatter {
 		}
 		handleNick(spanBuilder, message);
 		handleFlair(spanBuilder, message);
-		spanBuilder.append(": ");
+		if (message.getEmote() == ChatMessage.EMOTE_REQUEST) {
+			spanBuilder.append(' ').append(mContext.getText(R.string.request)).append(' ');
+		} else {
+			spanBuilder.append(": ");
+		}
 
 		// Spoilers
 		if (message.getEmote() == ChatMessage.EMOTE_SPOILER) {
