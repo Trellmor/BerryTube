@@ -97,7 +97,6 @@ public class ChatActivity extends ActionBarActivity {
 	private TextView mTextDrinks;
 	private TextView mCurrentVideo;
 	private DrawerLayout mDrawerLayout;
-	private ListView mListNotifications;
 	private MenuItem mMenuPoll;
 	private View mDrawerNotifications;
 	private NotificationCompat.Builder mNotification = null;
@@ -178,15 +177,15 @@ public class ChatActivity extends ActionBarActivity {
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerNotifications = findViewById(R.id.drawer_notifications);
 
-		mListNotifications = (ListView) findViewById(R.id.list_notifications);
-		mListNotifications.setOnItemLongClickListener(mChatListItemLongClickListener);
-		mListNotifications.setOnItemClickListener(mChatListItemClickListener);
+		ListView listNotifications = (ListView) findViewById(R.id.list_notifications);
+		listNotifications.setOnItemLongClickListener(mChatListItemLongClickListener);
+		listNotifications.setOnItemClickListener(mChatListItemClickListener);
 
 		ChatMessageAdapter chatAdapter = new ChatMessageAdapter(ChatActivity.this);
 		Bundle args = new Bundle();
 		args.putBoolean(ChatMessageLoaderCallbacks.KEY_NOTIFICATIONS, true);
 		getLoaderManager().initLoader(LOADER_NOTIFICATIONS, args, new ChatMessageLoaderCallbacks(ChatActivity.this, chatAdapter));
-		mListNotifications.setAdapter(chatAdapter);
+		listNotifications.setAdapter(chatAdapter);
 
 		if (!EmoteUtils.isBerryMotesInstalled(this)) {
 			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
@@ -375,7 +374,7 @@ public class ChatActivity extends ActionBarActivity {
 
 			@Override
 			public void onLoginError(String error) {
-				Toast.makeText(ChatActivity.this, getText(R.string.login_error) + error, Toast.LENGTH_LONG).show();;
+				Toast.makeText(ChatActivity.this, getText(R.string.login_error) + error, Toast.LENGTH_LONG).show();
 			}
 
 			@Override
