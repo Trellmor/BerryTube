@@ -31,6 +31,8 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -67,6 +69,7 @@ public class BerryTube extends Service {
 	private NotificationCompat.Builder mMessageNotification = null;
 	private final ArrayList<String> mMessageNotificationText = new ArrayList<>(5);
 	private int mMessageNotificationCount = 0;
+	private AsyncQueryHandler mQueryHandler;
 
 	private static final int KEY_NOTIFICATION_SERVICE = 1000;
 	private static final int KEY_NOTIFICATION_MESSAGE = 2000;
@@ -75,8 +78,9 @@ public class BerryTube extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		mNotificationManager = (NotificationManager) getApplicationContext()
-				.getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+		mQueryHandler = new BerryTubeQueryHandler(getContentResolver());
 	}
 
 	@Override
@@ -260,7 +264,7 @@ public class BerryTube extends Service {
 	 */
 	public void setChatMsgBufferSize(int chatMsgBufferSize) {
 		//Remove stuff from DB
-		getApplicationContext().getContentResolver().delete(ChatMessageProvider.CONTENT_URI_MESSAGES,
+		mQueryHandler.startDelete(0, null, ChatMessageProvider.CONTENT_URI_MESSAGES,
 				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 0 AND " +
 				ChatMessageProvider.MessageColumns._ID + " <= (" +
 				"	SELECT " + ChatMessageProvider.MessageColumns._ID +
@@ -274,7 +278,7 @@ public class BerryTube extends Service {
 				")", null);
 
 
-		getApplicationContext().getContentResolver().delete(ChatMessageProvider.CONTENT_URI_MESSAGES,
+		mQueryHandler.startDelete(0, null, ChatMessageProvider.CONTENT_URI_MESSAGES,
 				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 1 AND " +
 				ChatMessageProvider.MessageColumns._ID + " <= (" +
 				"	SELECT " + ChatMessageProvider.MessageColumns._ID +
@@ -352,6 +356,16 @@ public class BerryTube extends Service {
 		}
 	}
 
+	/**
+	 * Clear notification messages
+	 */
+	public void clearNotifications() {
+		ContentValues values = new ContentValues();
+		values.put(ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION, false);
+		mQueryHandler.startUpdate(0, null, ChatMessageProvider.CONTENT_URI_MESSAGES, values,
+				ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION + " = 1", null);
+	}
+
 	class ConnectTask implements Runnable {
 		public void run() {
 			if (mSocket == null)
@@ -417,7 +431,7 @@ public class BerryTube extends Service {
 			values.put(ChatMessageProvider.MessageColumns.COLUMN_TYPE, mChatMsg.getType());
 			values.put(ChatMessageProvider.MessageColumns.COLUMN_NOTIFICATION, isNotification);
 			values.put(ChatMessageProvider.MessageColumns.COLUMN_HIDDEN, mChatMsg.isHidden());
-			getApplicationContext().getContentResolver().insert(ChatMessageProvider.CONTENT_URI_MESSAGES, values);
+			mQueryHandler.startInsert(0, null, ChatMessageProvider.CONTENT_URI_MESSAGES, values);
 
 			if (mCallback.get() == null && mMessageNotification != null) {
 				if (isNotification) {
@@ -605,6 +619,12 @@ public class BerryTube extends Service {
 			if (mCallback.get() != null) {
 				mCallback.get().onVideoUpdate(mName, mId, mType);
 			}
+		}
+	}
+
+	static class BerryTubeQueryHandler extends AsyncQueryHandler {
+		public BerryTubeQueryHandler(ContentResolver contentResolver) {
+			super(contentResolver);
 		}
 	}
 }
