@@ -154,9 +154,12 @@ class ChatMessageFormatter {
 		if (message.getEmote() != ChatMessage.EMOTE_POLL) {
 			spanBuilder.append(createTimestamp(message.getTimestamp()));
 		}
+		int endTime = spanBuilder.length();
 		handleNick(spanBuilder, message);
+		spanBuilder.append(": ");
 		handleMessage(spanBuilder, message);
 		spanBuilder.append(' ').append(mContext.getString(R.string.chat_drink));
+		spanBuilder.setSpan(new RelativeSizeSpan(1.2f), endTime, spanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		textMessage.setText(spanBuilder);
 
@@ -254,17 +257,23 @@ class ChatMessageFormatter {
 		if (message.getEmote() != ChatMessage.EMOTE_POLL) {
 			spanBuilder.append(createTimestamp(message.getTimestamp()));
 		}
+		int endTime = spanBuilder.length();
 		handleNick(spanBuilder, message);
 		handleFlair(spanBuilder, message);
-		if (message.getEmote() == ChatMessage.EMOTE_REQUEST) {
-			spanBuilder.append(' ').append(mContext.getText(R.string.request)).append(' ');
-		} else {
-			spanBuilder.append(": ");
-		}
 
-		// Spoilers
-		if (message.getEmote() == ChatMessage.EMOTE_SPOILER) {
-			spanBuilder.append("SPOILER: ");
+		switch (message.getEmote()) {
+			case ChatMessage.EMOTE_REQUEST:
+				spanBuilder.append(' ').append(mContext.getText(R.string.request)).append(' ');
+				break;
+			case ChatMessage.EMOTE_SPOILER:
+				spanBuilder.append(": SPOILER: ");
+				break;
+			case ChatMessage.EMOTE_ACT:
+				spanBuilder.append(" ");
+				break;
+			default:
+				spanBuilder.append(": ");
+				break;
 		}
 
 		int start = spanBuilder.length();
@@ -278,23 +287,23 @@ class ChatMessageFormatter {
 				spanBuilder.setSpan(new TypefaceSpan("courier new"), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			case ChatMessage.EMOTE_ACT:
-				spanBuilder.setSpan(new ForegroundColorSpan(Color.DKGRAY), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spanBuilder.setSpan(new StyleSpan(Typeface.ITALIC), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new ForegroundColorSpan(Color.GRAY), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new StyleSpan(Typeface.ITALIC), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			case ChatMessage.EMOTE_REQUEST:
 				spanBuilder.setSpan(new ForegroundColorSpan(Color.BLUE), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spanBuilder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			case ChatMessage.EMOTE_RCV:
 				spanBuilder.setSpan(new ForegroundColorSpan(Color.RED), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			case ChatMessage.EMOTE_POLL:
 				c = mContext.getResources().getColor(R.color.poll);
 				spanBuilder.setSpan(new ForegroundColorSpan(c), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				spanBuilder.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				spanBuilder.setSpan(new StyleSpan(Typeface.BOLD), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			default:
 				// implying

@@ -30,9 +30,10 @@
         android:layout_toLeftOf="@+id/text_chat_drink_multiple"
         android:paddingBottom="2dp"
         android:paddingTop="2dp"
+        android:paddingLeft="4dp"
         android:autoLink="web"
         android:singleLine="false"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#c600ad"
         android:textStyle="bold" />
 
@@ -59,6 +60,7 @@
         android:scaleType="center"
         android:layout_width="20dp"
         android:layout_height="0dp"
+        android:paddingRight="2dp"
         android:src="@drawable/ic_drink"
         android:contentDescription="@string/drink" />
 
