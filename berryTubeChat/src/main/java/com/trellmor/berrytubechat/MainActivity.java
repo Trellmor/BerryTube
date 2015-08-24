@@ -29,6 +29,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -267,6 +268,9 @@ public class MainActivity extends ActionBarActivity {
 				Toast.makeText(this, R.string.toast_dance, Toast.LENGTH_SHORT).show();
 			} else if (mClickCount == 7) {
 				mImageLuna.setVisibility(View.VISIBLE);
+				mImageLuna.setBackgroundResource(R.drawable.luna_dancing);
+				AnimationDrawable ad = (AnimationDrawable) mImageLuna.getBackground();
+				ad.start();
 			}
 
 			mTimerHandler.postDelayed(mTimerRunnable, 500);
