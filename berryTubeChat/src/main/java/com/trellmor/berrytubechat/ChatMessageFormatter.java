@@ -79,6 +79,7 @@ class ChatMessageFormatter {
 	private Html.ImageGetter mEmoteGetter = null;
 	private final Drawable[] mFlairs = new Drawable[6];
 	private String mNick = null;
+	SimpleDateFormat mDateFormat = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
 
 	public ChatMessageFormatter(Context context) {
 		mContext = context;
@@ -186,8 +187,7 @@ class ChatMessageFormatter {
 		String result = "";
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false) && timeStamp > 0) {
-			SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
-			result = sdf.format(new Date(timeStamp));
+			result = mDateFormat.format(new Date(timeStamp));
 		}
 
 		return result;
