@@ -38,8 +38,7 @@
 	<android.support.v4.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_below="@id/toolbar">
+		android:layout_height="match_parent">
 
 		<RelativeLayout
 			android:layout_width="match_parent"
@@ -96,10 +95,11 @@
 				<TextView
 					android:id="@+id/text_nick"
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
+					android:layout_height="48dp"
 					android:layout_alignTop="@+id/edit_chat_msg"
 					android:layout_alignBottom="@+id/image_emote"
 					android:layout_alignParentLeft="true"
+					android:layout_alignParentStart="true"
 					android:layout_marginLeft="3dp"
 					android:layout_marginRight="3dp"
 					android:gravity="center_vertical" />
@@ -110,7 +110,9 @@
 					android:layout_height="wrap_content"
 					android:layout_alignBottom="@+id/image_emote"
 					android:layout_toRightOf="@id/text_nick"
+					android:layout_toEndOf="@id/text_nick"
 					android:layout_toLeftOf="@+id/image_emote"
+					android:layout_toStartOf="@+id/image_emote"
 					android:hint="@string/edit_chat_msg"
 					android:singleLine="true"
 					android:inputType="textAutoCorrect|textCapSentences"
@@ -122,11 +124,13 @@
 					android:layout_width="48dp"
 					android:layout_height="48dp"
 					android:layout_alignParentRight="true"
+					android:layout_alignParentEnd="true"
 					android:layout_marginLeft="3dp"
 					android:layout_marginRight="3dp"
 					android:layout_marginBottom="3dp"
 					android:tint="@color/strawberry"
 					android:src="@drawable/ic_emote"
+					android:scaleType="center"
 					android:clickable="true"
 					android:onClick="emoteClick" />
 
@@ -138,19 +142,24 @@
 			android:id="@+id/drawer_notifications"
 			android:layout_width="304dp"
 			android:layout_height="match_parent"
-			android:layout_gravity="right|end"
+			android:layout_gravity="end"
 			android:orientation="vertical"
 			android:background="@color/background_chat">
 
 			<RelativeLayout
 				android:layout_width="fill_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:paddingStart="24dp"
+				android:paddingLeft="24dp"
+				android:paddingEnd="24dp"
+				android:paddingRight="24dp">
 
 				<TextView
 					android:layout_width="wrap_content"
-					android:layout_height="42dp"
+					android:layout_height="48dp"
 					android:layout_alignParentTop="true"
 					android:layout_alignParentLeft="true"
+					android:layout_alignParentStart="true"
 					android:text="@string/text_notifications"
 					android:textAppearance="?android:attr/textAppearanceLarge"
 					android:gravity="center_vertical"
@@ -158,9 +167,10 @@
 
 				<ImageView
 					android:layout_width="wrap_content"
-					android:layout_height="42dp"
+					android:layout_height="48dp"
 					android:layout_alignParentTop="true"
 					android:layout_alignParentRight="true"
+					android:layout_alignParentEnd="true"
 					android:gravity="center_vertical"
 					android:src="@drawable/ic_notification_dismiss"
 					android:clickable="true"
