@@ -74,11 +74,11 @@ public class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		mAdapter.swapCursor(data);
+		mAdapter.changeCursor(data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.swapCursor(null);
+		mAdapter.changeCursor(null);
 	}
 }

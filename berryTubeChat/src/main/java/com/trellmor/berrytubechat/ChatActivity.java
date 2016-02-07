@@ -20,7 +20,6 @@ package com.trellmor.berrytubechat;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -36,7 +35,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -76,14 +75,11 @@ import java.util.Locale;
  * 
  * @author Daniel
  */
-public class ChatActivity extends ActionBarActivity {
+public class ChatActivity extends AppCompatActivity {
 	private static final String TAG = ChatActivity.class.getName();
 
 	private static final String KEY_DRINKCOUT = "drinkCount";
 	private static final String KEY_MYDRINKCOUNT = "myDrinkCount";
-
-	private static final String ACTION_GET_CODE = "com.trellmor.berrymotes.gallery.intent.action.GET_CODE";
-	private static final String EXTRA_CODE = "com.trellmor.berrymotes.gallery.intent.extra.CODE";
 
 	private static final int REQUEST_CODE = 1;
 
@@ -187,7 +183,7 @@ public class ChatActivity extends ActionBarActivity {
 		getLoaderManager().initLoader(LOADER_NOTIFICATIONS, args, new ChatMessageLoaderCallbacks(ChatActivity.this, chatAdapter));
 		listNotifications.setAdapter(chatAdapter);
 
-		if (!EmoteUtils.isBerryMotesInstalled(this)) {
+		if (!EmoteUtils.isBerryMotesInstalled(this, EmoteUtils.BERRYMOTES_VERSION_2_0_0)) {
 			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
 			imageEmote.setVisibility(View.GONE);
 		}
@@ -356,7 +352,7 @@ public class ChatActivity extends ActionBarActivity {
 
 		switch (requestCode) {
 			case REQUEST_CODE:
-				String code = data.getStringExtra(EXTRA_CODE);
+				String code = data.getStringExtra(EmoteUtils.EXTRA_CODE);
 				int start = Math.max(mEditChatMsg.getSelectionStart(), 0);
 				int end = Math.max(mEditChatMsg.getSelectionEnd(), 0);
 				mEditChatMsg.getText().replace(Math.min(start, end), Math.max(start, end), code, 0, code.length());
@@ -817,15 +813,9 @@ public class ChatActivity extends ActionBarActivity {
 	}
 
 	public void emoteClick(View view) {
-		try {
-			Intent intent = new Intent();
-			intent.setAction(ACTION_GET_CODE);
-			startActivityForResult(intent, REQUEST_CODE);
-		} catch (ActivityNotFoundException e) {
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(Uri.parse("market://details?id=com.trellmor.berrymotes.gallery"));
-			startActivity(intent);
-		}
+		Intent intent = new Intent();
+		intent.setAction(EmoteUtils.ACTION_GET_CODE);
+		startActivityForResult(intent, REQUEST_CODE);
 	}
 
 	private OnItemLongClickListener mChatListItemLongClickListener =  new OnItemLongClickListener() {
