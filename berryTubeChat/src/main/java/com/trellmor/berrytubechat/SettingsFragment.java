@@ -17,7 +17,10 @@
  */
 package com.trellmor.berrytubechat;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -28,15 +31,23 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.trellmor.berrymotes.EmoteSettings;
+import com.trellmor.berrymotes.EmoteUtils;
+
+import java.util.Set;
 
 public class SettingsFragment extends PreferenceFragment
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private EditTextPreference mPrefScrollback;
 	private EditTextPreference mPrefServer;
+	private Preference mPrefEmotesEnabled;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +55,9 @@ public class SettingsFragment extends PreferenceFragment
 		addPreferencesFromResource(R.xml.preferences);
 		addPreferencesFromResource(R.xml.pref_notification);
 		EmoteSettings.addEmoteSettings(this);
+
+		mPrefEmotesEnabled = findPreference(EmoteSettings.KEY_BERRYMOTES_ENABLED);
+		mPrefEmotesEnabled.setOnPreferenceChangeListener(sEmoteEnabledChangeListener);
 
 		mPrefScrollback = (EditTextPreference) findPreference(MainActivity.KEY_SCROLLBACK);
 		mPrefServer = (EditTextPreference) findPreference(MainActivity.KEY_SERVER);
@@ -66,6 +80,32 @@ public class SettingsFragment extends PreferenceFragment
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 		onSharedPreferenceChanged(null, MainActivity.KEY_SCROLLBACK);
 		onSharedPreferenceChanged(null, MainActivity.KEY_SERVER);
+
+
+		if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+			//We already asked at app start to enable storage permission, so shouldShowRequestPermissionRationale returns only false,
+			//if never again was selected
+			if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				mPrefEmotesEnabled.setEnabled(false);
+				mPrefEmotesEnabled.setSummary(R.string.pref_description_berrymotes_permission_storage);
+			}
+		}
+	}
+
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		switch (requestCode) {
+			case SettingsActivity.PERMISSION_REQUEST_EXTERNAL_STORAGE:
+				if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					//Disable berrymotes
+					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+					settings.edit().putBoolean(EmoteSettings.KEY_BERRYMOTES_ENABLED, false).apply();
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						mPrefEmotesEnabled.setEnabled(false);
+						mPrefEmotesEnabled.setSummary(R.string.pref_description_berrymotes_permission_storage);
+					}
+				}
+				break;
+		}
 	}
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -167,4 +207,41 @@ public class SettingsFragment extends PreferenceFragment
 						preference.getContext()).getString(preference.getKey(),
 						""));
 	}
+
+	private final Preference.OnPreferenceChangeListener sEmoteEnabledChangeListener = new Preference.OnPreferenceChangeListener() {
+
+		@Override
+		public boolean onPreferenceChange(final Preference preference, Object newValue) {
+			boolean canChange = EmoteSettings.sEnabledChangeListener.onPreferenceChange(preference, newValue);
+
+			if (canChange && Boolean.TRUE.equals(newValue)) {
+				if (ActivityCompat.checkSelfPermission(preference.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						View view = SettingsFragment.this.getView();
+						if (view != null) {
+							Snackbar.make(view, R.string.external_storage_permission_rationale, Snackbar.LENGTH_INDEFINITE)
+									.setAction(android.R.string.ok, new View.OnClickListener() {
+										@Override
+										public void onClick(View view) {
+											requestStoragePermission();
+										}
+									}).show();
+						}
+
+						canChange = false;
+					} else {
+						requestStoragePermission();
+					}
+				}
+			}
+
+			return canChange;
+		}
+
+		private void requestStoragePermission() {
+			ActivityCompat.requestPermissions(getActivity(),
+					new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					SettingsActivity.PERMISSION_REQUEST_EXTERNAL_STORAGE);
+		}
+	};
 }

@@ -19,6 +19,7 @@ package com.trellmor.berrytubechat;
 
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -29,6 +30,9 @@ import android.view.MenuItem;
  * @author Daniel Triendl
  */
 public class SettingsActivity extends AppCompatActivity {
+	public static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
+
+	private SettingsFragment mSettingsFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,8 @@ public class SettingsActivity extends AppCompatActivity {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-		fragmentTransaction.replace(R.id.frame_general, new SettingsFragment());
+		mSettingsFragment = new SettingsFragment();
+		fragmentTransaction.replace(R.id.frame_general, mSettingsFragment);
 		fragmentTransaction.commit();
 	}
 
@@ -53,5 +58,10 @@ public class SettingsActivity extends AppCompatActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		mSettingsFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 }

@@ -61,7 +61,8 @@
     <string name="server_address_error">Invalid server address</string>
     <string name="text_notifications">Notifications</string>
     <string name="request">requests</string>
-    
+    <string name="external_storage_permission_rationale">Storage access is needed to add squee notification sound and to display emotes.</string>
+
     <string name="text_about">"BerryTubeChat android client
 Copyright &#169; 2012-2013 Daniel Triendl &lt;trellmor@trellmor.com&gt;
 
@@ -117,5 +118,6 @@ You should have received a copy of the GNU General Public License along with thi
     <string name="pref_squee_vibrate_title">Vibrate</string>
     <string name="pref_squee_ringtone_title">Ringtone</string>
     <string name="pref_squee_ringtone_silent">Silent</string>
+    <string name="pref_description_berrymotes_permission_storage">Storage access required</string>
 
 </resources>
