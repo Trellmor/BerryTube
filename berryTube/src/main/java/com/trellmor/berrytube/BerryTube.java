@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +36,10 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -51,9 +55,9 @@ import android.util.Log;
  * @author Daniel Triendl
  * @see android.app.Service
  */
-public class BerryTube extends Service {
+public class BerryTube extends Service implements Loader.OnLoadCompleteListener<Cursor> {
 	private static final String TAG = BerryTube.class.getName();
-	
+
 	private SocketIO mSocket = null;
 	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<>(null);
 
@@ -62,6 +66,8 @@ public class BerryTube extends Service {
 	private String mNick = null;
 	private Poll mPoll = null;
 	private final ArrayList<ChatUser> mUsers = new ArrayList<>();
+	private final ArrayList<String> mIgnoredUsers = new ArrayList<>();
+	private CursorLoader mIgnoredUsersLoader;
 	private int mDrinkCount = 0;
 	private final Handler mHandler = new Handler();
 	private NotificationManager mNotificationManager;
@@ -74,6 +80,8 @@ public class BerryTube extends Service {
 	private static final int KEY_NOTIFICATION_SERVICE = 1000;
 	private static final int KEY_NOTIFICATION_MESSAGE = 2000;
 
+	private static final int LOADER_IGNOREDUSERS = 1000;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -81,6 +89,13 @@ public class BerryTube extends Service {
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 		mQueryHandler = new BerryTubeQueryHandler(getContentResolver());
+
+		mIgnoredUsersLoader = new CursorLoader(this,
+				UserProvider.CONTENT_URI_IGNOREDUSER,
+				new String[] {UserProvider.IgnoredUserColumns.COLUMN_NAME},
+				null, null, null);
+		mIgnoredUsersLoader.registerListener(LOADER_IGNOREDUSERS, this);
+		mIgnoredUsersLoader.startLoading();
 	}
 
 	@Override
@@ -90,8 +105,14 @@ public class BerryTube extends Service {
 
 		mSocket = null;
 
+		if (mIgnoredUsersLoader != null) {
+			mIgnoredUsersLoader.unregisterListener(this);
+			mIgnoredUsersLoader.cancelLoad();
+			mIgnoredUsersLoader.stopLoading();
+		}
+
 		stopForeground(true);
-		
+
 		super.onDestroy();
 	}
 
@@ -346,6 +367,22 @@ public class BerryTube extends Service {
 		return false;
 	}
 
+	@Override
+	public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
+		mIgnoredUsers.clear();
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+
+			final int POS_NAME = cursor.getColumnIndexOrThrow(UserProvider.IgnoredUserColumns.COLUMN_NAME);
+
+			do {
+				mIgnoredUsers.add(cursor.getString(POS_NAME));
+			} while (cursor.moveToNext());
+		}
+
+		Collections.sort(mIgnoredUsers);
+	}
+
 	Handler getHandler() {
 		return mHandler;
 	}
@@ -415,6 +452,10 @@ public class BerryTube extends Service {
 		}
 
 		public void run() {
+			if (Collections.binarySearch(mIgnoredUsers, mChatMsg.getNick()) >= 0) {
+				return;
+			}
+
 			final boolean isNotification = mNick != null && mNick.length() > 0 &&
 					mChatMsg.isHighlightable() &&
 					!mChatMsg.getNick().equals(mNick) &&
@@ -589,7 +630,7 @@ public class BerryTube extends Service {
 			}
 
 			if (mCallback.get() != null) {
-				mCallback.get().onUpatePoll(mPoll);
+				mCallback.get().onUpdatePoll(mPoll);
 			}
 		}
 	}

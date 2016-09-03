@@ -8,7 +8,12 @@
 
 		<provider
 			android:name="com.trellmor.berrytube.ChatMessageProvider"
-			android:authorities="com.trellmor.berrytube"
+			android:authorities="com.trellmor.berrytube.chatmessage"
+			android:exported="false" />
+
+		<provider
+			android:name="com.trellmor.berrytube.UserProvider"
+			android:authorities="com.trellmor.berrytube.user"
 			android:exported="false" />
     </application>
 

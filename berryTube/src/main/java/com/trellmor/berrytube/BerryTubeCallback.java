@@ -69,7 +69,7 @@ public interface BerryTubeCallback {
 	 * 
 	 * @param poll Poll object
 	 */
-	void onUpatePoll(Poll poll);
+	void onUpdatePoll(Poll poll);
 
 	/**
 	 * The poll has been closed

@@ -60,6 +60,14 @@
 		android:summary="@string/pref_video_summary"
 		android:defaultValue="false" />
 
+	<Preference
+		android:key="ignored_users"
+		android:title="@string/pref_title_ignored_users">
+		<intent
+			android:action="com.trellmor.berrytubechat.IgnoredUsers"
+			android:targetPackage="com.trellmor.berrytubechat"/>
+	</Preference>
+
 	<EditTextPreference
 		android:key="com.trellmor.berrytubechat.settings.server"
 		android:title="@string/prev_server_title"

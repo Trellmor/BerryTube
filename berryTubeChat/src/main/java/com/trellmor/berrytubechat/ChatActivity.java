@@ -63,6 +63,7 @@ import com.trellmor.berrytube.ChatMessage;
 import com.trellmor.berrytube.ChatMessageProvider;
 import com.trellmor.berrytube.ChatUser;
 import com.trellmor.berrytube.Poll;
+import com.trellmor.berrytube.UserProvider;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -275,6 +276,9 @@ public class ChatActivity extends AppCompatActivity {
 		case R.id.menu_users:
 			selectUser(null);
 			return true;
+		case R.id.menu_ignore_user:
+			ignoreUser();
+			return true;
 		case R.id.menu_logout:
 			mLogout = true;
 
@@ -388,7 +392,7 @@ public class ChatActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onUpatePoll(Poll poll) {
+			public void onUpdatePoll(Poll poll) {
 				// TODO Auto-generated method stub
 
 			}
@@ -593,11 +597,40 @@ public class ChatActivity extends AppCompatActivity {
 			mCurrentVideo.setVisibility(visibility);
 	}
 
-	private void selectUser(String filter) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.select_user);
+	private void ignoreUser() {
 
-		ArrayList<ChatUser> userList = new ArrayList<>();
+		final ArrayList<String> userNicks = getUserList(null);
+
+		if (userNicks.size() > 0) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.select_ignore_user);
+
+			builder.setItems(userNicks.toArray(new String[userNicks.size()]),
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String nick = userNicks.get(which);
+							ContentValues values = new ContentValues();
+							values.put(UserProvider.IgnoredUserColumns.COLUMN_NAME, nick);
+
+							getContentResolver().insert(UserProvider.CONTENT_URI_IGNOREDUSER, values);
+							dialog.dismiss();
+
+							Toast.makeText(ChatActivity.this,
+									String.format(getString(R.string.toast_ignoring_user), nick),
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+
+			AlertDialog alert = builder.create();
+			alert.show();
+		} else {
+			Toast.makeText(this, R.string.toast_no_users, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private ArrayList<String> getUserList(String filter) {ArrayList<ChatUser> userList = new ArrayList<>();
 		for (ChatUser chatUser : mBinder.getService().getUsers()) {
 			try {
 				userList.add(chatUser.clone());
@@ -631,7 +664,16 @@ public class ChatActivity extends AppCompatActivity {
 			}
 		}
 
+		return userNicks;
+	}
+
+	private void selectUser(String filter) {
+		final ArrayList<String> userNicks = getUserList(filter);
+
 		if (userNicks.size() > 1 || filter == null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.select_user);
+
 			builder.setItems(userNicks.toArray(new String[userNicks.size()]),
 					new DialogInterface.OnClickListener() {
 
@@ -648,9 +690,7 @@ public class ChatActivity extends AppCompatActivity {
 		} else if (userNicks.size() == 1) {
 			replaceNick(userNicks.get(0));
 		} else {
-			Toast toast = Toast.makeText(this, R.string.toast_no_users,
-					Toast.LENGTH_SHORT);
-			toast.show();
+			Toast.makeText(this, R.string.toast_no_users, Toast.LENGTH_SHORT).show();
 		}
 	}
 

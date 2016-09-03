@@ -18,7 +18,6 @@
 
 package com.trellmor.berrytube;
 
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -29,14 +28,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 
 public class ChatMessageProvider extends ContentProvider {
 	private MessageDatabase mDatabase;
 
 	public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "vnd.berrytube.chatmessages";
 	public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "vnd.berrytube.chatmessage";
-	public static final String CONTENT_AUTHORITY = "com.trellmor.berrytube";
+	public static final String CONTENT_AUTHORITY = "com.trellmor.berrytube.chatmessage";
 	public static final String PATH_MESSAGES = "messages";
 	private static final Uri CONTENT_URI_BASE = Uri.parse("content://" + CONTENT_AUTHORITY);
 	public static final Uri CONTENT_URI_MESSAGES = CONTENT_URI_BASE.buildUpon().appendPath(PATH_MESSAGES).build();

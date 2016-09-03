@@ -39,36 +39,43 @@
 	<item
 		android:id="@+id/menu_autocomplete_nick"
 		android:title="@string/menu_autocomplete_nick"
+		app:showAsAction="never"
 		android:orderInCategory="100" />
 
-    <item 
+	<item
 		android:id="@+id/menu_users"
 		android:title="@string/menu_users"
 		android:orderInCategory="400"
 		app:showAsAction="never" />
 
 	<item
+		android:id="@+id/menu_ignore_user"
+		android:title="@string/menu_ignore_user"
+		android:orderInCategory="500"
+		app:showAsAction="never" />
+
+	<item
 		android:id="@+id/menu_settings"
 		android:title="@string/menu_settings"
-		android:orderInCategory="500"
+		android:orderInCategory="600"
 		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/menu_about"
 		android:title="@string/menu_about"
-		android:orderInCategory="600"
+		android:orderInCategory="700"
 		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/menu_donate"
 		android:title="@string/menu_donate"
-		android:orderInCategory="700"
+		android:orderInCategory="800"
 		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/menu_logout"
 		android:title="@string/menu_logout"
-		android:orderInCategory="800"
+		android:orderInCategory="900"
 		app:showAsAction="never" />
 
 </menu>
