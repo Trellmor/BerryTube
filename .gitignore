@@ -13,6 +13,7 @@
 # Local configuration files (sdk path, etc)
 /local.properties
 .gradle
+*.iml
 /.idea/workspace.xml
 /.idea/libraries
 /.idea/dictionaries
