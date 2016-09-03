@@ -202,9 +202,18 @@ public class ChatActivity extends AppCompatActivity {
 				mPassword = savedInstanceState.getString(MainActivity.KEY_PASSWORD);
 		}
 
+		handleSharedText(intent.getStringExtra(MainActivity.KEY_SHARED_TEXT));
+
 		startService(new Intent(this, BerryTube.class));
 		bindService(new Intent(this, BerryTube.class), mService,
 				BIND_ABOVE_CLIENT);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+
+		handleSharedText(intent.getStringExtra(MainActivity.KEY_SHARED_TEXT));
 	}
 
 	@Override
@@ -856,6 +865,16 @@ public class ChatActivity extends AppCompatActivity {
 		Intent intent = new Intent();
 		intent.setAction(EmoteUtils.ACTION_GET_CODE);
 		startActivityForResult(intent, REQUEST_CODE);
+	}
+
+	private void handleSharedText(String text) {
+		if (text == null)
+			return;
+
+		if (mEditChatMsg.getText().length() > 0) {
+			mEditChatMsg.append(" ");
+		}
+		mEditChatMsg.append(text);
 	}
 
 	private OnItemLongClickListener mChatListItemLongClickListener =  new OnItemLongClickListener() {

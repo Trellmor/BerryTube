@@ -39,6 +39,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.trellmor.berrytube.BerryTube;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 	};
 	private int mClickCount = 0;
+	private String mSharedText = null;
 
 	/**
 	 * Key for login settings
@@ -80,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
 	 * Key for login password settings
 	 */
 	public final static String KEY_PASSWORD = "com.trellmor.berrytubechat.login.password";
+	/**
+	 * Key for login password settings
+	 */
+	public final static String KEY_SHARED_TEXT = "com.trellmor.berrytubechat.shared_text";
 	/**
 	 * Key for login remember username and password setting
 	 */
@@ -152,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 				Context.MODE_PRIVATE);
 		String user = settings.getString(KEY_USERNAME, "");
 		String password = settings.getString(KEY_PASSWORD, "");
-		String key = settings.getString(KEY_CRYPTO_KEY, "");
+		String key = settings.getString(KEY_CRYPTO_KEY, null);
 
 		boolean remember = settings.getBoolean(KEY_REMEMBER, false);
 
@@ -184,6 +191,20 @@ public class MainActivity extends AppCompatActivity {
 		mCheckRemember.setChecked(remember);
 
 		checkNotificationSound();
+
+		Intent intent = getIntent();
+		String action = intent.getAction();
+		String type = intent.getType();
+		if (Intent.ACTION_SEND.equals(action) && type != null) {
+			if ("text/plain".equals(type)) {
+				mSharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+			}
+		}
+
+		if (BerryTube.isServiceRunning(this)) {
+			openChat();
+			finish();
+		}
 	}
 
 	@Override
@@ -255,6 +276,16 @@ public class MainActivity extends AppCompatActivity {
 		Intent chat = new Intent(this, ChatActivity.class);
 		chat.putExtra(KEY_USERNAME, username);
 		chat.putExtra(KEY_PASSWORD, password);
+		if (mSharedText != null)
+			chat.putExtra(KEY_SHARED_TEXT, mSharedText);
+
+		startActivity(chat);
+	}
+
+	private void openChat() {
+		Intent chat = new Intent(this, ChatActivity.class);
+		if (mSharedText != null)
+			chat.putExtra(KEY_SHARED_TEXT, mSharedText);
 
 		startActivity(chat);
 	}
