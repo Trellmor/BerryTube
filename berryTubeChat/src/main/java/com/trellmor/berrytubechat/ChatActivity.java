@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -135,10 +136,10 @@ public class ChatActivity extends AppCompatActivity {
 
 		setContentView(R.layout.activity_chat);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		mEditChatMsg = (EditText) findViewById(R.id.edit_chat_msg);
+		mEditChatMsg = findViewById(R.id.edit_chat_msg);
 		TextView.OnEditorActionListener chatMsgListener = new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
@@ -155,26 +156,26 @@ public class ChatActivity extends AppCompatActivity {
 		};
 		mEditChatMsg.setOnEditorActionListener(chatMsgListener);
 
-		mTextDrinks = (TextView) findViewById(R.id.text_drinks);
+		mTextDrinks = findViewById(R.id.text_drinks);
 		registerForContextMenu(mTextDrinks);
 
-		mCurrentVideo = (TextView) findViewById(R.id.text_video);
+		mCurrentVideo = findViewById(R.id.text_video);
 		mCurrentVideo.setMovementMethod(LinkMovementMethod.getInstance());
 
-		mTextNick = (TextView) findViewById(R.id.text_nick);
+		mTextNick = findViewById(R.id.text_nick);
 		mTextNick.setText("Anonymous");
 
-		mListChat = (ListView) findViewById(R.id.list_chat);
+		mListChat = findViewById(R.id.list_chat);
 		mChatAdapter = new ChatMessageAdapter(this);
 		getLoaderManager().initLoader(LOADER_CHAT, null, new ChatMessageLoaderCallbacks(this, mChatAdapter));
 		mListChat.setAdapter(mChatAdapter);
 		mListChat.setOnItemLongClickListener(mChatListItemLongClickListener);
 		mListChat.setOnItemClickListener(mChatListItemClickListener);
 
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerLayout = findViewById(R.id.drawer_layout);
 		mDrawerNotifications = findViewById(R.id.drawer_notifications);
 
-		ListView listNotifications = (ListView) findViewById(R.id.list_notifications);
+		ListView listNotifications = findViewById(R.id.list_notifications);
 		listNotifications.setOnItemLongClickListener(mChatListItemLongClickListener);
 		listNotifications.setOnItemClickListener(mChatListItemClickListener);
 
@@ -185,7 +186,7 @@ public class ChatActivity extends AppCompatActivity {
 		listNotifications.setAdapter(chatAdapter);
 
 		if (!EmoteUtils.isBerryMotesInstalled(this, EmoteUtils.BERRYMOTES_VERSION_2_0_0)) {
-			ImageView imageEmote = (ImageView) findViewById(R.id.image_emote);
+			ImageView imageEmote = findViewById(R.id.image_emote);
 			imageEmote.setVisibility(View.GONE);
 		}
 
@@ -486,11 +487,16 @@ public class ChatActivity extends AppCompatActivity {
 
 			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT));
-			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE,
-					"");
+			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE, null);
+
 			if (!"".equals(squee)) {
-				mNotification.setSound(Uri.parse(squee),
-						AudioManager.STREAM_NOTIFICATION);
+				Uri squeeUri;
+				if (squee == null) {
+					squeeUri = Settings.System.DEFAULT_NOTIFICATION_URI;
+				} else {
+					squeeUri = Uri.parse(squee);
+				}
+				mNotification.setSound(squeeUri, AudioManager.STREAM_NOTIFICATION);
 			}
 			if (settings.getBoolean(MainActivity.KEY_SQUEE_VIBRATE, false)) {
 				mNotification.setVibrate(new long[] { 0, 100 });

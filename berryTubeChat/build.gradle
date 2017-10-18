@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "com.trellmor.berrytubechat"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 26
     }
 
     buildTypes {
@@ -21,6 +21,6 @@ android {
 dependencies {
     compile project(':berryTube')
     compile project(':libBerryMotes')
-    compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.android.support:design:24.2.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:design:26.1.0'
 }

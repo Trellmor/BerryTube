@@ -70,7 +70,6 @@
 
 	<EditTextPreference
 		android:key="com.trellmor.berrytubechat.settings.server"
-		android:title="@string/prev_server_title"
-		android:defaultValue="" />
+		android:title="@string/prev_server_title" />
 
 </PreferenceScreen>

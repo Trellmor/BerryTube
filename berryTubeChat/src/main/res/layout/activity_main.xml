@@ -36,9 +36,8 @@
         android:id="@+id/edit_user"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-		android:layout_below="@id/toolbar"
         android:hint="@string/edit_user"
-        android:singleLine="true">
+        android:maxLines="1">
         <requestFocus />
     </EditText>
 
@@ -46,10 +45,9 @@
         android:id="@+id/edit_password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edit_user"
         android:inputType="textPassword" 
         android:hint="@string/edit_password"
-        android:singleLine="true" />
+        android:maxLines="1" />
 
 	<RelativeLayout
 		android:layout_width="match_parent"
@@ -60,6 +58,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
+			android:layout_alignParentEnd="true"
 			android:text="@string/button_login"
 			android:onClick="login" />
 
@@ -68,6 +67,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
 			android:text="@string/check_remember" />
 	</RelativeLayout>
 

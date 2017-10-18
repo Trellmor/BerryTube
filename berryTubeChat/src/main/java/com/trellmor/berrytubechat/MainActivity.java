@@ -46,7 +46,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.trellmor.berrymotes.EmoteSettings;
-import com.trellmor.berrymotes.EmoteUtils;
 import com.trellmor.berrytube.BerryTube;
 
 import java.io.File;
@@ -157,13 +156,13 @@ public class MainActivity extends AppCompatActivity {
 
 		setContentView(R.layout.activity_main);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		mEditUser = (EditText) findViewById(R.id.edit_user);
-		mEditPassword = (EditText) findViewById(R.id.edit_password);
-		mCheckRemember = (CheckBox) findViewById(R.id.check_remember);
-		mImageLuna = (ImageView) findViewById(R.id.image_luna);
+		mEditUser = findViewById(R.id.edit_user);
+		mEditPassword = findViewById(R.id.edit_password);
+		mCheckRemember = findViewById(R.id.check_remember);
+		mImageLuna = findViewById(R.id.image_luna);
 
 		SharedPreferences settings = getSharedPreferences(KEY_LOGIN,
 				Context.MODE_PRIVATE);
@@ -176,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 		if (key == null || "".equals(key)) {
 			try {
 				key = SimpleCrypto.generateKey();
-				settings.edit().putString(KEY_CRYPTO_KEY, key).commit();
+				settings.edit().putString(KEY_CRYPTO_KEY, key).apply();
 			} catch (NoSuchAlgorithmException e) {
 				Log.w(TAG, e.getMessage());
 				// Remeber not available because of missing key
@@ -300,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
 		boolean remember = mCheckRemember.isChecked();
 		String password = mEditPassword.getText().toString();
 		String key = settings.getString(KEY_CRYPTO_KEY, "");
-		if (key != null && !"".equals(key)) {
+		if (!"".equals(key)) {
 			try {
 				password = SimpleCrypto.encrypt(key, password);
 			} catch (Exception e) {
@@ -315,10 +314,10 @@ public class MainActivity extends AppCompatActivity {
 		if (remember) {
 			editor.putString(KEY_USERNAME, mEditUser.getText().toString());
 			editor.putString(KEY_PASSWORD, password);
-			editor.putBoolean(KEY_REMEMBER, remember);
 		} else {
 			editor.clear();
 		}
+		editor.putBoolean(KEY_REMEMBER, remember);
 		editor.apply();
 	}
 
@@ -427,6 +426,6 @@ public class MainActivity extends AppCompatActivity {
 
 	private void updateNotificationSoundPreference(Uri uri) {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		settings.edit().putString(KEY_SQUEE_RINGTONE, uri.toString()).commit();
+		settings.edit().putString(KEY_SQUEE_RINGTONE, uri.toString()).apply();
 	}
 }

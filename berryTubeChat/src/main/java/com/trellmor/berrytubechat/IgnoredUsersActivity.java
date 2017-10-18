@@ -50,11 +50,11 @@ public class IgnoredUsersActivity extends AppCompatActivity implements LoaderMan
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ignored_users);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mListIgnoredUsers = (ListView) findViewById(R.id.list_ignoredusers);
+		mListIgnoredUsers = findViewById(R.id.list_ignoredusers);
 
 		mAdatper = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_multiple_choice, null,
 				new String[] {UserProvider.IgnoredUserColumns.COLUMN_NAME},

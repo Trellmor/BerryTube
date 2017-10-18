@@ -114,7 +114,7 @@
 					android:layout_toLeftOf="@+id/image_emote"
 					android:layout_toStartOf="@+id/image_emote"
 					android:hint="@string/edit_chat_msg"
-					android:singleLine="true"
+					android:maxLines="1"
 					android:inputType="textAutoCorrect|textCapSentences"
 					android:enabled="false"
 					android:imeOptions="actionSend" />

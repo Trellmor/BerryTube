@@ -47,7 +47,7 @@ class ChatMessageAdapter extends CursorAdapter {
 	private int mPosType;
 	private int mPosHidden;
 
-	public ChatMessageAdapter(Context context) {
+	ChatMessageAdapter(Context context) {
 		super(context, null, 0);
 
 		mFormatter = new ChatMessageFormatter(context);
@@ -93,8 +93,8 @@ class ChatMessageAdapter extends CursorAdapter {
 		return oldCursor;
 	}
 
-	public ChatMessage getMessage(Cursor cursor) {
-		ChatMessage msg = new ChatMessage(
+	ChatMessage getMessage(Cursor cursor) {
+		return new ChatMessage(
 				cursor.getLong(mPosID),
 				cursor.getString(mPosNick),
 				cursor.getString(mPosMessage),
@@ -105,11 +105,9 @@ class ChatMessageAdapter extends CursorAdapter {
 				cursor.getInt(mPosFlaunt) != 0,
 				cursor.getInt(mPosType),
 				cursor.getInt(mPosHidden) != 0);
-
-		return msg;
 	}
 
-	public void setNick(String nick) {
+	void setNick(String nick) {
 		mFormatter.setNick(nick);
 	}
 

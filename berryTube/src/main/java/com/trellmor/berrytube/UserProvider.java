@@ -28,6 +28,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 public class UserProvider extends ContentProvider {
@@ -58,7 +59,7 @@ public class UserProvider extends ContentProvider {
 
 	@Nullable
 	@Override
-	public String getType(Uri uri) {
+	public String getType(@NonNull Uri uri) {
 		switch (sUriMatcher.match(uri)) {
 			case ROUTE_IGNOREDUSERS:
 				return CONTENT_TYPE_IGNOREDUSERS;
@@ -71,7 +72,7 @@ public class UserProvider extends ContentProvider {
 
 	@Nullable
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		final SQLiteDatabase db = mDatabase.getReadableDatabase();
 		switch (sUriMatcher.match(uri)) {
 			case ROUTE_IGNOREDUSER:
@@ -90,7 +91,7 @@ public class UserProvider extends ContentProvider {
 
 	@Nullable
 	@Override
-	public Uri insert(Uri uri, ContentValues contentValues) {
+	public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
 		final SQLiteDatabase db = mDatabase.getWritableDatabase();
 		switch (sUriMatcher.match(uri)) {
 			case ROUTE_IGNOREDUSERS:
@@ -103,7 +104,7 @@ public class UserProvider extends ContentProvider {
 	}
 
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		final SQLiteDatabase db = mDatabase.getWritableDatabase();
 		switch (sUriMatcher.match(uri)) {
 			case ROUTE_IGNOREDUSER:
@@ -120,11 +121,11 @@ public class UserProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
+	public int update(@NonNull Uri uri, ContentValues contentValues, String s, String[] strings) {
 		throw new UnsupportedOperationException("Unknown uri: " + uri);
 	}
 
-	static class UserDatabase extends SQLiteOpenHelper {
+	private static class UserDatabase extends SQLiteOpenHelper {
 		private static final int DATABASE_VERSION = 1;
 
 		private static final String DATABASE_NAME = "users.db";
@@ -134,7 +135,7 @@ public class UserProvider extends ContentProvider {
 				+ IgnoredUserColumns._ID + " INTEGER PRIMARY KEY,"
 				+ IgnoredUserColumns.COLUMN_NAME + " TEXT UNIQUE)";
 
-		public UserDatabase(Context context)
+		UserDatabase(Context context)
 		{
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
@@ -151,7 +152,7 @@ public class UserProvider extends ContentProvider {
 	}
 
 	public static final class IgnoredUserColumns implements BaseColumns {
-		public static final String TABLE_IGNOREDUSERS = "ignored_users";
+		static final String TABLE_IGNOREDUSERS = "ignored_users";
 
 		public static final String COLUMN_NAME = "name";
 	}

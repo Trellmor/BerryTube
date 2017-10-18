@@ -37,16 +37,16 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author ferenc.hechler
  */
-public class SimpleCrypto {
+class SimpleCrypto {
 
-	public static String encrypt(String key, String cleartext)
+	static String encrypt(String key, String cleartext)
 			throws GeneralSecurityException {
 		byte[] rawKey = toByte(key);
 		byte[] result = encrypt(rawKey, cleartext.getBytes());
 		return toHex(result);
 	}
 
-	public static String decrypt(String key, String encrypted)
+	static String decrypt(String key, String encrypted)
 			throws GeneralSecurityException {
 		byte[] rawKey = toByte(key);
 		byte[] enc = toByte(encrypted);
@@ -82,15 +82,12 @@ public class SimpleCrypto {
 		return cipher.doFinal(encrypted);
 	}
 
-	public static String toHex(String txt) {
-		return toHex(txt.getBytes());
-	}
 
 	public static String fromHex(String hex) {
 		return new String(toByte(hex));
 	}
 
-	public static byte[] toByte(String hexString) {
+	private static byte[] toByte(String hexString) {
 		int len = hexString.length() / 2;
 		byte[] result = new byte[len];
 		for (int i = 0; i < len; i++)
@@ -99,12 +96,12 @@ public class SimpleCrypto {
 		return result;
 	}
 
-	public static String toHex(byte[] buf) {
+	private static String toHex(byte[] buf) {
 		if (buf == null)
 			return "";
 		StringBuffer result = new StringBuffer(2 * buf.length);
-		for (int i = 0; i < buf.length; i++) {
-			appendHex(result, buf[i]);
+		for (byte b : buf) {
+			appendHex(result, b);
 		}
 		return result.toString();
 	}

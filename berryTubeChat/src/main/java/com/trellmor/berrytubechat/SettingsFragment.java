@@ -18,7 +18,6 @@
 package com.trellmor.berrytubechat;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.Ringtone;
@@ -38,9 +37,6 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.trellmor.berrymotes.EmoteSettings;
-import com.trellmor.berrymotes.EmoteUtils;
-
-import java.util.Set;
 
 public class SettingsFragment extends PreferenceFragment
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -126,7 +122,7 @@ public class SettingsFragment extends PreferenceFragment
 				mPrefScrollback.setSummary(String.format(scrollbackSummary, scrollback));
 			}
 		} else if (key.equals(MainActivity.KEY_SERVER)) {
-			if (mPrefServer.getText().equals("")) {
+			if (mPrefServer.getText() == null || "".equals(mPrefServer.getText())) {
 				mPrefServer.setSummary(R.string.prev_server_summary_default);
 			} else {
 				mPrefServer.setSummary(mPrefServer.getText());

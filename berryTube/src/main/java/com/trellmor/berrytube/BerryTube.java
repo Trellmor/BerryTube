@@ -447,7 +447,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class ChatMsgTask implements Runnable {
 		private final ChatMessage mChatMsg;
 
-		public ChatMsgTask(ChatMessage chatMsg) {
+		ChatMsgTask(ChatMessage chatMsg) {
 			this.mChatMsg = chatMsg;
 		}
 
@@ -513,7 +513,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class SetNickTask implements Runnable {
 		private final String nick;
 
-		public SetNickTask(String nick) {
+		SetNickTask(String nick) {
 			this.nick = nick;
 		}
 
@@ -529,7 +529,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class LoginErrorTask implements Runnable {
 		private final String mError;
 
-		public LoginErrorTask(String error) {
+		LoginErrorTask(String error) {
 			mError = error;
 		}
 
@@ -541,13 +541,13 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	}
 
 	class UserJoinPartTask implements Runnable {
-		public final static int ACTION_JOIN = 0;
-		public final static int ACTION_PART = 1;
+		final static int ACTION_JOIN = 0;
+		final static int ACTION_PART = 1;
 
 		private final ChatUser user;
 		private final int action;
 
-		public UserJoinPartTask(ChatUser user, int action) {
+		UserJoinPartTask(ChatUser user, int action) {
 			this.user = user;
 			this.action = action;
 		}
@@ -573,7 +573,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class DrinkCountTask implements Runnable {
 		private final int count;
 
-		public DrinkCountTask(int count) {
+		DrinkCountTask(int count) {
 			this.count = count;
 		}
 
@@ -604,7 +604,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class NewPollTask implements Runnable {
 		private final Poll mPoll;
 
-		public NewPollTask(Poll poll) {
+		NewPollTask(Poll poll) {
 			this.mPoll = poll;
 		}
 
@@ -620,7 +620,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class UpdatePollTask implements Runnable {
 		private final int[] mVotes;
 
-		public UpdatePollTask(int[] votes) {
+		UpdatePollTask(int[] votes) {
 			mVotes = votes;
 		}
 
@@ -650,7 +650,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 		private final String mId;
 		private final String mType;
 
-		public NewVideoTask(String name, String id, String type) {
+		NewVideoTask(String name, String id, String type) {
 			this.mName = name;
 			this.mId = id;
 			this.mType = type;
@@ -663,8 +663,8 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 		}
 	}
 
-	static class BerryTubeQueryHandler extends AsyncQueryHandler {
-		public BerryTubeQueryHandler(ContentResolver contentResolver) {
+	private static class BerryTubeQueryHandler extends AsyncQueryHandler {
+		BerryTubeQueryHandler(ContentResolver contentResolver) {
 			super(contentResolver);
 		}
 	}

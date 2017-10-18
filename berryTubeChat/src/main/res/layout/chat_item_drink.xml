@@ -28,11 +28,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/text_chat_drink_multiple"
+        android:layout_toStartOf="@+id/text_chat_drink_multiple"
         android:paddingBottom="2dp"
         android:paddingTop="2dp"
         android:paddingLeft="4dp"
+        android:paddingStart="4dp"
         android:autoLink="web"
-        android:singleLine="false"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#c600ad"
         android:textStyle="bold" />
@@ -44,6 +46,7 @@
         android:layout_alignBottom="@+id/text_chat_message"
         android:layout_alignTop="@+id/text_chat_message"
         android:layout_toLeftOf="@+id/image_chat_drink"
+        android:layout_toStartOf="@+id/image_chat_drink"
         android:gravity="center_vertical"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
@@ -55,12 +58,14 @@
     <ImageView 
         android:id="@+id/image_chat_drink"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignBottom="@+id/text_chat_drink_multiple"
         android:layout_alignTop="@+id/text_chat_drink_multiple"
         android:scaleType="center"
         android:layout_width="20dp"
         android:layout_height="0dp"
         android:paddingRight="2dp"
+        android:paddingEnd="2dp"
         android:src="@drawable/ic_drink"
         android:contentDescription="@string/drink" />
 

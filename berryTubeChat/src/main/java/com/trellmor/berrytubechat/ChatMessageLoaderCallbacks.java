@@ -27,11 +27,11 @@ import android.widget.CursorAdapter;
 
 import com.trellmor.berrytube.ChatMessageProvider;
 
-public class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
 	private final CursorAdapter mAdapter;
 	private final Context mContext;
 
-	public static final String KEY_NOTIFICATIONS = "Notifications";
+	static final String KEY_NOTIFICATIONS = "Notifications";
 
 	private static final String[] PROJECTION = new String[] {
 			ChatMessageProvider.MessageColumns._ID,
@@ -46,7 +46,7 @@ public class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks
 			ChatMessageProvider.MessageColumns.COLUMN_HIDDEN
 	};
 
-	public ChatMessageLoaderCallbacks(Context context, CursorAdapter adapter) {
+	ChatMessageLoaderCallbacks(Context context, CursorAdapter adapter) {
 		mContext = context;
 		mAdapter = adapter;
 	}
