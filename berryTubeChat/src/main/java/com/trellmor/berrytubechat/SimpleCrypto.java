@@ -20,10 +20,12 @@ package com.trellmor.berrytubechat;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -38,6 +40,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @author ferenc.hechler
  */
 class SimpleCrypto {
+	private static final int AES_KEY_SIZE = 128; // in bits
+	private static final int GCM_IV_LENGTH = 12; // in bytes
 
 	static String encrypt(String key, String cleartext)
 			throws GeneralSecurityException {
@@ -54,37 +58,55 @@ class SimpleCrypto {
 		return new String(result);
 	}
 
-	public static String generateKey() throws NoSuchAlgorithmException {
-		final int outputKeyLength = 128; // 192 and 256 bits may not be
-											// available
+	static String generateKey() throws NoSuchAlgorithmException {
+		return toHex(random(AES_KEY_SIZE));
+	}
 
+	/**
+	 * Generate random bits
+	 *
+	 * @param length random data length in bits
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	private static byte[] random(int length) throws NoSuchAlgorithmException {
 		SecureRandom sr = new SecureRandom();
 		KeyGenerator kg = KeyGenerator.getInstance("AES");
-		kg.init(outputKeyLength, sr);
+		kg.init(length, sr);
 		SecretKey key = kg.generateKey();
-		byte[] raw = key.getEncoded();
-		return toHex(raw);
+		return key.getEncoded();
 	}
 
-	private static byte[] encrypt(byte[] raw, byte[] clear)
+	private static byte[] encrypt(byte[] key, byte[] clear)
 			throws GeneralSecurityException {
-		SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-		Cipher cipher = Cipher.getInstance("AES");
-		cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-		return cipher.doFinal(clear);
+		SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
+
+		byte[] iv = random(GCM_IV_LENGTH * 8);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+		Cipher cipher = Cipher.getInstance("AES/GCM/NOPADDING");
+		cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, ivSpec);
+
+		byte[] encrypted = new byte[GCM_IV_LENGTH + cipher.getOutputSize(clear.length)];
+		System.arraycopy(iv, 0, encrypted, 0, iv.length);
+
+		cipher.doFinal(clear, 0, clear.length, encrypted, GCM_IV_LENGTH);
+		return encrypted;
 	}
 
-	private static byte[] decrypt(byte[] raw, byte[] encrypted)
+	private static byte[] decrypt(byte[] key, byte[] encrypted)
 			throws GeneralSecurityException {
-		SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-		Cipher cipher = Cipher.getInstance("AES");
-		cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-		return cipher.doFinal(encrypted);
-	}
+		if (encrypted.length <= GCM_IV_LENGTH)
+			return new byte[0];
 
+		SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
 
-	public static String fromHex(String hex) {
-		return new String(toByte(hex));
+		byte[] iv = Arrays.copyOf(encrypted, GCM_IV_LENGTH);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+		Cipher cipher = Cipher.getInstance("AES/GCM/NOPADDING");
+		cipher.init(Cipher.DECRYPT_MODE, sKeySpec, ivSpec);
+		return cipher.doFinal(encrypted, GCM_IV_LENGTH, encrypted.length - GCM_IV_LENGTH);
 	}
 
 	private static byte[] toByte(String hexString) {
