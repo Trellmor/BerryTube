@@ -19,6 +19,7 @@ package com.trellmor.berrytubechat;
 
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -27,9 +28,8 @@ import android.widget.CursorAdapter;
 
 import com.trellmor.berrytube.ChatMessageProvider;
 
-class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+class ChatMessageLoaderCallbacks extends ContextWrapper implements LoaderManager.LoaderCallbacks<Cursor> {
 	private final CursorAdapter mAdapter;
-	private final Context mContext;
 
 	static final String KEY_NOTIFICATIONS = "Notifications";
 
@@ -46,8 +46,8 @@ class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
 			ChatMessageProvider.MessageColumns.COLUMN_HIDDEN
 	};
 
-	ChatMessageLoaderCallbacks(Context context, CursorAdapter adapter) {
-		mContext = context;
+	ChatMessageLoaderCallbacks(Context ctx, CursorAdapter adapter) {
+		super(ctx);
 		mAdapter = adapter;
 	}
 
@@ -64,7 +64,7 @@ class ChatMessageLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
 		}
 
 		return new CursorLoader(
-				mContext,
+				this,
 				ChatMessageProvider.CONTENT_URI_MESSAGES,
 				PROJECTION,
 				selection,

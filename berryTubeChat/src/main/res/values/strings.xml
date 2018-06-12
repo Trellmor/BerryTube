@@ -120,4 +120,8 @@ You should have received a copy of the GNU General Public License along with thi
     <string name="pref_squee_ringtone_silent">Silent</string>
     <string name="pref_description_berrymotes_permission_storage">Storage access required</string>
 
+    <!-- Notification channels -->
+    <string name="noti_channel_service">Connection status</string>
+    <string name="noti_channel_message">Chat squee</string>
+
 </resources>

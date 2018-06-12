@@ -18,6 +18,7 @@
 package com.trellmor.berrytubechat;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -71,24 +72,22 @@ import java.util.Locale;
  * @author Daniel Triendl
  * @see com.trellmor.berrytube.ChatMessage
  */
-class ChatMessageFormatter {
+class ChatMessageFormatter extends ContextWrapper {
 	private static final int TYPE_DEFAULT = 0;
 	private static final int TYPE_DRINK = 1;
 	private final EmotesFormatter mEmotesFormatter;
-	private Context mContext = null;
 	private LayoutInflater mInflater = null;
 	private Html.ImageGetter mEmoteGetter = null;
 	private final Drawable[] mFlairs = new Drawable[6];
 	private String mNick = null;
 	private SimpleDateFormat mDateFormat = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
 
-	ChatMessageFormatter(Context context) {
-		mContext = context;
-		mInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	ChatMessageFormatter(Context ctx) {
+		super(ctx);
+		mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		mEmoteGetter = new EmoteGetter(mContext, new ScalingEmoteLoader(mContext));
-		mEmotesFormatter = new EmotesFormatter(mContext);
+		mEmoteGetter = new EmoteGetter(this, new ScalingEmoteLoader(this));
+		mEmotesFormatter = new EmotesFormatter(this);
 
 		// Initialize flair drawables
 		loadFlairs();
@@ -160,7 +159,7 @@ class ChatMessageFormatter {
 		handleNick(spanBuilder, message);
 		spanBuilder.append(": ");
 		handleMessage(spanBuilder, message);
-		spanBuilder.append(' ').append(mContext.getString(R.string.chat_drink));
+		spanBuilder.append(' ').append(getString(R.string.chat_drink));
 		spanBuilder.setSpan(new RelativeSizeSpan(1.2f), endTime, spanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		textMessage.setText(spanBuilder);
@@ -186,7 +185,7 @@ class ChatMessageFormatter {
 
 	private String createTimestamp(long timeStamp) {
 		String result = "";
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(MainActivity.KEY_TIMESTAMP, false) && timeStamp > 0) {
 			result = mDateFormat.format(new Date(timeStamp));
 		}
@@ -203,22 +202,22 @@ class ChatMessageFormatter {
 		if (message.isFlaunt()) {
 			switch (message.getType()) {
 				case ChatUser.TYPE_ADMIN:
-					text.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, R.color.flaunt_admin)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					text.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.flaunt_admin)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					break;
 				case ChatUser.TYPE_ASSISTANT:
-					text.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, R.color.flaunt_assistant)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					text.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.flaunt_assistant)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					break;
 			}
 		}
 	}
 
 	private void loadFlairs() {
-		mFlairs[0] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_1);
-		mFlairs[1] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_2);
-		mFlairs[2] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_3);
-		mFlairs[3] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_4);
-		mFlairs[4] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_5);
-		mFlairs[5] = ContextCompat.getDrawable(mContext, R.drawable.ic_flair_6);
+		mFlairs[0] = ContextCompat.getDrawable(this, R.drawable.ic_flair_1);
+		mFlairs[1] = ContextCompat.getDrawable(this, R.drawable.ic_flair_2);
+		mFlairs[2] = ContextCompat.getDrawable(this, R.drawable.ic_flair_3);
+		mFlairs[3] = ContextCompat.getDrawable(this, R.drawable.ic_flair_4);
+		mFlairs[4] = ContextCompat.getDrawable(this, R.drawable.ic_flair_5);
+		mFlairs[5] = ContextCompat.getDrawable(this, R.drawable.ic_flair_6);
 
 		for (Drawable d : mFlairs) {
 			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
@@ -262,7 +261,7 @@ class ChatMessageFormatter {
 
 		switch (message.getEmote()) {
 			case ChatMessage.EMOTE_REQUEST:
-				spanBuilder.append(' ').append(mContext.getText(R.string.request)).append(' ');
+				spanBuilder.append(' ').append(getText(R.string.request)).append(' ');
 				break;
 			case ChatMessage.EMOTE_SPOILER:
 				spanBuilder.append(": SPOILER: ");
@@ -298,7 +297,7 @@ class ChatMessageFormatter {
 				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				break;
 			case ChatMessage.EMOTE_POLL:
-				c = ContextCompat.getColor(mContext, R.color.poll);
+				c = ContextCompat.getColor(this, R.color.poll);
 				spanBuilder.setSpan(new ForegroundColorSpan(c), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				spanBuilder.setSpan(new RelativeSizeSpan(1.5f), endTime, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				spanBuilder.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -307,7 +306,7 @@ class ChatMessageFormatter {
 			default:
 				// implying
 				if (message.getMsg().startsWith("&gt;")) {
-					c = ContextCompat.getColor(mContext, R.color.implying);
+					c = ContextCompat.getColor(this, R.color.implying);
 					spanBuilder.setSpan(new ForegroundColorSpan(c), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 				break;
@@ -482,7 +481,7 @@ class ChatMessageFormatter {
 
 				if (s != null && s.mClass != null) {
 					if (s.mClass.equals("flutter")) {
-						mSpanBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, R.color.flutter)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						mSpanBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getApplicationContext(), R.color.flutter)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					} else if (mSpoiler && s.mClass.equals("spoiler")) {
 						mSpanBuilder.setSpan(new BackgroundColorSpan(Color.BLACK), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
@@ -523,7 +522,7 @@ class ChatMessageFormatter {
 				int p = 0;
 				int hlLen = highlight.length();
 				while ((p = text.indexOf(highlight, p)) >= 0) {
-					mSpanBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, R.color.highlight)),
+					mSpanBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getApplicationContext(), R.color.highlight)),
 							len + p, len + p + hlLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					p = p + hlLen;
 				}

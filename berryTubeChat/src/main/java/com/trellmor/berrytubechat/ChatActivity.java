@@ -97,6 +97,7 @@ public class ChatActivity extends AppCompatActivity {
 	private DrawerLayout mDrawerLayout;
 	private MenuItem mMenuPoll;
 	private View mDrawerNotifications;
+	private NotificationHelper mNotiHelper;
 	private NotificationCompat.Builder mNotification = null;
 
 	private BerryTubeBinder mBinder = null;
@@ -189,6 +190,8 @@ public class ChatActivity extends AppCompatActivity {
 			ImageView imageEmote = findViewById(R.id.image_emote);
 			imageEmote.setVisibility(View.GONE);
 		}
+
+		mNotiHelper = new NotificationHelper(this);
 
 		Intent intent = getIntent();
 		mUsername = intent.getStringExtra(MainActivity.KEY_USERNAME);
@@ -470,10 +473,7 @@ public class ChatActivity extends AppCompatActivity {
 		}
 
 		if (settings.getBoolean(MainActivity.KEY_SQUEE, false)) {
-			mNotification = new NotificationCompat.Builder(this);
-			mNotification.setSmallIcon(R.drawable.ic_stat_notify_chat);
-			mNotification.setLights(0xFF0000FF, 100, 2000);
-			mNotification.setAutoCancel(true);
+			mNotification = mNotiHelper.getMessageNotification();
 
 			Intent intent = new Intent(this, ChatActivity.class);
 			intent.putExtra(MainActivity.KEY_USERNAME, mUsername);
@@ -798,12 +798,7 @@ public class ChatActivity extends AppCompatActivity {
 				// MainActivity, otherwise wait until BerryTube reconnect
 				// normally
 				if (mUsername != null && mPassword != null) {
-					NotificationCompat.Builder note = new NotificationCompat.Builder(
-							this);
-					note.setSmallIcon(R.drawable.ic_stat_notify_berrytube);
-					note.setLargeIcon(BitmapFactory.decodeResource(
-							getResources(), R.drawable.ic_launcher));
-					note.setContentTitle(getString(R.string.title_activity_chat));
+					NotificationCompat.Builder noti = mNotiHelper.getServiceNotification();
 
 					Intent intent = new Intent(this, ChatActivity.class);
 					intent.setAction(Intent.ACTION_MAIN);
@@ -815,12 +810,12 @@ public class ChatActivity extends AppCompatActivity {
 							| Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
 							| Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-					note.setContentIntent(PendingIntent.getActivity(this, 0,
+					noti.setContentIntent(PendingIntent.getActivity(this, 0,
 							intent, PendingIntent.FLAG_UPDATE_CURRENT));
 					if ("".equals(mServer)) {
-						mBinder.getService().connect(mUsername, mPassword, note);
+						mBinder.getService().connect(mUsername, mPassword, noti);
 					} else {
-						mBinder.getService().connect(mServer, mUsername, mPassword, note);
+						mBinder.getService().connect(mServer, mUsername, mPassword, noti);
 					}
 				}
 			} catch (MalformedURLException e) {
