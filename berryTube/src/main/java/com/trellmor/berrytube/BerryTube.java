@@ -65,6 +65,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	private SocketIO mSocket = null;
 	private WeakReference<BerryTubeCallback> mCallback = new WeakReference<>(null);
 
+	private URL mUrl;
 	private String mUsername;
 	private String mPassword;
 	private String mNick = null;
@@ -80,6 +81,9 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	private final ArrayList<String> mMessageNotificationText = new ArrayList<>(5);
 	private int mMessageNotificationCount = 0;
 	private AsyncQueryHandler mQueryHandler;
+	private boolean mReconnecting = false;
+	private int mMaxReconnect = 20; // 20 * 30s = 10 minutes
+	private int mReconnectCount = 0;
 
 	private static final int KEY_NOTIFICATION_SERVICE = 1000;
 	private static final int KEY_NOTIFICATION_MESSAGE = 2000;
@@ -195,16 +199,25 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 			throw new NullPointerException("username == null");
 
 		mUsername = username;
-
 		mPassword = password;
+		mUrl = url;
 
-		mSocket = new SocketIO(url);
-		mSocket.connect(new BerryTubeIOCallback(this));
+		openSocket();
 
 		mServiceNotification = notification;
 		notification.setContentText(getText(R.string.connecting));
 		notification.setTicker(getText(R.string.connecting));
 		startForeground(KEY_NOTIFICATION_SERVICE, notification.build());
+	}
+
+	private void openSocket() {
+		if (mSocket != null) {
+			mReconnecting = true;
+			mSocket.disconnect();
+		}
+
+		mSocket = new SocketIO(mUrl);
+		mSocket.connect(new BerryTubeIOCallback(this));
 	}
 
 	/**
@@ -421,6 +434,9 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 			if (mSocket == null)
 				return;
 
+			mReconnecting = false;
+			mReconnectCount = 0;
+
 			try {
 				JSONObject login = new JSONObject();
 				login.put("nick", mUsername);
@@ -440,6 +456,10 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	class DisconnectTask implements Runnable {
 		@Override
 		public void run() {
+			if (mReconnecting) {
+				return;
+			}
+
 			if (mCallback.get() != null) {
 				mCallback.get().onDisconnect();
 			}
@@ -453,6 +473,42 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 			mNotificationManager.cancel(KEY_NOTIFICATION_SERVICE);
 			mNotificationManager.cancel(KEY_NOTIFICATION_MESSAGE);
 			BerryTube.this.stopSelf();
+		}
+
+	}
+
+	class ErrorTask implements Runnable {
+		@Override
+		public void run() {
+			if (mCallback.get() != null) {
+				mCallback.get().onError();
+			}
+
+			mReconnectCount++;
+			if (mReconnectCount > mMaxReconnect) {
+				mReconnecting = false;
+				if (mSocket != null) {
+					mSocket.disconnect();
+					return;
+				}
+			}
+
+			mServiceNotification.setContentText(getText(R.string.connection_lost));
+			mServiceNotification.setTicker(getText(R.string.connection_lost));
+			mNotificationManager.notify(KEY_NOTIFICATION_SERVICE,
+					mServiceNotification.build());
+
+			mReconnecting = true;
+			mSocket.disconnect();
+			mSocket = null;
+
+			final Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					openSocket();
+				}
+			}, 30 * 1000);
 		}
 
 	}

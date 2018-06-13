@@ -93,4 +93,9 @@ public interface BerryTubeCallback {
 	 * The connection to the sever was lost
 	 */
 	void onDisconnect();
+
+	/**
+	 * Socket Connection error
+	 */
+	void onError();
 }

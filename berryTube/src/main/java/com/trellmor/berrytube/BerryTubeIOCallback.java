@@ -224,6 +224,7 @@ class BerryTubeIOCallback implements IOCallback {
 	 * @see io.socket.IOCallback#onError(io.socket.SocketIOException)
 	 */
 	public void onError(SocketIOException socketIOException) {
-		Log.wtf(TAG, socketIOException);
+		berryTube.getHandler().post(berryTube.new ErrorTask());
+		Log.e(TAG, "onError", socketIOException);
 	}
 }

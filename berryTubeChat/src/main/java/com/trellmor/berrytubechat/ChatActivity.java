@@ -450,6 +450,12 @@ public class ChatActivity extends AppCompatActivity {
 
 				builder.show();
 			}
+
+			@Override
+			public void onError() {
+				mMenuPoll.setVisible(false);
+				setNick(null);
+			}
 		};
 	}
 

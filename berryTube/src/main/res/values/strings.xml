@@ -3,5 +3,6 @@
     <string name="disconnected">Disconnected</string>
     <string name="connecting">Connecting</string>
     <string name="connected">Connected</string>
+    <string name="connection_lost">Connection lost, reconnecting</string>
     <string name="new_messages">%d new messages</string>
 </resources>
