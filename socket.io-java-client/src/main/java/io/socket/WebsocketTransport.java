@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -27,10 +28,10 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
         super(uri);
         this.setConnectionLostTimeout(0); //Disable ping because broken(?) servers drop the connection on ping
         this.connection = connection;
-        SSLContext context = IOConnection.getSslContext();
-        if("wss".equals(uri.getScheme()) && context != null) {
+        SSLSocketFactory sslSocketFactory = IOConnection.getSslSocketFactory();
+        if("wss".equals(uri.getScheme()) && sslSocketFactory != null) {
             try {
-                this.setSocket(context.getSocketFactory().createSocket());
+                this.setSocket(sslSocketFactory.createSocket());
             } catch (IOException e) {
                 throw new RuntimeException("Error creating secure socket", e);
             }

@@ -67,7 +67,7 @@ class IOConnection implements IOCallback {
 	public static final String SOCKET_IO_1 = "/socket.io/1/";
 
 	/** The SSL socket factory for HTTPS connections */
-	private static SSLContext sslContext = null;
+	private static SSLSocketFactory sslSocketFactory = null;
 
 	/** All available connections. */
 	private static HashMap<String, List<IOConnection>> connections = new HashMap<String, List<IOConnection>>();
@@ -205,10 +205,10 @@ class IOConnection implements IOCallback {
 	/**
 	 * Set the socket factory used for SSL connections.
 	 * 
-	 * @param sslContext
+	 * @param sslSocketFactory
 	 */
-	public static void setSslContext(SSLContext sslContext) {
-		IOConnection.sslContext = sslContext;
+	public static void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+		IOConnection.sslSocketFactory = sslSocketFactory;
 	}
 
 	/**
@@ -216,8 +216,8 @@ class IOConnection implements IOCallback {
 	 * 
 	 * @return socketFactory
 	 */
-	public static SSLContext getSslContext() {
-		return sslContext;
+	public static SSLSocketFactory getSslSocketFactory() {
+		return sslSocketFactory;
 	}
 
 	/**
@@ -299,7 +299,7 @@ class IOConnection implements IOCallback {
 			connection = url.openConnection();
 			if (connection instanceof HttpsURLConnection) {
 				((HttpsURLConnection) connection)
-						.setSSLSocketFactory(sslContext.getSocketFactory());
+						.setSSLSocketFactory(sslSocketFactory);
 			}
 			connection.setConnectTimeout(connectTimeout);
 			connection.setReadTimeout(connectTimeout);

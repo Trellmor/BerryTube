@@ -126,10 +126,10 @@ public class SocketIO {
 	
 	/**
 	 * Set the socket factory used for SSL connections.
-	 * @param socketFactory
+	 * @param sslSocketFactory
 	 */
-	public static void setDefaultSSLSocketFactory(SSLContext sslContext) {
-		IOConnection.setSslContext(sslContext);
+	public static void setDefaultSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
+		IOConnection.setSslSocketFactory(sslSocketFactory);
 	}
 	
 	/**

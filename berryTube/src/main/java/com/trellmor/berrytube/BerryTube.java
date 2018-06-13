@@ -22,6 +22,7 @@ import io.socket.SocketIO;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,8 +103,10 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 
 
 		try {
-			SocketIO.setDefaultSSLSocketFactory(SSLContext.getDefault());
+			SocketIO.setDefaultSSLSocketFactory(new TLSSocketFactory());
 		} catch (NoSuchAlgorithmException e) {
+			Log.e(TAG, "Error getting SSL Context", e);
+		} catch (KeyManagementException e) {
 			Log.e(TAG, "Error getting SSL Context", e);
 		}
 	}
