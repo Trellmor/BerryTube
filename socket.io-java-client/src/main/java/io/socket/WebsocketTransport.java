@@ -25,6 +25,7 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
 
     public WebsocketTransport(URI uri, IOConnection connection) {
         super(uri);
+        this.setConnectionLostTimeout(0); //Disable ping because broken(?) servers drop the connection on ping
         this.connection = connection;
         SSLContext context = IOConnection.getSslContext();
         if("wss".equals(uri.getScheme()) && context != null) {
