@@ -27,5 +27,5 @@
     android:paddingLeft="4dp"
     android:paddingRight="4dp"
     android:paddingTop="2dp"
-    android:maxLines="1"
+    android:singleLine="false"
     android:textAppearance="?android:attr/textAppearanceSmall" />
