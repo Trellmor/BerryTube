@@ -119,6 +119,7 @@ You should have received a copy of the GNU General Public License along with thi
     <string name="pref_squee_ringtone_title">Ringtone</string>
     <string name="pref_squee_ringtone_silent">Silent</string>
     <string name="pref_description_berrymotes_permission_storage">Storage access required</string>
+    <string name="pref_title_show_notification_settings">Show notification settings</string>
 
     <!-- Notification channels -->
     <string name="noti_channel_service">Connection status</string>

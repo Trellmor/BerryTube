@@ -5,9 +5,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 public class NotificationHelper extends ContextWrapper {
@@ -31,13 +38,28 @@ public class NotificationHelper extends ContextWrapper {
 			message.enableLights(true);
 			message.setVibrationPattern(new long[] { 0, 100 });
 			message.enableVibration(true);
+
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE, null);
+			if (!"".equals(squee)) {
+				Uri squeeUri;
+				if (squee == null) {
+					squeeUri = Settings.System.DEFAULT_NOTIFICATION_URI;
+				} else {
+					squeeUri = Uri.parse(squee);
+				}
+				message.setSound(squeeUri, new AudioAttributes.Builder()
+						.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+						.setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT).build());
+			}
+
 			getManager().createNotificationChannel(message);
 
 		}
 	}
 
 	public NotificationCompat.Builder getServiceNotification() {
-		NotificationCompat.Builder noti = new NotificationCompat.Builder(this, CHANNEL_MESSAGE);
+		NotificationCompat.Builder noti = new NotificationCompat.Builder(this, CHANNEL_SERVICE);
 		noti.setSmallIcon(R.drawable.ic_stat_notify_berrytube);
 		noti.setLargeIcon(BitmapFactory.decodeResource(
 				getResources(), R.drawable.ic_launcher));

@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -472,7 +473,7 @@ public class ChatActivity extends AppCompatActivity {
 			mFlair = 0;
 		}
 
-		if (settings.getBoolean(MainActivity.KEY_SQUEE, false)) {
+		if (settings.getBoolean(MainActivity.KEY_SQUEE, false) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			mNotification = mNotiHelper.getMessageNotification();
 
 			Intent intent = new Intent(this, ChatActivity.class);
@@ -487,8 +488,8 @@ public class ChatActivity extends AppCompatActivity {
 
 			mNotification.setContentIntent(PendingIntent.getActivity(this, 0,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT));
-			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE, null);
 
+			String squee = settings.getString(MainActivity.KEY_SQUEE_RINGTONE, null);
 			if (!"".equals(squee)) {
 				Uri squeeUri;
 				if (squee == null) {
@@ -498,6 +499,7 @@ public class ChatActivity extends AppCompatActivity {
 				}
 				mNotification.setSound(squeeUri, AudioManager.STREAM_NOTIFICATION);
 			}
+
 			if (settings.getBoolean(MainActivity.KEY_SQUEE_VIBRATE, false)) {
 				mNotification.setVibrate(new long[] { 0, 100 });
 			}
