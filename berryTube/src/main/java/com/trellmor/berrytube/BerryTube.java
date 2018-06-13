@@ -22,6 +22,7 @@ import io.socket.SocketIO;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -44,6 +45,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * BerryTube handles to communication with the BerryTube Server and provides
@@ -96,6 +99,13 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 				null, null, null);
 		mIgnoredUsersLoader.registerListener(LOADER_IGNOREDUSERS, this);
 		mIgnoredUsersLoader.startLoading();
+
+
+		try {
+			SocketIO.setDefaultSSLSocketFactory(SSLContext.getDefault());
+		} catch (NoSuchAlgorithmException e) {
+			Log.e(TAG, "Error getting SSL Context", e);
+		}
 	}
 
 	@Override
@@ -139,7 +149,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 	 */
 	public void connect(String username, String password, NotificationCompat.Builder notification)
 			throws MalformedURLException, IllegalStateException {
-		connect(new URL("http://socketio.berrytube.multihoofdrinking.com:8344"), username, password,
+		connect(new URL("https://socket.berrytube.tv"), username, password,
 				notification);
 	}
 
