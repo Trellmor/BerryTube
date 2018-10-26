@@ -299,9 +299,6 @@ public class ChatActivity extends AppCompatActivity {
 			stopService(new Intent(this, BerryTube.class));
 			finish();
 			return true;
-		case R.id.menu_donate:
-			BerryTubeUtils.openDonatePage(this);
-			return true;
 		case R.id.menu_about:
 			BerryTubeUtils.openAboutDialog(this);
 			return true;

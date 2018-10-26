@@ -26,7 +26,6 @@
     <string name="menu_logout">Logout</string>
     <string name="menu_poll">Poll</string>
     <string name="menu_about">About</string>
-    <string name="menu_donate">Donate</string>
     <string name="menu_autocomplete_nick">Autocomplete nick</string>
     <string name="menu_ignore_user">Ignore user</string>
     <string name="menu_reset_my_drinks">Reset</string>

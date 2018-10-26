@@ -228,9 +228,6 @@ public class MainActivity extends AppCompatActivity {
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
-		case R.id.menu_donate:
-			BerryTubeUtils.openDonatePage(this);
-			return true;
 		case R.id.menu_about:
 			BerryTubeUtils.openAboutDialog(this);
 			return true;

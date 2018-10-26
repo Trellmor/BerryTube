@@ -67,12 +67,6 @@
 		app:showAsAction="never" />
 
 	<item
-		android:id="@+id/menu_donate"
-		android:title="@string/menu_donate"
-		android:orderInCategory="800"
-		app:showAsAction="never" />
-
-	<item
 		android:id="@+id/menu_logout"
 		android:title="@string/menu_logout"
 		android:orderInCategory="900"

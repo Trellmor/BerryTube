@@ -32,10 +32,4 @@
         android:title="@string/menu_about"
         android:orderInCategory="200"
 		app:showAsAction="never" />
-    
-    <item
-        android:id="@+id/menu_donate"
-        android:title="@string/menu_donate"
-        android:orderInCategory="300"
-		app:showAsAction="never" />
 </menu>

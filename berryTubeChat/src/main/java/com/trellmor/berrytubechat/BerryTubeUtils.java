@@ -28,11 +28,6 @@ class BerryTubeUtils {
 	private BerryTubeUtils() {
 	}
 	
-	static void openDonatePage(Context context) {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://berrytube.tv/donate.php"));
-		context.startActivity(browserIntent);
-	}
-	
 	static void openAboutDialog(Context context) {
 		LayoutInflater inflater = LayoutInflater.from(context);
 		View view = inflater.inflate(R.layout.dialog_about, null);
