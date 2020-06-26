@@ -77,7 +77,7 @@ class ChatMessageFormatter extends ContextWrapper {
 	private final EmotesFormatter mEmotesFormatter;
 	private LayoutInflater mInflater = null;
 	private Html.ImageGetter mEmoteGetter = null;
-	private final Drawable[] mFlairs = new Drawable[6];
+	private final ArrayList<Drawable> mFlairs = new ArrayList<Drawable>();
 	private String mNick = null;
 	private SimpleDateFormat mDateFormat = new SimpleDateFormat("[HH:mm:ss] ", Locale.ENGLISH);
 
@@ -211,12 +211,18 @@ class ChatMessageFormatter extends ContextWrapper {
 	}
 
 	private void loadFlairs() {
-		mFlairs[0] = ContextCompat.getDrawable(this, R.drawable.ic_flair_1);
-		mFlairs[1] = ContextCompat.getDrawable(this, R.drawable.ic_flair_2);
-		mFlairs[2] = ContextCompat.getDrawable(this, R.drawable.ic_flair_3);
-		mFlairs[3] = ContextCompat.getDrawable(this, R.drawable.ic_flair_4);
-		mFlairs[4] = ContextCompat.getDrawable(this, R.drawable.ic_flair_5);
-		mFlairs[5] = ContextCompat.getDrawable(this, R.drawable.ic_flair_6);
+		mFlairs.clear();
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_1));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_2));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_3));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_4));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_5));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_6));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_7));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_8));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_9));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_10));
+		mFlairs.add(ContextCompat.getDrawable(this, R.drawable.ic_flair_11));
 
 		for (Drawable d : mFlairs) {
 			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
@@ -224,8 +230,8 @@ class ChatMessageFormatter extends ContextWrapper {
 	}
 
 	private void handleFlair(SpannableStringBuilder text, ChatMessage message) {
-		if (message.getFlair() > 0 && message.getFlair() <= mFlairs.length) {
-			Drawable d = mFlairs[message.getFlair() - 1];
+		if (message.getFlair() > 0 && message.getFlair() <= mFlairs.size()) {
+			Drawable d = mFlairs.get(message.getFlair() - 1);
 			if (d != null) {
 				int len = text.length();
 				text.append("\uFFFC");

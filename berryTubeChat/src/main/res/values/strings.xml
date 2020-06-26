@@ -92,6 +92,11 @@ You should have received a copy of the GNU General Public License along with thi
         <item>Liquor (1)</item>
         <item>Liquor (2)</item>
         <item>Beer</item>
+        <item>Green</item>
+        <item>Water</item>
+        <item>Coffee</item>
+        <item>Soda</item>
+        <item>Tea</item>
     </string-array>
 
     <string-array name="pref_flair_values">
@@ -102,6 +107,11 @@ You should have received a copy of the GNU General Public License along with thi
         <item>4</item>
         <item>5</item>
         <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
     </string-array>
 
     <string name="pref_timestamp_title">Display timestamps</string>
