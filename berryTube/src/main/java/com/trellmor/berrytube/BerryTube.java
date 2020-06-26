@@ -44,10 +44,8 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
-
-import javax.net.ssl.SSLContext;
 
 /**
  * BerryTube handles to communication with the BerryTube Server and provides
@@ -104,7 +102,6 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 				null, null, null);
 		mIgnoredUsersLoader.registerListener(LOADER_IGNOREDUSERS, this);
 		mIgnoredUsersLoader.startLoading();
-
 
 		try {
 			SocketIO.setDefaultSSLSocketFactory(new TLSSocketFactory());
@@ -506,6 +503,7 @@ public class BerryTube extends Service implements Loader.OnLoadCompleteListener<
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
+
 					openSocket();
 				}
 			}, 30 * 1000);
