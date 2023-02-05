@@ -1,15 +1,15 @@
-BerryTube
-=========
+# Development has moved to [BTDev/BerryTubeAndroid](https://github.com/BTDev/BerryTubeAndroid)
 
-Download
---------
-https://play.google.com/store/apps/details?id=com.trellmor.berrytubechat
+# BerryTube
 
-Support
--------
+## Download
+
+~https://play.google.com/store/apps/details?id=com.trellmor.berrytubechat~
+
+## Support
+
 irc://irc.canternet.org/BerryCode
 
-Contributors
-------------
+## Contributors
 
 * Toastdeib
